@@ -24,7 +24,12 @@ dumpitem.py
 # pycache files
 *.pyc
 *.sav
+*.dsv
+*.state
+*.dst
 .venv
+rom.nds
+test.nds
 
 
 /armips/asm/offset.s
