@@ -143,6 +143,11 @@ endif
 ifeq ($(STAGE3E1_APPEND),Y)
     WORLD_INSTALL_ARGS := --fixture fixtures/stage3e1_narc_append_world.json --output build/stage3e1/generated
 endif
+ifeq ($(STAGE3E2_HEADER),Y)
+    CFLAGS += -DSTAGE3E2_HEADER_TEST
+    WORLD_INSTALL_ARGS := --fixture fixtures/stage3e2_header_expansion_world.json --output build/stage3e2/generated
+    PROJECT_HEADER_INCLUDE := include/constants/generated/project_map_headers.h
+endif
 
 ####################### Output #######################
 C_SUBDIR = src
@@ -166,6 +171,13 @@ ASM_SRCS := $(wildcard $(ASM_SUBDIR)/*.s)
 ALL_ASM_SRCS += $(ASM_SRCS)
 ASM_OBJS := $(patsubst $(ASM_SUBDIR)/%.s,$(BUILD)/%.o,$(ASM_SRCS))
 OBJS     := $(C_OBJS) $(ASM_OBJS)
+
+ifeq ($(STAGE3E2_HEADER),Y)
+$(PROJECT_HEADER_INCLUDE): fixtures/stage3e2_header_expansion_world.json world/registry.json tools/pokeagent/world.py tools/pokeagent/registry.py tools/pokeagent/cli.py $(VENV_ACTIVATE)
+	$(PYTHON) -m tools.pokeagent map headers --fixture fixtures/stage3e2_header_expansion_world.json --output $@
+
+$(OBJS): $(PROJECT_HEADER_INCLUDE)
+endif
 
 REQUIRED_DIRECTORIES += $(BASE) $(BUILD) $(BUILD_NARC)
 
@@ -391,6 +403,11 @@ stage3d-geometry-proof:
 stage3e1-narc-append-proof:
 	$(MAKE) clean
 	$(MAKE) STAGE2_MAP=Y STAGE3E1_APPEND=Y
+
+.PHONY: stage3e2-header-expansion-proof
+stage3e2-header-expansion-proof:
+	$(MAKE) clean
+	$(MAKE) STAGE2_MAP=Y STAGE3E2_HEADER=Y
 
 ALL_CODE_OBJS := $(patsubst $(C_SUBDIR)/%.c,$(BUILD)/%.o,$(ALL_C_SRCS)) \
  $(patsubst $(ASM_SUBDIR)/%.s,$(BUILD)/%.o,$(ALL_ASM_SRCS)) \

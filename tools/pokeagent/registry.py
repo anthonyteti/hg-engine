@@ -24,17 +24,19 @@ DEFAULT_REGISTRY = PROJECT_ROOT / "world" / "registry.json"
 DEFAULT_INVENTORY = PROJECT_ROOT / "build" / "registry" / "slot-inventory.json"
 CLASSIFICATIONS = {
     "APPEND_PROVEN",
+    "HEADER_EXPANSION_PROVEN",
     "KNOWN_FREE",
     "CONTROLLED_REPLACEMENT",
     "ENGINE_OWNED",
     "PROJECT_APPENDED",
+    "PROJECT_HEADER",
     "PROJECT_ALLOCATED",
     "VANILLA_OWNED",
     "RESERVED",
     "UNKNOWN",
 }
 WRITABLE_CLASSIFICATIONS = {
-    "KNOWN_FREE", "CONTROLLED_REPLACEMENT", "PROJECT_ALLOCATED", "PROJECT_APPENDED",
+    "KNOWN_FREE", "CONTROLLED_REPLACEMENT", "PROJECT_ALLOCATED", "PROJECT_APPENDED", "PROJECT_HEADER",
 }
 SYMBOL_PATTERN = re.compile(r"^[a-z][a-z0-9_]*$")
 
@@ -145,6 +147,21 @@ def validate_registry(registry: dict[str, Any]) -> dict[str, Any]:
                     f"collision domain {collision_domain} has inconsistent append evidence",
                 )
 
+        header_expansion = namespace.get("header_expansion")
+        if header_expansion is not None:
+            expected_keys = {"retail_count", "entry_size", "allocation_start", "proven_max_id", "policy"}
+            if not isinstance(header_expansion, dict) or set(header_expansion) != expected_keys:
+                raise RegistryError("invalid_header_expansion", f"namespace {namespace_name} has malformed expansion metadata")
+            if (
+                namespace_name != "map_headers"
+                or header_expansion["retail_count"] != 540
+                or header_expansion["entry_size"] != 24
+                or header_expansion["allocation_start"] != 540
+                or not isinstance(header_expansion["proven_max_id"], int)
+                or header_expansion["proven_max_id"] < 540
+                or header_expansion["policy"] != "contiguous_from_retail_boundary"
+            ):
+                raise RegistryError("header_expansion_evidence_mismatch", "map-header expansion policy disagrees with verified retail layout")
         previous_end = numeric_min - 1
         for range_spec in namespace.get("ranges", []):
             if not isinstance(range_spec, dict):
@@ -186,6 +203,16 @@ def validate_registry(registry: dict[str, Any]) -> dict[str, Any]:
                         "invalid_appended_id",
                         f"namespace {namespace_name} appended ID {numeric_id} is outside its proven window",
                     )
+            if override["classification"] == "PROJECT_HEADER":
+                if header_expansion is None:
+                    raise RegistryError("unproven_header_expansion", f"namespace {namespace_name} cannot own project headers")
+                underlying, _ = _range_classification(namespace, numeric_id)
+                if (
+                    underlying != "HEADER_EXPANSION_PROVEN"
+                    or numeric_id < header_expansion["allocation_start"]
+                    or numeric_id > header_expansion["proven_max_id"]
+                ):
+                    raise RegistryError("invalid_project_header", f"project header {numeric_id} is outside its proven window")
 
         resources = namespace.get("resources", [])
         if not isinstance(resources, list):
@@ -247,6 +274,18 @@ def validate_registry(registry: dict[str, Any]) -> dict[str, Any]:
                     f"collision domain {collision_domain} has a gap in persistent appended ownership",
                     expected=expected, actual=appended_ids,
                 )
+    header_namespace = namespaces.get("map_headers", {})
+    header_expansion = header_namespace.get("header_expansion")
+    if header_expansion is not None:
+        project_ids = sorted(
+            resource["id"] for resource in header_namespace.get("resources", [])
+            if resource.get("access", "write") == "write"
+            and _slot_classification(header_namespace, resource["id"])[0] == "PROJECT_HEADER"
+        )
+        if project_ids:
+            expected = list(range(header_expansion["allocation_start"], project_ids[-1] + 1))
+            if project_ids != expected:
+                raise RegistryError("header_expansion_gap", "project map-header ownership must remain contiguous", expected=expected, actual=project_ids)
     return registry
 
 
@@ -544,8 +583,11 @@ def resolve_stage3e1_source(
     registry_path: Path = DEFAULT_REGISTRY,
 ) -> dict[str, Any]:
     """Resolve the symbolic two-cell NARC-append proof into serializer inputs."""
-    if source.get("schema_version") != 6 or source.get("artifact_namespace") != "stage3e1":
-        raise RegistryError("unsupported_world_schema", "Stage 3E1 symbolic source must use schema 6")
+    schema_version = source.get("schema_version")
+    namespace = source.get("artifact_namespace")
+    if (schema_version, namespace) not in ((6, "stage3e1"), (7, "stage3e2")):
+        raise RegistryError("unsupported_world_schema", "symbolic append/header source must use Stage 3E1 schema 6 or Stage 3E2 schema 7")
+    stage = "Stage 3E2" if schema_version == 7 else "Stage 3E1"
     registry = load_registry(registry_path)
     declared_registry = source.get("registry")
     declared_path = (PROJECT_ROOT / declared_registry).resolve() if isinstance(declared_registry, str) else None
@@ -556,7 +598,7 @@ def resolve_stage3e1_source(
     def resolve(reference: object, namespace: str, *, writable: bool = True) -> int:
         if not isinstance(reference, str):
             raise RegistryError(
-                "numeric_reference", f"Stage 3E1 {namespace} references must be symbolic strings",
+                "numeric_reference", f"{stage} {namespace} references must be symbolic strings",
                 namespace=namespace, value=reference,
             )
         result = resolve_symbol(registry, reference, namespace, require_writable=writable)
@@ -568,20 +610,20 @@ def resolve_stage3e1_source(
         "id", "append_probe", "width", "height", "name", "cells", "altitudes", "external_boundaries",
     }
     if not isinstance(matrix, dict) or set(matrix) != required_matrix:
-        raise RegistryError("invalid_matrix", "Stage 3E1 requires one exact symbolic matrix declaration")
+        raise RegistryError("invalid_matrix", f"{stage} requires one exact symbolic matrix declaration")
     if matrix["width"] != 2 or matrix["height"] != 1 or matrix["altitudes"] != [0, 0]:
-        raise RegistryError("invalid_matrix_dimensions", "Stage 3E1 proof matrix must be exactly 2x1")
+        raise RegistryError("invalid_matrix_dimensions", f"{stage} proof matrix must be exactly 2x1")
     cells = matrix["cells"]
     if not isinstance(cells, list) or len(cells) != 2 or len(set(cells)) != 2:
-        raise RegistryError("invalid_matrix_cells", "Stage 3E1 matrix needs two unique map cells")
+        raise RegistryError("invalid_matrix_cells", f"{stage} matrix needs two unique map cells")
     matrix_id = resolve(matrix["id"], "matrices")
     matrix_probe_id = resolve(matrix["append_probe"], "matrices")
     if matrix_probe_id != matrix_id + 1:
-        raise RegistryError("append_gap", "Stage 3E1 matrix probe must immediately follow the active matrix")
+        raise RegistryError("append_gap", f"{stage} matrix probe must immediately follow the active matrix")
 
     maps = source.get("maps")
     if not isinstance(maps, dict) or set(maps) != set(cells):
-        raise RegistryError("dangling_map", "Stage 3E1 matrix cells and maps must match")
+        raise RegistryError("dangling_map", f"{stage} matrix cells and maps must match")
     aliases_by_cell = {(0, 0): "west", (0, 1): "east"}
     aliases_by_symbol: dict[str, str] = {}
     resolved_maps: dict[str, dict[str, Any]] = {}
@@ -592,15 +634,15 @@ def resolve_stage3e1_source(
     for map_symbol in cells:
         map_spec = maps[map_symbol]
         if not isinstance(map_spec, dict) or set(map_spec) != required_map:
-            raise RegistryError("invalid_map", f"Stage 3E1 map {map_symbol!r} has unsupported fields")
+            raise RegistryError("invalid_map", f"{stage} map {map_symbol!r} has unsupported fields")
         cell = map_spec["cell"]
         if not isinstance(cell, dict) or set(cell) != {"row", "column"}:
-            raise RegistryError("invalid_map_cell", f"Stage 3E1 map {map_symbol!r} has malformed coordinates")
+            raise RegistryError("invalid_map_cell", f"{stage} map {map_symbol!r} has malformed coordinates")
         alias = aliases_by_cell.get((cell["row"], cell["column"]))
         if alias is None or alias in resolved_maps:
-            raise RegistryError("invalid_map_cell", f"Stage 3E1 map {map_symbol!r} has duplicate/impossible coordinates")
+            raise RegistryError("invalid_map_cell", f"{stage} map {map_symbol!r} has duplicate/impossible coordinates")
         if map_spec["matrix"] != matrix["id"]:
-            raise RegistryError("wrong_matrix_reference", f"Stage 3E1 map {map_symbol!r} points at the wrong matrix")
+            raise RegistryError("wrong_matrix_reference", f"{stage} map {map_symbol!r} points at the wrong matrix")
         resolve(map_spec["matrix"], "matrices")
         aliases_by_symbol[map_symbol] = alias
         npc = copy.deepcopy(map_spec["npc"])
@@ -620,7 +662,7 @@ def resolve_stage3e1_source(
             "npc": npc,
         }
     if [aliases_by_symbol[symbol] for symbol in cells] != ["west", "east"]:
-        raise RegistryError("invalid_matrix_order", "Stage 3E1 cells must be row-major west then east")
+        raise RegistryError("invalid_matrix_order", f"{stage} cells must be row-major west then east")
 
     model = copy.deepcopy(source.get("model", {}))
     model["template_map_member"] = resolve(model.get("template_map_member"), "map_members", writable=False)
@@ -629,18 +671,39 @@ def resolve_stage3e1_source(
     start_script = resolve(source.get("resources", {}).get("start_script"), "common_scripts")
     start = copy.deepcopy(source.get("player_start", {}))
     if start.get("map") not in aliases_by_symbol:
-        raise RegistryError("unknown_reference", "Stage 3E1 player start references an undeclared map")
+        raise RegistryError("unknown_reference", f"{stage} player start references an undeclared map")
     start["map"] = aliases_by_symbol[start["map"]]
 
     resolved_matrix = copy.deepcopy(matrix)
     for key in ("id", "append_probe"):
         del resolved_matrix[key]
     resolved_matrix["cells"] = [aliases_by_symbol[symbol] for symbol in cells]
+    resolved_warps = []
+    for warp in source.get("warps", []):
+        if not isinstance(warp, dict) or set(warp) != {"map", "local_x", "local_z", "destination_map", "destination_warp"}:
+            raise RegistryError("invalid_warp", f"{stage} contains a malformed warp")
+        if warp["map"] not in aliases_by_symbol or warp["destination_map"] not in aliases_by_symbol:
+            raise RegistryError("unknown_reference", f"{stage} warp references an undeclared map")
+        resolved_warps.append({
+            "map": aliases_by_symbol[warp["map"]],
+            "local_x": warp["local_x"],
+            "local_z": warp["local_z"],
+            "destination_header": resolved_maps[aliases_by_symbol[warp["destination_map"]]]["map_header"],
+            "destination_warp": warp["destination_warp"],
+        })
+    if schema_version == 7:
+        header_ids = [resolved_maps[name]["map_header"] for name in ("west", "east")]
+        if header_ids != [540, 541]:
+            raise RegistryError("invalid_project_header", "Stage 3E2 must own contiguous project headers 540 and 541")
+        for map_symbol in cells:
+            result = resolutions[maps[map_symbol]["map_header"]]
+            if result["classification"] != "PROJECT_HEADER":
+                raise RegistryError("invalid_project_header", "Stage 3E2 map headers must resolve to PROJECT_HEADER ownership")
     return {
-        "schema_version": 6,
-        "canonical_schema_version": 6,
+        "schema_version": schema_version,
+        "canonical_schema_version": schema_version,
         "id": source.get("id"),
-        "artifact_namespace": "stage3e1",
+        "artifact_namespace": namespace,
         "dimensions": copy.deepcopy(source.get("dimensions")),
         "world": {"matrix": resolved_matrix},
         "maps": resolved_maps,
@@ -648,7 +711,8 @@ def resolve_stage3e1_source(
         "model": model,
         "terrain": copy.deepcopy(source.get("terrain")),
         "player_start": start,
-        "warps": copy.deepcopy(source.get("warps")),
+        "warps": resolved_warps,
+        "header_profile": copy.deepcopy(source.get("header_profile")) if schema_version == 7 else None,
         "header_template": header_template,
         "registry_resolution": {
             "schema_version": 1,
@@ -792,6 +856,71 @@ def allocate_appended_resource(
     namespace["resources"].sort(key=lambda item: item["symbol"])
     validate_registry(registry)
     return registry, resolve_symbol(registry, symbol, namespace_name)
+
+
+def allocate_project_header(
+    registry: dict[str, Any],
+    symbol: str,
+    rom_path: Path,
+    pinned_id: int | None = None,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Persist one contiguous, revision-locked map header beyond retail ID 539."""
+    registry = copy.deepcopy(validate_registry(registry))
+    verify_rom_revision(registry, rom_path)
+    if not isinstance(symbol, str) or not SYMBOL_PATTERN.fullmatch(symbol):
+        raise RegistryError("invalid_symbol", f"invalid allocation symbol {symbol!r}")
+    try:
+        resolve_symbol(registry, symbol, require_writable=False)
+    except RegistryError as error:
+        if error.code != "unknown_reference":
+            raise
+    else:
+        raise RegistryError("duplicate_symbol", f"symbol {symbol} already exists")
+
+    namespace = registry["namespaces"].get("map_headers")
+    if namespace is None or namespace.get("header_expansion") is None:
+        raise RegistryError("unproven_header_expansion", "map_headers has no expansion-proven window")
+    expansion = namespace["header_expansion"]
+    occupied = {
+        resource["id"] for resource in namespace.get("resources", [])
+        if resource.get("access", "write") == "write"
+    }
+    next_id = expansion["allocation_start"]
+    while next_id in occupied:
+        next_id += 1
+    if pinned_id is not None:
+        if not isinstance(pinned_id, int):
+            raise RegistryError("invalid_header_pin", "project-header manual pins must be integers")
+        if pinned_id < expansion["allocation_start"]:
+            raise RegistryError(
+                "header_below_expansion_boundary",
+                f"project header {pinned_id} is below expansion boundary {expansion['allocation_start']}",
+            )
+        if pinned_id != next_id:
+            raise RegistryError(
+                "noncontiguous_header_pin",
+                f"project-header pin {pinned_id} would skip or collide with next ID {next_id}",
+            )
+    numeric_id = next_id if pinned_id is None else pinned_id
+    if numeric_id > expansion["proven_max_id"]:
+        raise RegistryError(
+            "header_allocation_exhausted",
+            "map-header expansion-proven window is exhausted",
+        )
+    if _range_classification(namespace, numeric_id)[0] != "HEADER_EXPANSION_PROVEN":
+        raise RegistryError(
+            "unproven_header_expansion", f"ID {numeric_id} is outside the expansion-proven range",
+        )
+    namespace.setdefault("slot_overrides", {})[str(numeric_id)] = {
+        "classification": "PROJECT_HEADER",
+        "evidence": "persistent contiguous allocation from the Stage 3E2 expansion-proven window",
+    }
+    namespace.setdefault("resources", []).append({
+        "symbol": symbol, "id": numeric_id, "access": "write",
+    })
+    namespace["resources"].sort(key=lambda item: item["symbol"])
+    validate_registry(registry)
+    return registry, resolve_symbol(registry, symbol, "map_headers")
 
 
 def verify_rom_revision(registry: dict[str, Any], rom_path: Path) -> dict[str, Any]:

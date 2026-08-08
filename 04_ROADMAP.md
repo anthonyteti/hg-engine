@@ -115,6 +115,17 @@ Acceptance:
 
 The agent can modify a test map, rebuild, launch, inspect evidence, and fix an error without human emulator interaction.
 
+## Completed infrastructure checkpoint: Stage 3E2
+
+The revision-locked hybrid map-header layer has been proven for project IDs
+540 and 541. It preserves all retail headers, resolves symbolic project
+records into a resident generated table, and passes native traversal, warp,
+normal save/reset/Continue, determinism, and prior-stage regressions. This is
+the final header-capacity proof; it does not begin content production or add
+optional Town Map/Fly registrations.
+
+See `docs/STAGE_3E2_TECHNICAL_REPORT.md`.
+
 ## Stage 5: Modern roster proof
 
 Do not add hundreds of species at once.

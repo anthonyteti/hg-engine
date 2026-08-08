@@ -329,3 +329,27 @@ The bounded proof uses `fixtures/stage2_proof_map.json` as canonical input and `
 `tools.pokeagent.world_emulator` runs in the existing subprocess safety boundary. It follows the normal new-game initialization, lets a test-only hook queue the controlled warp, and asserts live location/event memory plus screenshot changes. The hook and its diagnostic symbols are compiled only with `STAGE2_MAP=Y`.
 
 This is proof infrastructure, not the final world DSL or a general NSBMD compiler.
+
+## Expanded map-header layer
+
+Stage 3E2 keeps project header allocation above the retail fixed boundary in
+the registry layer:
+
+```text
+symbolic schema-7 world
+  -> revision-locked registry (PROJECT_HEADER)
+  -> complete deterministic 24-byte header records
+  -> contiguous resident project table
+  -> hybrid O(1) accessor (retail below 540, project at/above 540)
+  -> existing field/matrix/event/script/text runtime
+```
+
+The retail header array remains unmodified. The 27 public accessors that read
+it directly are redirected at their entry points; derived helpers continue to
+use those public functions. Binary serializers know only resolved field values,
+while allocation/provenance stays centralized in `tools.pokeagent.registry`.
+
+The current proven window is deliberately only IDs 540 and 541. Optional
+vanilla UI/static tables do not automatically acquire project-map entries and
+must be registered by later scoped systems. See
+`docs/knowledge/hgss-stage3e2-map-header-expansion.md`.

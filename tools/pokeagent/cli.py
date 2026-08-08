@@ -19,7 +19,10 @@ from .registry import (
     write_inventory,
 )
 from .rom import PROJECT_ROOT, build_rom, run_preflight
-from .world import DEFAULT_FIXTURE, DEFAULT_OUTPUT, generate_world, inspect_geometry, load_fixture, verify_determinism
+from .world import (
+    DEFAULT_FIXTURE, DEFAULT_OUTPUT, generate_world, inspect_geometry, load_fixture,
+    verify_determinism, write_project_header_include,
+)
 from .world_emulator import run_world_test
 
 
@@ -83,6 +86,10 @@ def build_parser() -> argparse.ArgumentParser:
     geometry_inspect = geometry_subparsers.add_parser("inspect", help="validate IR and report shape budgets")
     geometry_inspect.add_argument("--fixture", type=Path, required=True)
     _add_output_argument(geometry_inspect)
+    headers_parser = map_subparsers.add_parser("headers", help="generate the Stage 3E2 project-header include")
+    headers_parser.add_argument("--fixture", type=Path, required=True)
+    headers_parser.add_argument("--output", type=Path, required=True)
+    _add_output_argument(headers_parser)
 
     registry_parser = subparsers.add_parser("registry", help="validate and inspect stable symbolic IDs")
     registry_subparsers = registry_parser.add_subparsers(dest="registry_command", required=True)
@@ -240,6 +247,9 @@ def main(argv: list[str] | None = None) -> int:
             _print_json(payload) if args.json else _print_map(payload)
         elif args.command == "map" and args.map_command == "test":
             payload = run_world_test(PROJECT_ROOT, args.fixture, args.timeout)
+            _print_json(payload) if args.json else _print_map(payload)
+        elif args.command == "map" and args.map_command == "headers":
+            payload = write_project_header_include(args.fixture, args.output)
             _print_json(payload) if args.json else _print_map(payload)
         elif args.command == "map" and args.map_command == "geometry" and args.geometry_command == "inspect":
             payload = inspect_geometry(args.fixture, PROJECT_ROOT)

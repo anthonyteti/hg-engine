@@ -144,3 +144,22 @@ separate kill gate.
 
 See `docs/STAGE_3E1_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage3e1-narc-append.md`.
+
+## Stage 3E2 decision: hybrid resident map-header expansion
+
+Preserve the retail 540-entry map-header table byte-for-byte and route its 27
+direct public accessors through a project-owned constant-time selector. IDs
+0--539 retain retail behavior; revision-locked project IDs start at 540 and
+index a deterministic resident table generated from symbolic registry source.
+Do not perform per-lookup NARC I/O or bless retail-looking slots as free.
+
+`HEADER_EXPANSION_PROVEN` and `PROJECT_HEADER` remain distinct from vanilla and
+controlled-replacement ownership. The current emulator-tested allocation
+window is 540--541; extending it requires an explicit registry/window change.
+Normal loading, native adjacency, scripts/events/text, warp, and real
+save/reset/Continue were verified. Optional Town Map/Fly and special-mode
+registrations remain future content-system work, not a core field blocker.
+
+See `docs/STAGE_3E2_TECHNICAL_REPORT.md`,
+`docs/knowledge/hgss-stage3e2-map-header-expansion.md`, and
+`docs/knowledge/hgss-stage3e2-map-id-width-audit.md`.

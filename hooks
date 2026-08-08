@@ -1,6 +1,38 @@
 #include "include/config.h"
 #include "include/debug.h"
 
+#ifdef STAGE3E2_HEADER_TEST
+# Hybrid retail/project map-header lookup. Register 3 is caller-scratch and
+# permits the bounded eight-byte Thumb trampoline at each retail accessor.
+arm9 ExpandedMapHeader_GetAreaDataBank 0203B27C 3
+arm9 ExpandedMapHeader_GetMoveModelBank 0203B290 3
+arm9 ExpandedMapHeader_GetMatrixId 0203B2AC 3
+arm9 ExpandedMapHeader_GetMsgBank 0203B2C0 3
+arm9 ExpandedMapHeader_GetScriptsBank 0203B2D4 3
+arm9 ExpandedMapHeader_GetScriptHeaderBank 0203B2E8 3
+arm9 ExpandedMapHeader_GetDayMusicId 0203B2FC 3
+arm9 ExpandedMapHeader_GetNightMusicId 0203B310 3
+arm9 ExpandedMapHeader_HasWildEncounters 0203B324 3
+arm9 ExpandedMapHeader_GetWildEncounterBank 0203B344 3
+arm9 ExpandedMapHeader_GetEventsBank 0203B358 3
+arm9 ExpandedMapHeader_GetMapSec 0203B36C 3
+arm9 ExpandedMapHeader_GetAreaIcon 0203B388 3
+arm9 ExpandedMapHeader_GetMomCallIntroParam 0203B3A8 3
+arm9 ExpandedMapHeader_GetRegionNo 0203B3C8 3
+arm9 ExpandedMapHeader_GetWeatherType 0203B3E4 3
+arm9 ExpandedMapHeader_GetCameraType 0203B400 3
+arm9 ExpandedMapHeader_GetBattleBg 0203B41C 3
+arm9 ExpandedMapHeader_IsEscapeRopeAllowed 0203B438 3
+arm9 ExpandedMapHeader_IsFlyAllowed 0203B454 3
+arm9 ExpandedMapHeader_IsBikeAllowed 0203B470 3
+arm9 ExpandedMapHeader_CanPlacePhoneCalls 0203B48C 3
+arm9 ExpandedMapHeader_CanReceivePhoneCalls 0203B4A8 3
+arm9 ExpandedMapHeader_CanReceiveRadioSignal 0203B4C4 3
+arm9 ExpandedMapHeader_GetMapType 0203B4DC 3
+arm9 ExpandedMapHeader_GetFollowMode 0203B4F8 3
+arm9 ExpandedMapHeader_GetWorldMapCoords 0203B518 3
+#endif
+
 #overlay 1 is loaded in at 021E5900
 #overlay 2 is loaded in at 02245B80
 #overlay 12 is loaded in at 022378C0

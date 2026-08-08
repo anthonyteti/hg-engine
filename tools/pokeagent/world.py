@@ -1,4 +1,4 @@
-"""Deterministic HGSS world-proof generator for Stages 2 through 3D.
+"""Deterministic HGSS world-proof generator for Stages 2 through 3E2.
 
 This intentionally implements only the binary subset required by the fixture.
 The NSBMD writer is a hash-locked, user-local template transformer: it preserves
@@ -84,14 +84,22 @@ def load_fixture(path: Path = DEFAULT_FIXTURE) -> dict[str, Any]:
         if not isinstance(registry_reference, str):
             raise WorldBuildError("Stage 3E1 fixture must declare a symbolic registry path")
         fixture = resolve_stage3e1_source(fixture, PROJECT_ROOT / registry_reference)
+    elif fixture.get("schema_version") == 7:
+        registry_reference = fixture.get("registry")
+        if not isinstance(registry_reference, str):
+            raise WorldBuildError("Stage 3E2 fixture must declare a symbolic registry path")
+        fixture = resolve_stage3e1_source(fixture, PROJECT_ROOT / registry_reference)
     validate_fixture(fixture)
     return fixture
 
 
 def validate_fixture(fixture: dict[str, Any]) -> None:
     schema_version = fixture.get("schema_version")
-    if schema_version not in (1, 2, 3, 5, 6):
-        raise WorldBuildError("only resolved Stage 2 through Stage 3E1 schemas are supported")
+    if schema_version not in (1, 2, 3, 5, 6, 7):
+        raise WorldBuildError("only resolved Stage 2 through Stage 3E2 schemas are supported")
+    if schema_version == 7:
+        _validate_stage3e2_fixture(fixture)
+        return
     if schema_version == 6:
         _validate_stage3e1_fixture(fixture)
         return
@@ -229,6 +237,36 @@ def _validate_stage3e1_fixture(fixture: dict[str, Any]) -> None:
         raise WorldBuildError("Stage 3E1 controlled start must begin in the west member")
     if fixture.get("warps") != []:
         raise WorldBuildError("Stage 3E1 native adjacency must not use event warps")
+
+
+def _validate_stage3e2_fixture(fixture: dict[str, Any]) -> None:
+    if fixture.get("artifact_namespace") != "stage3e2" or fixture.get("canonical_schema_version") != 7:
+        raise WorldBuildError("resolved Stage 3E2 source must preserve schema and artifact identity")
+    if fixture.get("dimensions") != {"width": 32, "height": 32}:
+        raise WorldBuildError("Stage 3E2 members remain limited to 32x32")
+    matrix = fixture.get("world", {}).get("matrix", {})
+    if matrix != {
+        "width": 2, "height": 1, "name": "stage3e2-headers",
+        "cells": ["west", "east"], "altitudes": [0, 0], "external_boundaries": "blocked",
+    }:
+        raise WorldBuildError("Stage 3E2 requires the bounded west/east 2x1 matrix")
+    if fixture.get("slots") != {"matrix": 288, "matrix_probe": 289, "start_script": 3}:
+        raise WorldBuildError("Stage 3E2 must reuse the append-proven resource window")
+    maps = fixture.get("maps")
+    if not isinstance(maps, dict) or tuple(maps) != STAGE3E1_CELL_ORDER:
+        raise WorldBuildError("Stage 3E2 maps must resolve in deterministic west/east order")
+    expected_headers = {"west": 540, "east": 541}
+    for name in STAGE3E1_CELL_ORDER:
+        spec = maps[name]
+        if spec.get("map_header") != expected_headers[name]:
+            raise WorldBuildError(f"Stage 3E2 {name} must use its contiguous project header")
+        if spec.get("map_member") not in (676, 677) or spec.get("event") not in (491, 492):
+            raise WorldBuildError(f"Stage 3E2 {name} must use append-proven map/event resources")
+    if fixture.get("player_start") != {"map": "west", "local_x": 16, "local_z": 16, "direction": 3}:
+        raise WorldBuildError("Stage 3E2 controlled start must begin in project header 540")
+    if fixture.get("warps") != []:
+        raise WorldBuildError("Stage 3E2 reserves A-to-B movement for native adjacency")
+    _encode_header_flags(fixture.get("header_profile"))
 
 
 def _validate_stage3b_fixture(fixture: dict[str, Any]) -> None:
@@ -559,7 +597,7 @@ def split_hgss_map_member(member: bytes) -> dict[str, bytes]:
 def _build_bgs(fixture: dict[str, Any], template_bgs: bytes) -> bytes:
     if len(template_bgs) < 4:
         raise WorldBuildError("template BGS section is missing its four-byte header")
-    if fixture["schema_version"] not in (3, 6):
+    if fixture["schema_version"] not in (3, 6, 7):
         return template_bgs
     # The BGS header's second u16 is its payload length.  The Stage 2
     # physical invariant places PER immediately after this four-byte header
@@ -587,7 +625,7 @@ def build_per(fixture: dict[str, Any], map_name: str | None = None) -> bytes:
         return compile_geometry(fixture["geometry"])["per"]
     terrain = fixture["terrain"]
     output = bytearray()
-    if fixture["schema_version"] in (3, 6):
+    if fixture["schema_version"] in (3, 6, 7):
         if map_name not in fixture["maps"]:
             raise WorldBuildError("multi-map PER generation requires a declared map name")
         map_spec = fixture["maps"][map_name]
@@ -596,14 +634,20 @@ def build_per(fixture: dict[str, Any], map_name: str | None = None) -> bytes:
     else:
         blocked = {tuple(tile) for tile in terrain.get("blocked_tiles", [])}
         open_border = set()
-    warps = {(warp["x"], warp["z"]) for warp in fixture.get("warps", [])}
+    if fixture["schema_version"] == 7:
+        warps = {
+            (warp["local_x"], warp["local_z"])
+            for warp in fixture.get("warps", []) if warp["map"] == map_name
+        }
+    else:
+        warps = {(warp["x"], warp["z"]) for warp in fixture.get("warps", [])}
     # HGSS PER is row-major (Z, then X), with the permission byte immediately
     # followed by the walkability byte. PDSMS names these row/column loops
     # j/k; DSPRE stores them in its first/second rectangular-array indices.
     for z in range(32):
         for x in range(32):
             is_border = (x in (0, 31) or z in (0, 31)) and (x, z) not in open_border
-            if fixture["schema_version"] not in (3, 6):
+            if fixture["schema_version"] not in (3, 6, 7):
                 is_border = terrain["block_border"] and is_border
             collision = terrain["blocked_collision"] if is_border or (x, z) in blocked else terrain["walkable_collision"]
             permission = terrain.get("warp_permission_type", terrain["permission_type"]) if (x, z) in warps else terrain["permission_type"]
@@ -710,7 +754,7 @@ def build_map_member(
 
 
 def build_matrix(fixture: dict[str, Any]) -> bytes:
-    if fixture["schema_version"] in (3, 6):
+    if fixture["schema_version"] in (3, 6, 7):
         matrix = fixture["world"]["matrix"]
         name = matrix["name"].encode("ascii")
         cells = [fixture["maps"][cell] for cell in matrix["cells"]]
@@ -731,7 +775,7 @@ def build_matrix(fixture: dict[str, Any]) -> bytes:
 
 
 def build_event(fixture: dict[str, Any], map_name: str | None = None) -> bytes:
-    if fixture["schema_version"] == 6:
+    if fixture["schema_version"] in (6, 7):
         if map_name not in fixture["maps"]:
             raise WorldBuildError("Stage 3E1 event generation requires a declared map name")
         spec = fixture["maps"][map_name]
@@ -745,7 +789,13 @@ def build_event(fixture: dict[str, Any], map_name: str | None = None) -> bytes:
             npc["local_id"], npc["graphics_id"], npc["movement_type"], 0, 0,
             npc["script_index"], npc["direction"], 0, 0, 0, 0, 0, x, z, 0,
         )
-        output += struct.pack("<II", 0, 0)
+        map_warps = [warp for warp in fixture.get("warps", []) if warp["map"] == map_name]
+        output += struct.pack("<I", len(map_warps))
+        for warp in map_warps:
+            x = spec["cell"]["column"] * MAP_TILES + warp["local_x"]
+            z = spec["cell"]["row"] * MAP_TILES + warp["local_z"]
+            output += struct.pack("<4HI", x, z, warp["destination_header"], warp["destination_warp"], 0)
+        output += struct.pack("<I", 0)
         return bytes(output)
     if fixture["schema_version"] in (2, 3, 5):
         return struct.pack("<4I", 0, 0, 0, 0)
@@ -765,7 +815,7 @@ def build_event(fixture: dict[str, Any], map_name: str | None = None) -> bytes:
 
 
 def _map_header_id(fixture: dict[str, Any], map_name: str | None) -> int:
-    if fixture["schema_version"] in (3, 6):
+    if fixture["schema_version"] in (3, 6, 7):
         if map_name not in fixture["maps"]:
             raise WorldBuildError("Stage 3B map-header generation requires a declared map name")
         return fixture["maps"][map_name]["map_header"]
@@ -778,6 +828,19 @@ def build_map_header(
     map_name: str | None = None,
 ) -> bytes:
     slots = fixture["slots"]
+    if fixture["schema_version"] == 7:
+        if map_name not in fixture["maps"]:
+            raise WorldBuildError("Stage 3E2 header generation requires a declared map name")
+        banks = fixture["maps"][map_name]
+        profile = fixture["header_profile"]
+        output = bytearray(MAP_HEADER_SIZE)
+        output[0] = profile["wild_encounter_bank"]
+        output[1] = fixture["model"]["area_data"]
+        struct.pack_into("<H", output, 2, profile["move_model_bank"] | (profile["world_map_x"] << 4) | (profile["world_map_y"] << 10))
+        struct.pack_into("<7H", output, 4, fixture["slots"]["matrix"], banks["script"], banks["script_header"], banks["text"], profile["day_music"], profile["night_music"], banks["event"])
+        struct.pack_into("<H", output, 18, profile["map_section"] | (profile["area_icon"] << 8) | (profile["mom_call_intro"] << 12))
+        struct.pack_into("<I", output, 20, _encode_header_flags(profile))
+        return bytes(output)
     template_id = fixture["header_template"]
     template_offset = HGSS_US_HEADER_OFFSET + template_id * MAP_HEADER_SIZE
     if template_offset + MAP_HEADER_SIZE > len(arm9):
@@ -800,21 +863,62 @@ def build_map_header(
     return bytes(output)
 
 
+def _encode_header_flags(profile: object) -> int:
+    required = {
+        "wild_encounter_bank", "move_model_bank", "world_map_x", "world_map_y", "day_music", "night_music",
+        "map_section", "area_icon", "mom_call_intro", "region", "weather", "map_type", "camera",
+        "follow_mode", "battle_bg", "bike_allowed", "running_allowed", "escape_rope_allowed",
+        "fly_allowed", "outgoing_calls", "incoming_calls", "radio_signal",
+    }
+    if not isinstance(profile, dict) or set(profile) != required:
+        raise WorldBuildError("Stage 3E2 header profile has unsupported or missing fields")
+    widths = {
+        "wild_encounter_bank": 8, "move_model_bank": 4, "world_map_x": 6, "world_map_y": 6,
+        "day_music": 16, "night_music": 16, "map_section": 8, "area_icon": 4, "mom_call_intro": 4,
+        "region": 1, "weather": 7, "map_type": 4, "camera": 6, "follow_mode": 2, "battle_bg": 5,
+    }
+    for field, width in widths.items():
+        value = profile[field]
+        if not isinstance(value, int) or isinstance(value, bool) or not 0 <= value < (1 << width):
+            raise WorldBuildError(f"Stage 3E2 header field {field} exceeds its {width}-bit width")
+    boolean_fields = (
+        "bike_allowed", "running_allowed", "escape_rope_allowed", "fly_allowed",
+        "outgoing_calls", "incoming_calls", "radio_signal",
+    )
+    if any(not isinstance(profile[field], bool) for field in boolean_fields):
+        raise WorldBuildError("Stage 3E2 header capability fields must be booleans")
+    value = profile["region"] | (profile["weather"] << 1) | (profile["map_type"] << 8)
+    value |= profile["camera"] << 12 | profile["follow_mode"] << 18 | profile["battle_bg"] << 20
+    for bit, field in enumerate(boolean_fields, 25):
+        value |= int(profile[field]) << bit
+    return value
+
+
 def _write_script_source(
     fixture: dict[str, Any], source: Path, output: Path, map_name: str | None = None,
 ) -> None:
-    if fixture["schema_version"] == 6:
+    if fixture["schema_version"] in (6, 7):
         if map_name not in fixture["maps"]:
             raise WorldBuildError("Stage 3E1 script generation requires a declared map name")
         npc = fixture["maps"][map_name]["npc"]
+        save_command = (
+            "    save_game_normal 0x800C\n"
+            if fixture["schema_version"] == 7 and map_name == "east"
+            else ""
+        )
+        warp_command = (
+            f"    warp {fixture['maps']['west']['map_header']}, 0xFFFF, 16, 16, 3\n"
+            if fixture["schema_version"] == 7 and map_name == "east"
+            else ""
+        )
         source.write_text(
             ".nds\n.thumb\n\n"
             '.include "armips/include/scriptmacros.s"\n'
             '.include "armips/include/soundeffects.s"\n\n'
             f'.create "{output.as_posix()}", 0\n\n'
-            f"scrdef stage3e1_{map_name}_npc\n"
+            f"scrdef {fixture['artifact_namespace']}_{map_name}_npc\n"
             "scrdef_end\n\n"
-            f"stage3e1_{map_name}_npc:\n"
+            f"{fixture['artifact_namespace']}_{map_name}_npc:\n"
             "    play_se SEQ_SE_DP_SELECT\n"
             "    lockall\n"
             "    faceplayer\n"
@@ -822,7 +926,9 @@ def _write_script_source(
             "    npc_msg 0\n"
             "    wait_button_or_walk_away\n"
             "    closemsg\n"
+            f"{save_command}"
             "    releaseall\n"
+            f"{warp_command}"
             "    end\n\n.close\n",
             encoding="utf-8",
         )
@@ -873,7 +979,7 @@ def _write_script_source(
 def _write_start_script_source(fixture: dict[str, Any], source: Path, output: Path) -> None:
     start = fixture["player_start"]
     header = _map_header_id(fixture, start.get("map"))
-    if fixture["schema_version"] in (3, 6):
+    if fixture["schema_version"] in (3, 6, 7):
         map_spec = fixture["maps"][start["map"]]
         x = map_spec["cell"]["column"] * MAP_TILES + start["local_x"]
         z = map_spec["cell"]["row"] * MAP_TILES + start["local_z"]
@@ -933,7 +1039,10 @@ def _replace_narc_members(
         index for index, (before, after) in enumerate(zip(pristine_files, rebuilt.files))
         if before != after
     ]
-    expected_changed_retail = sorted(index for index in replacements if index < len(pristine_files))
+    expected_changed_retail = sorted(
+        index for index, member in replacements.items()
+        if index < len(pristine_files) and pristine_files[index] != member
+    )
     if changed_retail != expected_changed_retail:
         raise WorldBuildError("rebuilt NARC changed an undeclared pristine member")
     for member_id, expected in replacements.items():
@@ -1006,7 +1115,7 @@ def generate_world(
     rom_path = root / "rom.nds"
     if not rom_path.is_file():
         raise WorldBuildError("missing ignored user-supplied rom.nds template source")
-    if fixture.get("artifact_namespace") in ("stage3c", "stage3d", "stage3e1"):
+    if fixture.get("artifact_namespace") in ("stage3c", "stage3d", "stage3e1", "stage3e2"):
         registry_reference = fixture["registry_resolution"]["registry"]
         registry = load_registry(root / registry_reference)
         verify_rom_revision(registry, rom_path)
@@ -1021,7 +1130,7 @@ def generate_world(
         )
 
     matrix = build_matrix(fixture)
-    if fixture["schema_version"] == 6:
+    if fixture["schema_version"] in (6, 7):
         events = {name: build_event(fixture, name) for name in STAGE3E1_CELL_ORDER}
         map_members = {}
         model_info = {}
@@ -1054,6 +1163,19 @@ def generate_world(
                 f"events/{name}.bin": events[name],
                 f"headers/{name}.bin": map_headers[name],
             })
+        if fixture["schema_version"] == 7:
+            project_table = b"".join(map_headers[name] for name in STAGE3E1_CELL_ORDER)
+            validate_project_header_table(fixture, project_table)
+            raw_components["project-header-table.bin"] = project_table
+            raw_components["project-header-report.json"] = (
+                json.dumps({
+                    "retail_count": 540,
+                    "entry_size": MAP_HEADER_SIZE,
+                    "project_count": len(STAGE3E1_CELL_ORDER),
+                    "project_ids": [fixture["maps"][name]["map_header"] for name in STAGE3E1_CELL_ORDER],
+                    "sha256": sha256_bytes(project_table),
+                }, indent=2, sort_keys=True) + "\n"
+            ).encode("utf-8")
     else:
         event = build_event(fixture)
     if fixture["schema_version"] == 3:
@@ -1079,7 +1201,7 @@ def generate_world(
                 f"headers/{name}.bin": map_headers[name],
             })
         validate_stage3b_cross_references(fixture, matrix, map_headers)
-    elif fixture["schema_version"] != 6:
+    elif fixture["schema_version"] not in (6, 7):
         map_member, model_info = build_map_member(fixture, template)
         map_members = {"map": map_member}
         map_header = build_map_header(fixture, arm9)
@@ -1120,7 +1242,7 @@ def generate_world(
         path.write_bytes(data)
 
     stage_name = fixture.get("artifact_namespace") or {1: "stage2", 2: "stage3a", 3: "stage3b"}[fixture["schema_version"]]
-    if fixture["schema_version"] == 6:
+    if fixture["schema_version"] in (6, 7):
         script_outputs: dict[str, bytes] = {}
         script_header_outputs: dict[str, bytes] = {}
         text_outputs: dict[str, bytes] = {}
@@ -1154,7 +1276,7 @@ def generate_world(
     _write_start_script_source(fixture, start_script_source, start_script_output)
     _run_checked([str(root / "tools/armips"), str(start_script_source)], root)
 
-    if fixture["schema_version"] != 6:
+    if fixture["schema_version"] not in (6, 7):
         text_source = components / f"{stage_name}_dialogue.txt"
         text_output = components / f"7_{slots['text']:03d}"
         text = fixture["npc"]["dialogue"] if fixture["schema_version"] == 1 else fixture["text"]
@@ -1169,7 +1291,7 @@ def generate_world(
 
     installed_paths: dict[str, str] = {}
     narc_reports: dict[str, dict[str, Any]] = {}
-    if fixture["schema_version"] == 6:
+    if fixture["schema_version"] in (6, 7):
         archive_replacements: dict[str, dict[int, bytes]] = {
             "map": {
                 fixture["maps"][name]["map_member"]: map_members[name]
@@ -1197,17 +1319,24 @@ def generate_world(
             )
         expected_source_counts = {"map": 676, "matrix": 288, "event": 491, "script": 965, "text": 854}
         expected_counts = {"map": 678, "matrix": 290, "event": 493, "script": 969, "text": 856}
-        if {name: report["pristine_count"] for name, report in narc_reports.items()} != expected_source_counts:
-            raise WorldBuildError("Stage 3E1 source NARC counts disagree with scanner/build evidence")
+        source_counts = {name: report["pristine_count"] for name, report in narc_reports.items()}
+        if any(
+            source_counts[name] not in (expected_source_counts[name], expected_counts[name])
+            for name in expected_source_counts
+        ):
+            raise WorldBuildError("append-proof source NARC counts disagree with scanner/build evidence")
         if {name: report["rebuilt_count"] for name, report in narc_reports.items()} != expected_counts:
-            raise WorldBuildError("Stage 3E1 rebuilt NARC counts disagree with the bounded proof")
+            raise WorldBuildError("append-proof rebuilt NARC counts disagree with the bounded proof")
         retail_keys = {
             "map": "map_members", "matrix": "matrices", "event": "event_banks",
             "script": "scripts", "text": "text_banks",
         }
         for name, report in narc_reports.items():
             report["retail_count"] = registry["target"]["archives"][retail_keys[name]]["members"]
-            report["source_count_kind"] = "hg_engine_owned_prefix" if name == "text" else "pristine_retail"
+            if source_counts[name] == expected_counts[name]:
+                report["source_count_kind"] = "previously_installed_proof_archive"
+            else:
+                report["source_count_kind"] = "hg_engine_owned_prefix" if name == "text" else "pristine_retail"
         if install:
             for archive_name in ("map", "matrix", "event", "script", "text"):
                 destination = generated_root / NARC_PATHS[archive_name].relative_to("base/root")
@@ -1232,7 +1361,7 @@ def generate_world(
         if install:
             shutil.copyfile(map_destination, root / NARC_PATHS["map"])
             installed_paths["map"] = str(root / NARC_PATHS["map"])
-    if fixture["schema_version"] != 6:
+    if fixture["schema_version"] not in (6, 7):
         replacements = {
             "matrix": (slots["matrix"], matrix),
             "event": (slots["event"], event),
@@ -1256,12 +1385,13 @@ def generate_world(
             installed_paths["script"] = str(root / NARC_PATHS["script"])
 
     patched_arm9 = bytearray(arm9)
-    for name, map_header in map_headers.items():
-        header_id = _map_header_id(fixture, name if fixture["schema_version"] in (3, 6) else None)
-        header_offset = HGSS_US_HEADER_OFFSET + header_id * MAP_HEADER_SIZE
-        if header_offset + MAP_HEADER_SIZE > len(patched_arm9):
-            raise WorldBuildError(f"map header {header_id} is outside arm9.bin")
-        patched_arm9[header_offset:header_offset + MAP_HEADER_SIZE] = map_header
+    if fixture["schema_version"] != 7:
+        for name, map_header in map_headers.items():
+            header_id = _map_header_id(fixture, name if fixture["schema_version"] in (3, 6) else None)
+            header_offset = HGSS_US_HEADER_OFFSET + header_id * MAP_HEADER_SIZE
+            if header_offset + MAP_HEADER_SIZE > len(patched_arm9):
+                raise WorldBuildError(f"map header {header_id} is outside arm9.bin")
+            patched_arm9[header_offset:header_offset + MAP_HEADER_SIZE] = map_header
     generated_arm9 = output_dir / "arm9.bin"
     generated_arm9.write_bytes(patched_arm9)
     if install:
@@ -1307,6 +1437,54 @@ def verify_determinism(fixture_path: Path = DEFAULT_FIXTURE, root: Path = PROJEC
     report = root / "build" / namespace / "determinism-report.json"
     report.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return result
+
+
+def validate_project_header_table(fixture: dict[str, Any], table: bytes) -> None:
+    """Validate the exact contiguous Stage 3E2 table consumed by the hook."""
+    if fixture.get("schema_version") != 7:
+        raise WorldBuildError("project-header table validation requires schema 7")
+    project_ids = [fixture["maps"][name]["map_header"] for name in STAGE3E1_CELL_ORDER]
+    if project_ids != list(range(540, 540 + len(project_ids))):
+        raise WorldBuildError("project headers must be contiguous from the retail boundary")
+    expected_size = len(project_ids) * MAP_HEADER_SIZE
+    if len(table) != expected_size:
+        raise WorldBuildError(
+            f"project-header table length {len(table)} does not match {expected_size}"
+        )
+
+
+def write_project_header_include(fixture_path: Path, output: Path) -> dict[str, Any]:
+    """Generate the compile-time Stage 3E2 project table from symbolic source."""
+    fixture = load_fixture(fixture_path)
+    if fixture["schema_version"] != 7:
+        raise WorldBuildError("project-header include generation requires a Stage 3E2 schema-7 fixture")
+    headers = [build_map_header(fixture, b"", name) for name in STAGE3E1_CELL_ORDER]
+    project_ids = [fixture["maps"][name]["map_header"] for name in STAGE3E1_CELL_ORDER]
+    table = b"".join(headers)
+    validate_project_header_table(fixture, table)
+    rows = []
+    for header in headers:
+        rows.append("    { " + ", ".join(f"0x{byte:02X}" for byte in header) + " },")
+    text = (
+        "/* Generated from fixtures/stage3e2_header_expansion_world.json; do not edit. */\n"
+        "#ifndef GENERATED_PROJECT_MAP_HEADERS_H\n#define GENERATED_PROJECT_MAP_HEADERS_H\n\n"
+        "#define PROJECT_MAP_HEADER_BASE 540u\n"
+        f"#define PROJECT_MAP_HEADER_COUNT {len(headers)}u\n"
+        f"#define PROJECT_MAP_HEADER_TABLE_SHA256 \"{sha256_bytes(table)}\"\n"
+        "static const u8 gProjectMapHeaders[PROJECT_MAP_HEADER_COUNT][24] = {\n"
+        + "\n".join(rows)
+        + "\n};\n\n#endif\n"
+    )
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(text, encoding="utf-8")
+    return {
+        "success": True,
+        "output": str(output),
+        "retail_count": 540,
+        "entry_size": MAP_HEADER_SIZE,
+        "project_ids": project_ids,
+        "sha256": sha256_bytes(table),
+    }
 
 
 def inspect_geometry(fixture_path: Path, root: Path = PROJECT_ROOT) -> dict[str, Any]:

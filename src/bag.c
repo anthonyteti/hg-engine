@@ -605,6 +605,14 @@ BOOL IsPlayerOnLadder(void)
     // Delay the test-only controlled warp until that script has deterministically
     // released control; otherwise the map loads but all D-pad input stays locked.
     if (queueUpAutoBattleScript == 300) {
+#ifdef STAGE3E2_HEADER_TEST
+        // A real reset after the Stage 3E2 save must resume the persisted
+        // project header rather than re-running the controlled-start warp.
+        if (VarGet(gFieldSysPtr, 0x4000) == 46) {
+            queueUpAutoBattleScript = 301;
+            return FALSE;
+        }
+#endif
         // Global script 2000 (common-script bank member 3, entry 0) is
         // replaced only in the Stage 2 generated NARC.
         // It performs the controlled warp through the game's normal command.

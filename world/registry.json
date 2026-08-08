@@ -281,19 +281,38 @@
       ]
     },
     "map_headers": {
-      "storage": "fixed_arm9_table_24_bytes_each",
+      "storage": "hybrid_retail_arm9_plus_project_table_24_bytes_each",
       "collision_domain": "map_headers",
-      "allocation_policy": "persistent_contiguous_append_after_stage3e1",
+      "allocation_policy": "persistent_contiguous_from_verified_expansion_boundary",
       "numeric_min": 0,
-      "numeric_max": 539,
+      "numeric_max": 65535,
       "ranges": [
         {
           "start": 0,
           "end": 539,
           "classification": "VANILLA_OWNED",
           "evidence": "include/constants/maps.h defines 540 fixed map IDs; src/map_header.c indexes the compiled 24-byte header array."
+        },
+        {
+          "start": 540,
+          "end": 541,
+          "classification": "HEADER_EXPANSION_PROVEN",
+          "evidence": "Stage 3E2 hybrid accessor and runtime proof reserve the first two project-owned entries beyond the 540-entry retail table."
+        },
+        {
+          "start": 542,
+          "end": 65535,
+          "classification": "UNKNOWN",
+          "evidence": "Beyond the bounded Stage 3E2 runtime-tested project-header window."
         }
       ],
+      "header_expansion": {
+        "retail_count": 540,
+        "entry_size": 24,
+        "allocation_start": 540,
+        "proven_max_id": 541,
+        "policy": "contiguous_from_retail_boundary"
+      },
       "slot_overrides": {
         "9": {
           "classification": "CONTROLLED_REPLACEMENT",
@@ -310,6 +329,14 @@
         "538": {
           "classification": "CONTROLLED_REPLACEMENT",
           "evidence": "maps.h names 538 MAP_R00; Stages 3A/3B control it, but Stage 3C does not call it production-free."
+        },
+        "540": {
+          "classification": "PROJECT_HEADER",
+          "evidence": "Stage 3E2 persistent first project header in the hybrid expansion table."
+        },
+        "541": {
+          "classification": "PROJECT_HEADER",
+          "evidence": "Stage 3E2 persistent second project header in the hybrid expansion table."
         }
       },
       "resources": [
@@ -331,6 +358,16 @@
         {
           "symbol": "stage3c_proof_southwest_header",
           "id": 10,
+          "access": "write"
+        },
+        {
+          "symbol": "stage3e2_project_header_a",
+          "id": 540,
+          "access": "write"
+        },
+        {
+          "symbol": "stage3e2_project_header_b",
+          "id": 541,
           "access": "write"
         },
         {
