@@ -122,6 +122,16 @@ ifeq ($(AUTO_TEST),Y)
     ARMIPS_FLAGS = -equ DEBUG_BATTLE_SCENARIOS 1
 endif
 
+ifeq ($(STAGE2_MAP),Y)
+    CFLAGS += -DDEBUG_AUTO_QUEUE_SCRIPT -DSTAGE2_MAP_TEST -Werror
+    ARMIPS_FLAGS = -equ DEBUG_BATTLE_SCENARIOS 1
+endif
+
+WORLD_INSTALL_ARGS :=
+ifeq ($(STAGE3A_HEIGHT),Y)
+    WORLD_INSTALL_ARGS := --fixture fixtures/stage3a_height_proof_map.json --output build/stage3a/generated
+endif
+
 ####################### Output #######################
 C_SUBDIR = src
 ASM_SUBDIR = asm
@@ -313,6 +323,9 @@ all: $(OUTPUT) $(OVERLAY_OUTPUTS) $(TOOLS) $(BASE)/arm9.bin
 	$(MAKE) move_narc
 	$(ARMIPS) armips/global.s $(ARMIPS_FLAGS)
 	$(NARCHIVE) create $(FILESYS)/a/0/2/8 $(BUILD)/a028/ -nf
+ifeq ($(STAGE2_MAP),Y)
+	$(PYTHON) -m tools.pokeagent map install $(WORLD_INSTALL_ARGS)
+endif
 	@echo "Making ROM..."
 	$(NDSTOOL) -c $(BUILDROM) -9 $(BASE)/arm9.bin -7 $(BASE)/arm7.bin -y9 $(BASE)/overarm9.bin -y7 $(BASE)/overarm7.bin -d $(FILESYS) -y $(BASE)/overlay -t $(BASE)/banner.bin -h $(BASE)/header.bin
 	@echo "Done.  See output $(BUILDROM)."
@@ -336,6 +349,16 @@ clean:
 
 clean_tools:
 	rm -rf $(TOOLS) $(VENV)
+
+.PHONY: stage2-proof
+stage2-proof:
+	$(MAKE) clean
+	$(MAKE) STAGE2_MAP=Y
+
+.PHONY: stage3a-height-proof
+stage3a-height-proof:
+	$(MAKE) clean
+	$(MAKE) STAGE2_MAP=Y STAGE3A_HEIGHT=Y
 
 ALL_CODE_OBJS := $(patsubst $(C_SUBDIR)/%.c,$(BUILD)/%.o,$(ALL_C_SRCS)) \
  $(patsubst $(ASM_SUBDIR)/%.s,$(BUILD)/%.o,$(ALL_ASM_SRCS)) \

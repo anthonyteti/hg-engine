@@ -285,3 +285,11 @@ For a normal map request:
 10. summarize changed files and remaining uncertainty
 
 The agent should not stop at "code written" when a local build/test path is available.
+
+## Stage 2 proof implementation
+
+The bounded proof uses `fixtures/stage2_proof_map.json` as canonical input and `tools.pokeagent.world` for validation and deterministic serialization. It produces a flat transformed NSBMD, PER, BDHC, a 1 x 1 matrix, one map-header patch, one event member, one NPC script, one common controlled-start script, and one dialogue bank. Generated members and rebuilt NARCs live under ignored `build/stage2/`; the Make integration installs them only into the already ignored extracted ROM tree immediately before packing `test.nds`.
+
+`tools.pokeagent.world_emulator` runs in the existing subprocess safety boundary. It follows the normal new-game initialization, lets a test-only hook queue the controlled warp, and asserts live location/event memory plus screenshot changes. The hook and its diagnostic symbols are compiled only with `STAGE2_MAP=Y`.
+
+This is proof infrastructure, not the final world DSL or a general NSBMD compiler.

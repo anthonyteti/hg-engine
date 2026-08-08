@@ -89,3 +89,11 @@ Do not actively develop the Gen 5 implementation yet.
 Current Gen 5 work shows that an LLM-native B2W2 pipeline is plausible, but it requires substantially more infrastructure and reverse engineering. The right time to revisit it is after the HeartGold vertical slice proves that the autonomous workflow itself is productive.
 
 See `GEN5_FUTURE.md`.
+
+## Stage 2 decision: bounded NSBMD template transformation
+
+For the one-map zero-GUI proof, use a hash-locked transformation of a user-local HeartGold NSBMD template. Project code replaces the template display lists with deterministic valid geometry while retaining compatible local material/texture dictionaries. Do not redistribute the source member or generated binary.
+
+This decision rejects a silent dependency on Nintendo `g3dcvtr` and does not claim to solve general NSBMD authoring. A broader open model compiler remains a later kill gate before world-content scaling. The proof is sufficient to continue with HeartGold because it generates new flat geometry, boots through the native engine, and keeps the proprietary input boundary identical to the existing ROM build.
+
+See `docs/knowledge/nsbmd-stage2-model-path.md` and `docs/STAGE_2_TECHNICAL_REPORT.md`.

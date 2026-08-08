@@ -1,4 +1,4 @@
-"""Stage 1 command-line surface for HG-Engine preflight, build, and smoke."""
+"""Command-line surface for HG-Engine build, generation, and emulator checks."""
 
 from __future__ import annotations
 
@@ -10,6 +10,8 @@ import sys
 
 from .emulator import run_smoke
 from .rom import PROJECT_ROOT, build_rom, run_preflight
+from .world import DEFAULT_FIXTURE, DEFAULT_OUTPUT, generate_world, load_fixture, verify_determinism
+from .world_emulator import run_world_test
 
 
 def _add_output_argument(parser: argparse.ArgumentParser) -> None:
@@ -50,6 +52,23 @@ def build_parser() -> argparse.ArgumentParser:
     smoke_parser.add_argument("--post-input-frames", type=int, default=30)
     smoke_parser.add_argument("--timeout", type=float, default=30)
     _add_output_argument(smoke_parser)
+
+    map_parser = subparsers.add_parser("map", help="generate a bounded world proof fixture")
+    map_subparsers = map_parser.add_subparsers(dest="map_command", required=True)
+    for command, help_text in (
+        ("validate", "validate the canonical proof fixture"),
+        ("generate", "generate proof artifacts without installing them"),
+        ("install", "generate and install proof artifacts into the extracted ROM tree"),
+        ("determinism", "generate twice and compare every binary artifact"),
+        ("test", "run headless gameplay assertions against the proof map"),
+    ):
+        child = map_subparsers.add_parser(command, help=help_text)
+        child.add_argument("--fixture", type=Path, default=DEFAULT_FIXTURE)
+        if command in ("generate", "install"):
+            child.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+        if command == "test":
+            child.add_argument("--timeout", type=float, default=180)
+        _add_output_argument(child)
     return parser
 
 
@@ -130,6 +149,18 @@ def _print_smoke(payload: dict[str, object]) -> None:
         print(f"  ERROR {error}")
 
 
+def _print_map(payload: dict[str, object]) -> None:
+    print(f"map: {'PASS' if payload.get('success', True) else 'FAIL'}")
+    if "slots" in payload:
+        print(f"  Slots: {payload['slots']}")
+    if "hashes" in payload:
+        print(f"  Binary hashes: {len(payload['hashes'])}")
+    for mismatch in payload.get("mismatches", []):
+        print(f"  MISMATCH {mismatch}")
+    for error in payload.get("errors", []):
+        print(f"  ERROR {error}")
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -150,6 +181,20 @@ def main(argv: list[str] | None = None) -> int:
                 timeout_seconds=args.timeout,
             )
             _print_json(payload) if args.json else _print_smoke(payload)
+        elif args.command == "map" and args.map_command == "validate":
+            fixture = load_fixture(args.fixture)
+            payload = {"success": True, "fixture": str(args.fixture), "slots": fixture["slots"]}
+            _print_json(payload) if args.json else _print_map(payload)
+        elif args.command == "map" and args.map_command in ("generate", "install"):
+            payload = generate_world(args.fixture, args.output, PROJECT_ROOT, install=args.map_command == "install")
+            payload["success"] = True
+            _print_json(payload) if args.json else _print_map(payload)
+        elif args.command == "map" and args.map_command == "determinism":
+            payload = verify_determinism(args.fixture, PROJECT_ROOT)
+            _print_json(payload) if args.json else _print_map(payload)
+        elif args.command == "map" and args.map_command == "test":
+            payload = run_world_test(PROJECT_ROOT, args.fixture, args.timeout)
+            _print_json(payload) if args.json else _print_map(payload)
         else:
             parser.error("unsupported command")
             return 2

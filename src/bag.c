@@ -575,16 +575,38 @@ u32 queueUpAutoBattleScript = 0;
 u8 pendingNextTest = 0;
 #endif
 
+#ifdef STAGE2_MAP_TEST
+// Runtime evidence marker read by the ignored, headless Stage 2 emulator test.
+// The proof NPC sets save variable 0x4000 to 42 before displaying dialogue.
+volatile u32 gStage2ProofDialogueSeen = 0;
+volatile u32 gStage2ProofMetatileBehavior = 0;
+volatile u32 gStage2ProofWarpBehaviorSeen = 0;
+#endif
+
 BOOL IsPlayerOnLadder(void)
 {
     if (gFieldSysPtr == NULL)
         return TRUE;
     u32 collision = GetMetatileBehaviorAt(gFieldSysPtr, gFieldSysPtr->location->x, gFieldSysPtr->location->z);
     u32 mapId = gFieldSysPtr->location->mapId;
+#ifdef STAGE2_MAP_TEST
+    gStage2ProofMetatileBehavior = collision;
+    if (collision == 101)
+        gStage2ProofWarpBehaviorSeen = 1;
+    if (VarGet(gFieldSysPtr, 0x4000) == 42)
+        gStage2ProofDialogueSeen = 1;
+#endif
 #if defined(DEBUG_AUTO_QUEUE_SCRIPT)
     queueUpAutoBattleScript++;
     if (queueUpAutoBattleScript == 30) {
+#ifdef STAGE2_MAP_TEST
+        // Global script 2000 (common-script bank member 3, entry 0) is
+        // replaced only in the Stage 2 generated NARC.
+        // It performs the controlled warp through the game's normal command.
+        EventSet_Script(gFieldSysPtr, 2000, NULL);
+#else
         EventSet_Script(gFieldSysPtr, 2073, NULL);
+#endif
         queueUpAutoBattleScript = 31;
     }
 #elif defined(DEBUG_BATTLE_SCENARIOS)
@@ -606,5 +628,11 @@ BOOL IsPlayerOnLadder(void)
     // bugsy gym
     // slowpoke well entry
     // battle tower
-    return (collision == 0x3C || collision == 0x3D || collision == 0x3E || mapId == 114 || mapId == 180 || (mapId >= 265 && mapId <= 271));
+    return (collision == 0x3C || collision == 0x3D || collision == 0x3E || mapId == 114 || mapId == 180 ||
+#ifdef STAGE2_MAP_TEST
+            // Header 267 is an unused controlled slot repurposed by the proof.
+            (mapId >= 265 && mapId <= 271 && mapId != 267));
+#else
+            (mapId >= 265 && mapId <= 271));
+#endif
 }

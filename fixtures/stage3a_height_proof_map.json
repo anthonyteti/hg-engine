@@ -1,0 +1,43 @@
+{
+  "schema_version": 2,
+  "id": "stage3a_height_32x32",
+  "artifact_namespace": "stage3a",
+  "dimensions": {
+    "width": 32,
+    "height": 32
+  },
+  "slots": {
+    "map_header": 538,
+    "matrix": 1,
+    "map_member": 633,
+    "event": 57,
+    "script": 842,
+    "start_script": 3,
+    "script_header": 399,
+    "text": 542
+  },
+  "model": {
+    "template_map_member": 0,
+    "template_member_sha256": "f9fbf0196f416739019288f24be604fd6c096a2ec4ebf7e820e116e7ecc329cc",
+    "template_shape": 6,
+    "area_data": 2,
+    "half_extent": 16
+  },
+  "terrain": {
+    "permission_type": 0,
+    "walkable_collision": 0,
+    "blocked_collision": 128,
+    "block_border": true,
+    "lower": {"min_x": 0, "max_x": 15, "min_z": 0, "max_z": 31, "height": 0},
+    "transition": {"min_x": 16, "max_x": 17, "min_z": 14, "max_z": 17, "start_height": 0, "end_height": 2},
+    "raised": {"min_x": 16, "max_x": 31, "min_z": 0, "max_z": 31, "height": 2}
+  },
+  "player_start": {
+    "x": 14,
+    "z": 12,
+    "direction": 3
+  },
+  "warps": [],
+  "text": "STAGE 3A HEIGHT PROOF",
+  "header_template": 67
+}

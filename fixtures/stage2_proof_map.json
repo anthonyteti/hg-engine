@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "id": "stage2_flat_32x32",
+  "dimensions": {
+    "width": 32,
+    "height": 32
+  },
+  "slots": {
+    "map_header": 267,
+    "matrix": 1,
+    "map_member": 633,
+    "event": 57,
+    "script": 842,
+    "start_script": 3,
+    "script_header": 399,
+    "text": 542
+  },
+  "model": {
+    "template_map_member": 0,
+    "template_member_sha256": "f9fbf0196f416739019288f24be604fd6c096a2ec4ebf7e820e116e7ecc329cc",
+    "template_shape": 6,
+    "area_data": 2,
+    "half_extent": 16
+  },
+  "terrain": {
+    "permission_type": 0,
+    "warp_permission_type": 101,
+    "walkable_collision": 0,
+    "blocked_collision": 128,
+    "blocked_tiles": [[17, 16], [16, 19]],
+    "block_border": true,
+    "height": 0
+  },
+  "player_start": {
+    "x": 16,
+    "z": 16,
+    "direction": 1
+  },
+  "npc": {
+    "local_id": 0,
+    "graphics_id": 146,
+    "movement_type": 0,
+    "direction": 1,
+    "x": 16,
+    "z": 14,
+    "script_index": 1,
+    "dialogue": "STAGE 2: HEADLESS MAP PROOF OK."
+  },
+  "warps": [
+    {"x": 16, "z": 18, "destination_header": 267, "destination_warp": 1},
+    {"x": 4, "z": 4, "destination_header": 267, "destination_warp": 0}
+  ],
+  "test_marker_var": 16384,
+  "test_marker_value": 42,
+  "header_template": 67
+}
