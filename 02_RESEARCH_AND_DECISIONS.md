@@ -112,3 +112,19 @@ raw LLM-managed IDs without claiming unsupported capacity.
 
 See `docs/STAGE_3C_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage3c-reference-registry.md`.
+
+## Stage 3D decision: bounded declarative static terrain
+
+Generalize the hash-locked template path only through a project-owned,
+quad-based static-terrain IR. Canonical rectangular surfaces and X/Z
+transitions drive visual display lists, PER, and BDHC together. Deterministic
+material aliases bind to three existing template shape/material pairs; their
+known capacities are hard limits, and overflow fails without relocation.
+
+This passes the reusable geometry kill gate for moderately complex primitive
+terrain, but does not authorize arbitrary topology, new materials/textures,
+OBJ/GLB import, display-list relocation, or a general NSBMD writer. Those remain
+separate future decisions. The tested result supports continuing on HeartGold.
+
+See `docs/STAGE_3D_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage3d-static-geometry.md`.

@@ -353,6 +353,112 @@ def resolve_world_source(
     }
 
 
+def resolve_stage3d_source(
+    source: dict[str, Any],
+    registry_path: Path = DEFAULT_REGISTRY,
+) -> dict[str, Any]:
+    """Resolve the symbolic single-map Stage 3D source into serializer inputs."""
+    if source.get("schema_version") != 5 or source.get("artifact_namespace") != "stage3d":
+        raise RegistryError("unsupported_world_schema", "Stage 3D symbolic terrain source must use schema 5")
+    registry = load_registry(registry_path)
+    declared_registry = source.get("registry")
+    declared_path = (PROJECT_ROOT / declared_registry).resolve() if isinstance(declared_registry, str) else None
+    if declared_path != registry_path.resolve():
+        raise RegistryError("registry_mismatch", "Stage 3D world source must name the registry used for resolution")
+
+    resolutions: dict[str, dict[str, Any]] = {}
+
+    def resolve(reference: object, namespace: str, *, writable: bool = True) -> int:
+        if not isinstance(reference, str):
+            raise RegistryError(
+                "numeric_reference", f"Stage 3D {namespace} references must be symbolic strings",
+                namespace=namespace, value=reference,
+            )
+        result = resolve_symbol(registry, reference, namespace, require_writable=writable)
+        resolutions[reference] = result
+        return int(result["id"])
+
+    matrix = source.get("world", {}).get("matrix", {})
+    if not isinstance(matrix, dict) or set(matrix) != {"id", "width", "height", "name", "cells", "altitudes"}:
+        raise RegistryError("invalid_matrix", "Stage 3D requires one exact symbolic matrix declaration")
+    if matrix["width"] != 1 or matrix["height"] != 1 or len(matrix["cells"]) != 1 or matrix["altitudes"] != [0]:
+        raise RegistryError("invalid_matrix_dimensions", "Stage 3D geometry proof requires one 1x1 matrix")
+    matrix_id = resolve(matrix["id"], "matrices")
+
+    map_spec = source.get("map")
+    required_map = {
+        "id", "matrix", "map_header", "map_member", "event_bank", "script_bank", "script_header", "text_bank",
+    }
+    if not isinstance(map_spec, dict) or set(map_spec) != required_map:
+        raise RegistryError("invalid_map", "Stage 3D symbolic map has unsupported or missing fields")
+    if matrix["cells"] != [map_spec["id"]]:
+        raise RegistryError("dangling_map", "Stage 3D matrix cell must reference the declared local map")
+    if map_spec["matrix"] != matrix["id"]:
+        raise RegistryError("wrong_matrix_reference", "Stage 3D map points at the wrong matrix")
+
+    shared = source.get("resources")
+    expected_shared = {
+        "event_bank": "event_banks", "local_script_bank": "local_script_banks",
+        "start_script": "common_scripts", "script_header": "script_headers", "text_bank": "text_banks",
+    }
+    if not isinstance(shared, dict) or set(shared) != set(expected_shared):
+        raise RegistryError("invalid_shared_resources", "Stage 3D shared symbolic resources are incomplete")
+    shared_ids = {name: resolve(shared[name], namespace) for name, namespace in expected_shared.items()}
+    dependencies = {
+        "event_bank": ("event_bank", "event_banks"),
+        "script_bank": ("local_script_bank", "local_script_banks"),
+        "script_header": ("script_header", "script_headers"),
+        "text_bank": ("text_bank", "text_banks"),
+    }
+    for map_key, (shared_key, namespace) in dependencies.items():
+        if map_spec[map_key] != shared[shared_key]:
+            raise RegistryError("inconsistent_dependency", f"Stage 3D map {map_key} disagrees with shared resources")
+        resolve(map_spec[map_key], namespace)
+
+    model = copy.deepcopy(source.get("model", {}))
+    model["template_map_member"] = resolve(model.get("template_map_member"), "map_members", writable=False)
+    model["area_data"] = resolve(model.get("area_data"), "area_data_banks", writable=False)
+    header_template = resolve(source.get("header_template"), "map_headers", writable=False)
+    player_start = copy.deepcopy(source.get("player_start", {}))
+    if player_start.get("map") != map_spec["id"]:
+        raise RegistryError("unknown_reference", "Stage 3D player start must reference its declared local map")
+    player_start.pop("map")
+
+    return {
+        "schema_version": 5,
+        "canonical_schema_version": 5,
+        "id": source.get("id"),
+        "artifact_namespace": "stage3d",
+        "dimensions": copy.deepcopy(source.get("dimensions")),
+        "world": {"matrix": {
+            "width": 1, "height": 1, "name": matrix["name"], "altitudes": [0],
+        }},
+        "slots": {
+            "matrix": matrix_id,
+            "map_header": resolve(map_spec["map_header"], "map_headers"),
+            "map_member": resolve(map_spec["map_member"], "map_members"),
+            "event": shared_ids["event_bank"],
+            "script": shared_ids["local_script_bank"],
+            "start_script": shared_ids["start_script"],
+            "script_header": shared_ids["script_header"],
+            "text": shared_ids["text_bank"],
+        },
+        "model": model,
+        "geometry": copy.deepcopy(source.get("geometry")),
+        "player_start": player_start,
+        "warps": copy.deepcopy(source.get("warps")),
+        "text": source.get("text"),
+        "header_template": header_template,
+        "registry_resolution": {
+            "schema_version": 1,
+            "registry": declared_registry,
+            "registry_sha256": hashlib.sha256(registry_path.read_bytes()).hexdigest(),
+            "target_rom_sha256": registry["target"]["rom_sha256"],
+            "symbols": {symbol: resolutions[symbol] for symbol in sorted(resolutions)},
+        },
+    }
+
+
 def allocate_resource(
     registry: dict[str, Any],
     namespace_name: str,

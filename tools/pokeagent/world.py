@@ -1,4 +1,4 @@
-"""Deterministic HGSS world-proof generator for Stages 2 through 3C.
+"""Deterministic HGSS world-proof generator for Stages 2 through 3D.
 
 This intentionally implements only the binary subset required by the fixture.
 The NSBMD writer is a hash-locked, user-local template transformer: it preserves
@@ -19,7 +19,8 @@ from typing import Any
 from ndspy.narc import NARC
 from ndspy.rom import NintendoDSRom
 
-from .registry import load_registry, resolve_world_source, verify_rom_revision
+from .geometry import MATERIAL_BINDINGS, MATERIAL_ORDER, GeometryError, compile_geometry
+from .registry import load_registry, resolve_stage3d_source, resolve_world_source, verify_rom_revision
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -66,14 +67,22 @@ def load_fixture(path: Path = DEFAULT_FIXTURE) -> dict[str, Any]:
         if not isinstance(registry_reference, str):
             raise WorldBuildError("Stage 3C fixture must declare a symbolic registry path")
         fixture = resolve_world_source(fixture, PROJECT_ROOT / registry_reference)
+    elif fixture.get("schema_version") == 5:
+        registry_reference = fixture.get("registry")
+        if not isinstance(registry_reference, str):
+            raise WorldBuildError("Stage 3D fixture must declare a symbolic registry path")
+        fixture = resolve_stage3d_source(fixture, PROJECT_ROOT / registry_reference)
     validate_fixture(fixture)
     return fixture
 
 
 def validate_fixture(fixture: dict[str, Any]) -> None:
     schema_version = fixture.get("schema_version")
-    if schema_version not in (1, 2, 3):
-        raise WorldBuildError("only resolved Stage 2, Stage 3A, and Stage 3B/3C schemas are supported")
+    if schema_version not in (1, 2, 3, 5):
+        raise WorldBuildError("only resolved Stage 2 through Stage 3D schemas are supported")
+    if schema_version == 5:
+        _validate_stage3d_fixture(fixture)
+        return
     if schema_version == 3:
         _validate_stage3b_fixture(fixture)
         return
@@ -134,6 +143,30 @@ def validate_fixture(fixture: dict[str, Any]) -> None:
             raise WorldBuildError(f"Stage 3A terrain {key} must be a byte")
     if terrain.get("block_border") is not True:
         raise WorldBuildError("Stage 3A requires a blocked perimeter")
+
+
+def _validate_stage3d_fixture(fixture: dict[str, Any]) -> None:
+    if fixture.get("artifact_namespace") != "stage3d" or fixture.get("canonical_schema_version") != 5:
+        raise WorldBuildError("resolved Stage 3D source must preserve schema and artifact identity")
+    if fixture.get("dimensions") != {"width": 32, "height": 32}:
+        raise WorldBuildError("Stage 3D remains limited to one 32x32 map")
+    required_slots = {
+        "map_header", "matrix", "map_member", "event", "script", "start_script", "script_header", "text",
+    }
+    slots = fixture.get("slots", {})
+    if set(slots) != required_slots or any(not isinstance(value, int) or value < 0 for value in slots.values()):
+        raise WorldBuildError("Stage 3D must resolve exactly eight registry-owned numeric slots")
+    matrix = fixture.get("world", {}).get("matrix", {})
+    if matrix != {"width": 1, "height": 1, "name": "stage3d-terrain", "altitudes": [0]}:
+        raise WorldBuildError("Stage 3D requires the bounded 1x1 terrain matrix")
+    if fixture.get("warps") != [] or "npc" in fixture:
+        raise WorldBuildError("Stage 3D geometry proof must not add NPCs or warps")
+    start = fixture.get("player_start")
+    if start != {"x": 8, "z": 12, "direction": 3}:
+        raise WorldBuildError("Stage 3D controlled start must use the proof route origin")
+    if fixture.get("model", {}).get("half_extent") != 16:
+        raise WorldBuildError("Stage 3D template model must retain the 32x32 centered extent")
+    compile_geometry(fixture.get("geometry"))
 
 
 def _validate_stage3b_fixture(fixture: dict[str, Any]) -> None:
@@ -337,6 +370,24 @@ def transform_template_nsbmd(
     display_list: bytes | None = None,
     target_quads: int = 1,
 ) -> tuple[bytes, dict[str, Any]]:
+    replacement = build_flat_display_list() if display_list is None else display_list
+    model, report = transform_template_nsbmd_multi(
+        nsbmd, {target_shape: replacement}, {target_shape: target_quads},
+    )
+    report.update({
+        "target_shape": target_shape,
+        "display_list_bytes": len(replacement),
+        "target_quads": target_quads,
+    })
+    return model, report
+
+
+def transform_template_nsbmd_multi(
+    nsbmd: bytes,
+    display_lists: dict[int, bytes],
+    quad_counts: dict[int, int],
+) -> tuple[bytes, dict[str, Any]]:
+    """Replace several hash-locked template shapes without relocating data."""
     data = bytearray(nsbmd)
     if data[:4] != b"BMD0" or len(data) < 20:
         raise WorldBuildError("template model is not a BMD0 file")
@@ -360,10 +411,10 @@ def transform_template_nsbmd(
     shape_offsets = _dict_offsets(data, shape_set)
     if len(shape_offsets) != num_shapes:
         raise WorldBuildError("shape dictionary count disagrees with model info")
-    if not 0 <= target_shape < num_shapes:
-        raise WorldBuildError(f"template shape {target_shape} is outside the model")
-
-    display_list = build_flat_display_list() if display_list is None else display_list
+    if set(display_lists) != set(quad_counts) or not display_lists:
+        raise WorldBuildError("NSBMD replacement display-list and primitive assignments disagree")
+    if any(not 0 <= shape < num_shapes for shape in display_lists):
+        raise WorldBuildError("one or more replacement shapes are outside the template model")
     capacities: list[int] = []
     regions: list[tuple[int, int]] = []
     for relative in shape_offsets:
@@ -376,26 +427,42 @@ def transform_template_nsbmd(
             raise WorldBuildError("shape display list extends past model")
         capacities.append(dl_size)
         regions.append((dl_start, dl_size))
-    if len(display_list) > capacities[target_shape]:
-        raise WorldBuildError(f"template shape {target_shape} is too small for the proof display list")
+    for shape, display_list in sorted(display_lists.items()):
+        if len(display_list) > capacities[shape]:
+            raise GeometryError(
+                "display_list_overflow",
+                f"shape {shape} needs {len(display_list)} bytes but capacity is {capacities[shape]}",
+                shape=shape, required_bytes=len(display_list), capacity_bytes=capacities[shape],
+            )
 
     degenerate = build_degenerate_display_list()
     for index, (dl_start, dl_size) in enumerate(regions):
-        replacement = display_list if index == target_shape else degenerate
+        replacement = display_lists.get(index, degenerate)
         if len(replacement) > dl_size:
             raise WorldBuildError(f"template shape {index} is too small for a valid replacement")
         data[dl_start:dl_start + dl_size] = replacement + bytes(dl_size - len(replacement))
-    total_quads = num_shapes - 1 + target_quads
+    total_quads = num_shapes - len(display_lists) + sum(quad_counts.values())
     struct.pack_into("<4H", data, model_base + 36, 4 * total_quads, total_quads, 0, total_quads)
+    assignments = {
+        str(shape): {
+            "display_list_bytes": len(display_lists[shape]),
+            "capacity_bytes": capacities[shape],
+            "utilization_percent": round(len(display_lists[shape]) * 100 / capacities[shape], 3),
+            "quad_count": quad_counts[shape],
+        }
+        for shape in sorted(display_lists)
+    }
     return bytes(data), {
         "models": 1,
         "nodes": num_nodes,
         "materials": num_materials,
         "shapes": num_shapes,
         "shape_capacities": capacities,
-        "target_shape": target_shape,
-        "display_list_bytes": len(display_list),
-        "target_quads": target_quads,
+        "shape_regions": [
+            {"shape": index, "offset": start, "capacity_bytes": size}
+            for index, (start, size) in enumerate(regions)
+        ],
+        "assignments": assignments,
     }
 
 
@@ -454,6 +521,8 @@ def _stage3b_open_tiles(map_spec: dict[str, Any]) -> set[tuple[int, int]]:
 
 
 def build_per(fixture: dict[str, Any], map_name: str | None = None) -> bytes:
+    if fixture["schema_version"] == 5:
+        return compile_geometry(fixture["geometry"])["per"]
     terrain = fixture["terrain"]
     output = bytearray()
     if fixture["schema_version"] == 3:
@@ -481,6 +550,8 @@ def build_per(fixture: dict[str, Any], map_name: str | None = None) -> bytes:
 
 
 def build_bdhc(fixture: dict[str, Any]) -> bytes:
+    if fixture["schema_version"] == 5:
+        return compile_geometry(fixture["geometry"])["bdhc"]
     if fixture["schema_version"] == 2:
         # Coordinates are centered map tiles. Heights/constants are Q16.16;
         # PDSMS' HGSS loader negates the serialized plane constant. The access
@@ -546,7 +617,18 @@ def build_map_member(
     map_name: str | None = None,
 ) -> tuple[bytes, dict[str, Any]]:
     template = split_hgss_map_member(template_member)
-    if fixture["schema_version"] == 2:
+    if fixture["schema_version"] == 5:
+        geometry = compile_geometry(fixture["geometry"])
+        quad_counts = {
+            MATERIAL_BINDINGS[material]["shape"]: geometry["report"]["materials"][material]["quad_count"]
+            for material in MATERIAL_ORDER
+        }
+        model, model_info = transform_template_nsbmd_multi(
+            template["nsbmd"], geometry["display_lists"], quad_counts,
+        )
+        model_info["geometry"] = geometry["report"]
+        model_info["material_bindings"] = MATERIAL_BINDINGS
+    elif fixture["schema_version"] == 2:
         model, model_info = transform_template_nsbmd(
             template["nsbmd"], fixture["model"]["template_shape"],
             build_height_display_list(), target_quads=7,
@@ -578,13 +660,16 @@ def build_matrix(fixture: dict[str, Any]) -> bytes:
         output += bytes(matrix["altitudes"])
         output += struct.pack(f"<{len(members)}H", *members)
         return bytes(output)
-    name = b"stage2-proof" if fixture["schema_version"] == 1 else b"stage3a-height"
+    if fixture["schema_version"] == 5:
+        name = fixture["world"]["matrix"]["name"].encode("ascii")
+    else:
+        name = b"stage2-proof" if fixture["schema_version"] == 1 else b"stage3a-height"
     slots = fixture["slots"]
     return bytes((1, 1, 1, 1, len(name))) + name + struct.pack("<H", slots["map_header"]) + b"\0" + struct.pack("<H", slots["map_member"])
 
 
 def build_event(fixture: dict[str, Any]) -> bytes:
-    if fixture["schema_version"] in (2, 3):
+    if fixture["schema_version"] in (2, 3, 5):
         return struct.pack("<4I", 0, 0, 0, 0)
     npc = fixture["npc"]
     output = bytearray(struct.pack("<I", 0))
@@ -628,8 +713,10 @@ def build_map_header(
 
 
 def _write_script_source(fixture: dict[str, Any], source: Path, output: Path) -> None:
-    if fixture["schema_version"] in (2, 3):
-        if fixture["schema_version"] == 2:
+    if fixture["schema_version"] in (2, 3, 5):
+        if fixture["schema_version"] == 5:
+            label = "stage3d_geometry_noop"
+        elif fixture["schema_version"] == 2:
             label = "stage3a_height_noop"
         elif fixture.get("artifact_namespace") == "stage3c":
             label = "stage3c_registry_noop"
@@ -770,7 +857,7 @@ def generate_world(
     rom_path = root / "rom.nds"
     if not rom_path.is_file():
         raise WorldBuildError("missing ignored user-supplied rom.nds template source")
-    if fixture.get("artifact_namespace") == "stage3c":
+    if fixture.get("artifact_namespace") in ("stage3c", "stage3d"):
         registry_reference = fixture["registry_resolution"]["registry"]
         registry = load_registry(root / registry_reference)
         verify_rom_revision(registry, rom_path)
@@ -824,13 +911,33 @@ def generate_world(
             "event.bin": event,
             "map_header.bin": map_header,
         }
+        if fixture["schema_version"] == 5:
+            geometry = compile_geometry(fixture["geometry"])
+            raw_components["resolved-registry.json"] = (
+                json.dumps(fixture["registry_resolution"], indent=2, sort_keys=True) + "\n"
+            ).encode("utf-8")
+            raw_components["geometry-ir.json"] = (
+                json.dumps(geometry["ir"], indent=2, sort_keys=True) + "\n"
+            ).encode("utf-8")
+            report = dict(geometry["report"])
+            capacities = model_info["shape_capacities"]
+            report["shape_capacities"] = [
+                {"shape": index, "capacity_bytes": capacity}
+                for index, capacity in enumerate(capacities)
+            ]
+            report["shape_assignments"] = model_info["assignments"]
+            raw_components["geometry-report.json"] = (
+                json.dumps(report, indent=2, sort_keys=True) + "\n"
+            ).encode("utf-8")
+            for shape, display_list in sorted(geometry["display_lists"].items()):
+                raw_components[f"display-lists/shape-{shape}.bin"] = display_list
     for name, data in raw_components.items():
         path = components / name
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(data)
 
     script_output = components / f"2_{slots['script']:03d}"
-    stage_name = fixture.get("artifact_namespace", {1: "stage2", 2: "stage3a", 3: "stage3b"}[fixture["schema_version"]])
+    stage_name = fixture.get("artifact_namespace") or {1: "stage2", 2: "stage3a", 3: "stage3b"}[fixture["schema_version"]]
     script_source = components / f"{stage_name}_script.s"
     _write_script_source(fixture, script_source, script_output)
     _run_checked([str(root / "tools/armips"), str(script_source)], root)
@@ -949,3 +1056,38 @@ def verify_determinism(fixture_path: Path = DEFAULT_FIXTURE, root: Path = PROJEC
     report = root / "build" / namespace / "determinism-report.json"
     report.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return result
+
+
+def inspect_geometry(fixture_path: Path, root: Path = PROJECT_ROOT) -> dict[str, Any]:
+    """Return the bounded geometry/capacity plan without writing generated artifacts."""
+    fixture = load_fixture(fixture_path)
+    if fixture["schema_version"] != 5:
+        raise WorldBuildError("geometry inspection requires a Stage 3D schema-5 fixture")
+    rom_path = root / "rom.nds"
+    registry = load_registry(root / fixture["registry_resolution"]["registry"])
+    verify_rom_revision(registry, rom_path)
+    rom = NintendoDSRom.fromFile(str(rom_path))
+    template_member = NARC(rom.getFileByName("a/0/6/5")).files[fixture["model"]["template_map_member"]]
+    if sha256_bytes(template_member) != fixture["model"]["template_member_sha256"]:
+        raise WorldBuildError("Stage 3D template member hash does not match its canonical lock")
+    geometry = compile_geometry(fixture["geometry"])
+    quad_counts = {
+        MATERIAL_BINDINGS[material]["shape"]: geometry["report"]["materials"][material]["quad_count"]
+        for material in MATERIAL_ORDER
+    }
+    _model, model = transform_template_nsbmd_multi(
+        split_hgss_map_member(template_member)["nsbmd"], geometry["display_lists"], quad_counts,
+    )
+    report = dict(geometry["report"])
+    report.update({
+        "success": True,
+        "fixture": str(fixture_path),
+        "template_member_sha256": sha256_bytes(template_member),
+        "shape_capacities": [
+            {"shape": index, "capacity_bytes": capacity}
+            for index, capacity in enumerate(model["shape_capacities"])
+        ],
+        "shape_assignments": model["assignments"],
+        "material_bindings": MATERIAL_BINDINGS,
+    })
+    return report

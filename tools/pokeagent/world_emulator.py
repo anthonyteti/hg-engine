@@ -1,4 +1,4 @@
-"""Headless runtime assertions for the bounded Stage 2 through 3C proofs."""
+"""Headless runtime assertions for the bounded Stage 2 through 3D proofs."""
 
 from __future__ import annotations
 
@@ -111,7 +111,7 @@ def _move_to_coordinate(
         location = _location(emu, field_pointer_symbol)
         if location is not None and location[axis] == target:
             return location
-        _press(emu, key, deadline, held=6, after=45)
+        _press(emu, key, deadline)
     location = _location(emu, field_pointer_symbol)
     raise AssertionError(f"movement did not reach {axis}={target}: {location}")
 
@@ -351,6 +351,7 @@ def _worker(
             1: "stage2_map_emulator_worker",
             2: "stage3a_height_emulator_worker",
             3: "stage3b_multimap_emulator_worker",
+            5: "stage3d_geometry_emulator_worker",
         }[fixture["schema_version"]],
         "success": False,
         "rom": str(rom_path),
@@ -387,6 +388,9 @@ def _worker(
             _press(emu, Keys.KEY_A, deadline, after=60)
         else:
             raise AssertionError(f"controlled start did not reach map {target_header}: {current}")
+        # A field warp can finish loading before its script/task teardown has
+        # released movement input.  Keep the bootstrap deterministic but wait
+        # through that teardown before the first D-pad assertion.
         _cycle(emu, 180, deadline)
 
         start = _location(emu, symbols["gFieldSysPtr"])
@@ -542,6 +546,134 @@ def _worker(
             payload["success"] = all(checks.values())
             if not payload["success"]:
                 payload["error"] = "one or more Stage 3B runtime assertions failed"
+            return 0 if payload["success"] else 1
+        if fixture["schema_version"] == 5:
+            observations["map_runtime"] = _stage3b_runtime_state(emu, symbols["gFieldSysPtr"])
+            observations["bdhc_runtime"] = _bdhc_runtime_state(emu, symbols["gFieldSysPtr"])
+            checks["parsed_bdhc_loaded"] = any(
+                entry.get("ready") == 1 and entry.get("stripe_count") == 6
+                for entry in observations["bdhc_runtime"]
+            )
+            checks["event_fixture_is_empty"] = counts == {
+                "background": 0, "npc": 0, "warp": 0, "coordinate": 0,
+            }
+            lower_height = _height_state(emu, symbols["gFieldSysPtr"])
+            observations["lower_start"] = {"location": start, "height": lower_height}
+            checks["initial_lower_height"] = (
+                lower_height["current_height"] == 0 and lower_height["position_y_fx32"] == 0
+            )
+            screenshots["lower_start"] = _capture(emu, artifact_dir / "lower-start.png")
+
+            _press(emu, Keys.KEY_LEFT, deadline, after=60)
+            lower_left = _location(emu, symbols["gFieldSysPtr"])
+            _press(emu, Keys.KEY_RIGHT, deadline, after=60)
+            lower_back = _location(emu, symbols["gFieldSysPtr"])
+            _press(emu, Keys.KEY_UP, deadline, after=60)
+            lower_up = _location(emu, symbols["gFieldSysPtr"])
+            _press(emu, Keys.KEY_DOWN, deadline, after=60)
+            lower_returned = _location(emu, symbols["gFieldSysPtr"])
+            observations["initial_lower_movement"] = [lower_left, lower_back, lower_up, lower_returned]
+            checks["lower_terrain_movement"] = (
+                [(state["x"], state["z"]) for state in (lower_left, lower_back, lower_up, lower_returned)]
+                == [(7, 12), (8, 12), (8, 11), (8, 12)]
+            )
+
+            for _ in range(5):
+                _press(emu, Keys.KEY_RIGHT, deadline)
+            ramp_a_states = []
+            for target_x in (14, 15, 16, 17):
+                _press(emu, Keys.KEY_RIGHT, deadline, after=60)
+                ramp_a_states.append({
+                    "location": _location(emu, symbols["gFieldSysPtr"]),
+                    "height": _height_state(emu, symbols["gFieldSysPtr"]),
+                })
+            observations["transition_a"] = ramp_a_states
+            checks["transition_a_traversed"] = (
+                [(state["location"]["x"], state["location"]["z"]) for state in ramp_a_states]
+                == [(14, 12), (15, 12), (16, 12), (17, 12)]
+            )
+            checks["transition_a_height_progression"] = (
+                [state["height"]["current_height"] for state in ramp_a_states] == [1, 3, 4, 4]
+                and ramp_a_states[-1]["height"]["position_y_fx32"] == 2 * 65536
+            )
+            screenshots["transition_a"] = _capture(emu, artifact_dir / "transition-a.png")
+
+            raised_route_states = []
+            _press(emu, Keys.KEY_RIGHT, deadline, after=60)
+            raised_route_states.append(_location(emu, symbols["gFieldSysPtr"]))
+            for _ in range(3):
+                _press(emu, Keys.KEY_UP, deadline, after=60)
+                raised_route_states.append(_location(emu, symbols["gFieldSysPtr"]))
+            for _ in range(2):
+                _press(emu, Keys.KEY_LEFT, deadline, after=60)
+                raised_route_states.append(_location(emu, symbols["gFieldSysPtr"]))
+            cliff_approach = _location(emu, symbols["gFieldSysPtr"])
+            _press(emu, Keys.KEY_LEFT, deadline, after=60)
+            cliff_blocked = _location(emu, symbols["gFieldSysPtr"])
+            cliff_height = _height_state(emu, symbols["gFieldSysPtr"])
+            observations["direct_cliff"] = {"approach": cliff_approach, "blocked": cliff_blocked, "height": cliff_height}
+            checks["direct_cliff_blocks_shortcut"] = (
+                cliff_approach is not None and (cliff_approach["x"], cliff_approach["z"]) == (16, 9)
+                and cliff_blocked is not None and (cliff_blocked["x"], cliff_blocked["z"]) == (16, 9)
+                and cliff_height["current_height"] == 4
+            )
+            screenshots["cliff_blocked"] = _capture(emu, artifact_dir / "cliff-blocked.png")
+
+            for _ in range(2):
+                _press(emu, Keys.KEY_RIGHT, deadline, after=60)
+            for _ in range(14):
+                _press(emu, Keys.KEY_DOWN, deadline, after=60)
+                raised_route_states.append(_location(emu, symbols["gFieldSysPtr"]))
+            observations["raised_route_steps"] = raised_route_states
+            terrace = _location(emu, symbols["gFieldSysPtr"])
+            terrace_height = _height_state(emu, symbols["gFieldSysPtr"])
+            observations["irregular_terrace"] = {"location": terrace, "height": terrace_height}
+            checks["irregular_raised_path_traversed"] = (
+                terrace is not None and (terrace["x"], terrace["z"]) == (18, 23)
+                and terrace_height["current_height"] == 4
+                and terrace_height["position_y_fx32"] == 2 * 65536
+            )
+            screenshots["raised_terrace"] = _capture(emu, artifact_dir / "raised-terrace.png")
+
+            ramp_b_states = []
+            for target_z in (24, 25, 26, 27):
+                _press(emu, Keys.KEY_DOWN, deadline, after=60)
+                ramp_b_states.append({
+                    "location": _location(emu, symbols["gFieldSysPtr"]),
+                    "height": _height_state(emu, symbols["gFieldSysPtr"]),
+                })
+            observations["transition_b"] = ramp_b_states
+            checks["transition_b_traversed"] = (
+                [(state["location"]["x"], state["location"]["z"]) for state in ramp_b_states]
+                == [(18, 24), (18, 25), (18, 26), (18, 27)]
+            )
+            checks["transition_b_height_progression"] = (
+                [state["height"]["current_height"] for state in ramp_b_states] == [3, 1, 0, 0]
+                and ramp_b_states[-1]["height"]["position_y_fx32"] == 0
+            )
+            screenshots["transition_b"] = _capture(emu, artifact_dir / "transition-b.png")
+
+            for _ in range(4):
+                _press(emu, Keys.KEY_LEFT, deadline, after=60)
+            lower_after = _location(emu, symbols["gFieldSysPtr"])
+            lower_after_height = _height_state(emu, symbols["gFieldSysPtr"])
+            observations["lower_after_route"] = {"location": lower_after, "height": lower_after_height}
+            checks["lower_movement_after_second_transition"] = (
+                lower_after is not None and (lower_after["x"], lower_after["z"]) == (14, 27)
+                and lower_after_height["current_height"] == 0
+            )
+            _cycle(emu, 600, deadline)
+            stable = _location(emu, symbols["gFieldSysPtr"])
+            stable_height = _height_state(emu, symbols["gFieldSysPtr"])
+            observations["after_stability_window"] = {"location": stable, "height": stable_height}
+            checks["rom_stable_600_frames"] = (
+                bool(emu.is_running()) and stable is not None
+                and (stable["map"], stable["x"], stable["z"]) == (target_header, 14, 27)
+                and stable_height["current_height"] == 0
+            )
+            payload["success"] = all(checks.values())
+            if not payload["success"]:
+                payload["error"] = "one or more Stage 3D runtime assertions failed"
             return 0 if payload["success"] else 1
         if fixture["schema_version"] == 2:
             observations["bdhc_runtime"] = _bdhc_runtime_state(emu, symbols["gFieldSysPtr"])
@@ -771,6 +903,7 @@ def run_world_test(
             1: "stage2_map_emulator",
             2: "stage3a_height_emulator",
             3: "stage3b_multimap_emulator",
+            5: "stage3d_geometry_emulator",
         }[fixture["schema_version"]],
         "success": False,
         "rom_sha256": sha256_file(rom_path) if rom_path.is_file() else None,

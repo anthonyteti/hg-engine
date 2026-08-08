@@ -121,6 +121,21 @@ not treated as free. See `docs/STAGE_3C_TECHNICAL_REPORT.md`.
 
 Maps should be authored through structured data, not mouse placement.
 
+The Stage 3D static-terrain subset is now a tested intermediate layer:
+
+```text
+symbolic world + rectangular surfaces/transitions
+  -> validated geometry IR
+  -> deterministic quads in verified template shapes
+  -> PER + BDHC from the same terrain features
+  -> existing HGSS world serializers
+```
+
+It intentionally remains template-bound and quad-only. Unsupported topology,
+new materials/textures, model relocation, and OBJ/GLB import must not be
+inferred from this proof. See `docs/STAGE_3D_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage3d-static-geometry.md`.
+
 The map source should describe:
 
 - dimensions

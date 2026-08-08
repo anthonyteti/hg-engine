@@ -598,17 +598,23 @@ BOOL IsPlayerOnLadder(void)
 #endif
 #if defined(DEBUG_AUTO_QUEUE_SCRIPT)
     queueUpAutoBattleScript++;
-    if (queueUpAutoBattleScript == 30) {
 #ifdef STAGE2_MAP_TEST
+    // The title/new-game script can still own field input after 30 callbacks.
+    // Delay the test-only controlled warp until that script has deterministically
+    // released control; otherwise the map loads but all D-pad input stays locked.
+    if (queueUpAutoBattleScript == 300) {
         // Global script 2000 (common-script bank member 3, entry 0) is
         // replaced only in the Stage 2 generated NARC.
         // It performs the controlled warp through the game's normal command.
         EventSet_Script(gFieldSysPtr, 2000, NULL);
+        queueUpAutoBattleScript = 301;
+    }
 #else
+    if (queueUpAutoBattleScript == 30) {
         EventSet_Script(gFieldSysPtr, 2073, NULL);
-#endif
         queueUpAutoBattleScript = 31;
     }
+#endif
 #elif defined(DEBUG_BATTLE_SCENARIOS)
     queueUpAutoBattleScript++;
     if (queueUpAutoBattleScript == 30) {

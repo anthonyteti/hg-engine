@@ -137,6 +137,9 @@ endif
 ifeq ($(STAGE3C_REGISTRY),Y)
     WORLD_INSTALL_ARGS := --fixture fixtures/stage3c_symbolic_registry_world.json --output build/stage3c/generated
 endif
+ifeq ($(STAGE3D_GEOMETRY),Y)
+    WORLD_INSTALL_ARGS := --fixture fixtures/stage3d_static_geometry_world.json --output build/stage3d/generated
+endif
 
 ####################### Output #######################
 C_SUBDIR = src
@@ -375,6 +378,11 @@ stage3b-multimap-proof:
 stage3c-registry-proof:
 	$(MAKE) clean
 	$(MAKE) STAGE2_MAP=Y STAGE3C_REGISTRY=Y
+
+.PHONY: stage3d-geometry-proof
+stage3d-geometry-proof:
+	$(MAKE) clean
+	$(MAKE) STAGE2_MAP=Y STAGE3D_GEOMETRY=Y
 
 ALL_CODE_OBJS := $(patsubst $(C_SUBDIR)/%.c,$(BUILD)/%.o,$(ALL_C_SRCS)) \
  $(patsubst $(ASM_SUBDIR)/%.s,$(BUILD)/%.o,$(ALL_ASM_SRCS)) \

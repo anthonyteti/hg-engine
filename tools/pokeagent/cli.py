@@ -19,7 +19,7 @@ from .registry import (
     write_inventory,
 )
 from .rom import PROJECT_ROOT, build_rom, run_preflight
-from .world import DEFAULT_FIXTURE, DEFAULT_OUTPUT, generate_world, load_fixture, verify_determinism
+from .world import DEFAULT_FIXTURE, DEFAULT_OUTPUT, generate_world, inspect_geometry, load_fixture, verify_determinism
 from .world_emulator import run_world_test
 
 
@@ -78,6 +78,11 @@ def build_parser() -> argparse.ArgumentParser:
         if command == "test":
             child.add_argument("--timeout", type=float, default=180)
         _add_output_argument(child)
+    geometry_parser = map_subparsers.add_parser("geometry", help="inspect bounded static-terrain geometry")
+    geometry_subparsers = geometry_parser.add_subparsers(dest="geometry_command", required=True)
+    geometry_inspect = geometry_subparsers.add_parser("inspect", help="validate IR and report shape budgets")
+    geometry_inspect.add_argument("--fixture", type=Path, required=True)
+    _add_output_argument(geometry_inspect)
 
     registry_parser = subparsers.add_parser("registry", help="validate and inspect stable symbolic IDs")
     registry_subparsers = registry_parser.add_subparsers(dest="registry_command", required=True)
@@ -236,6 +241,9 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "map" and args.map_command == "test":
             payload = run_world_test(PROJECT_ROOT, args.fixture, args.timeout)
             _print_json(payload) if args.json else _print_map(payload)
+        elif args.command == "map" and args.map_command == "geometry" and args.geometry_command == "inspect":
+            payload = inspect_geometry(args.fixture, PROJECT_ROOT)
+            _print_json(payload) if args.json else _print_map(payload)
         elif args.command == "registry" and args.registry_command == "validate":
             registry = load_registry(args.registry)
             payload = {
@@ -258,7 +266,7 @@ def main(argv: list[str] | None = None) -> int:
             return 2
     except (OSError, ValueError) as error:
         if getattr(args, "json", False):
-            detail = error.as_dict() if isinstance(error, RegistryError) else {"code": "error", "message": str(error)}
+            detail = error.as_dict() if hasattr(error, "as_dict") else {"code": "error", "message": str(error)}
             _print_json({"success": False, "errors": [detail]})
         else:
             print(f"pokeagent: ERROR {error}", file=sys.stderr)
