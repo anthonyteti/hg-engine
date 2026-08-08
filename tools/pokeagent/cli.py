@@ -9,6 +9,15 @@ import shlex
 import sys
 
 from .emulator import run_smoke
+from .registry import (
+    DEFAULT_INVENTORY,
+    DEFAULT_REGISTRY,
+    RegistryError,
+    load_registry,
+    resolve_symbol,
+    verify_rom_revision,
+    write_inventory,
+)
 from .rom import PROJECT_ROOT, build_rom, run_preflight
 from .world import DEFAULT_FIXTURE, DEFAULT_OUTPUT, generate_world, load_fixture, verify_determinism
 from .world_emulator import run_world_test
@@ -69,6 +78,23 @@ def build_parser() -> argparse.ArgumentParser:
         if command == "test":
             child.add_argument("--timeout", type=float, default=180)
         _add_output_argument(child)
+
+    registry_parser = subparsers.add_parser("registry", help="validate and inspect stable symbolic IDs")
+    registry_subparsers = registry_parser.add_subparsers(dest="registry_command", required=True)
+    registry_validate = registry_subparsers.add_parser("validate", help="validate registry structure and ROM coupling")
+    registry_validate.add_argument("--registry", type=Path, default=DEFAULT_REGISTRY)
+    registry_validate.add_argument("--rom", type=Path, default=PROJECT_ROOT / "rom.nds")
+    _add_output_argument(registry_validate)
+    registry_inspect = registry_subparsers.add_parser("inspect", help="write a metadata-only slot inventory")
+    registry_inspect.add_argument("--registry", type=Path, default=DEFAULT_REGISTRY)
+    registry_inspect.add_argument("--rom", type=Path, default=PROJECT_ROOT / "rom.nds")
+    registry_inspect.add_argument("--output", type=Path, default=DEFAULT_INVENTORY)
+    _add_output_argument(registry_inspect)
+    registry_resolve = registry_subparsers.add_parser("resolve", help="resolve one stable symbol")
+    registry_resolve.add_argument("symbol")
+    registry_resolve.add_argument("--namespace")
+    registry_resolve.add_argument("--registry", type=Path, default=DEFAULT_REGISTRY)
+    _add_output_argument(registry_resolve)
     return parser
 
 
@@ -161,6 +187,21 @@ def _print_map(payload: dict[str, object]) -> None:
         print(f"  ERROR {error}")
 
 
+def _print_registry(payload: dict[str, object]) -> None:
+    print(f"registry: {'PASS' if payload.get('success') else 'FAIL'}")
+    if "symbol" in payload:
+        print(
+            f"  {payload['symbol']} -> {payload['namespace']}:{payload['id']} "
+            f"({payload['classification']}, {payload['access']})"
+        )
+    if "namespace_count" in payload:
+        print(f"  Namespaces: {payload['namespace_count']}; resources: {payload['resource_count']}")
+    if "revision" in payload:
+        print(f"  ROM: {payload['revision']['game_code']} sha256={payload['revision']['rom_sha256']}")
+    if "output" in payload:
+        print(f"  Inventory: {_relative_or_absolute(payload['output'])}")
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -195,11 +236,32 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "map" and args.map_command == "test":
             payload = run_world_test(PROJECT_ROOT, args.fixture, args.timeout)
             _print_json(payload) if args.json else _print_map(payload)
+        elif args.command == "registry" and args.registry_command == "validate":
+            registry = load_registry(args.registry)
+            payload = {
+                "success": True,
+                "registry": str(args.registry),
+                "namespace_count": len(registry["namespaces"]),
+                "resource_count": sum(len(namespace["resources"]) for namespace in registry["namespaces"].values()),
+                "revision": verify_rom_revision(registry, args.rom),
+            }
+            _print_json(payload) if args.json else _print_registry(payload)
+        elif args.command == "registry" and args.registry_command == "inspect":
+            payload = write_inventory(args.registry, args.rom, args.output)
+            _print_json(payload) if args.json else _print_registry(payload)
+        elif args.command == "registry" and args.registry_command == "resolve":
+            payload = resolve_symbol(load_registry(args.registry), args.symbol, args.namespace, require_writable=False)
+            payload["success"] = True
+            _print_json(payload) if args.json else _print_registry(payload)
         else:
             parser.error("unsupported command")
             return 2
     except (OSError, ValueError) as error:
-        print(f"pokeagent: ERROR {error}", file=sys.stderr)
+        if getattr(args, "json", False):
+            detail = error.as_dict() if isinstance(error, RegistryError) else {"code": "error", "message": str(error)}
+            _print_json({"success": False, "errors": [detail]})
+        else:
+            print(f"pokeagent: ERROR {error}", file=sys.stderr)
         return 1
 
     return 0 if payload["success"] else 1

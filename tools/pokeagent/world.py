@@ -1,4 +1,4 @@
-"""Deterministic HGSS one-map proof generator for Stages 2 and 3A.
+"""Deterministic HGSS world-proof generator for Stages 2 through 3C.
 
 This intentionally implements only the binary subset required by the fixture.
 The NSBMD writer is a hash-locked, user-local template transformer: it preserves
@@ -19,12 +19,25 @@ from typing import Any
 from ndspy.narc import NARC
 from ndspy.rom import NintendoDSRom
 
+from .registry import load_registry, resolve_world_source, verify_rom_revision
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_FIXTURE = PROJECT_ROOT / "fixtures" / "stage2_proof_map.json"
 DEFAULT_OUTPUT = PROJECT_ROOT / "build" / "stage2" / "generated"
 HGSS_US_HEADER_OFFSET = 0xF6BE0
 MAP_HEADER_SIZE = 24
+MAP_TILES = 32
+STAGE3B_CELL_ORDER = ("nw", "ne", "sw", "se")
+STAGE3B_CONTROLLED_HEADERS = {"nw": 538, "ne": 9, "sw": 10, "se": 11}
+STAGE3B_CONTROLLED_MEMBERS = {"nw": 633, "ne": 630, "sw": 631, "se": 632}
+CARDINAL_DELTAS = {
+    "north": (-1, 0),
+    "east": (0, 1),
+    "south": (1, 0),
+    "west": (0, -1),
+}
+OPPOSITE_EDGE = {"north": "south", "east": "west", "south": "north", "west": "east"}
 
 NARC_PATHS = {
     "map": Path("base/root/a/0/6/5"),
@@ -48,14 +61,22 @@ def load_fixture(path: Path = DEFAULT_FIXTURE) -> dict[str, Any]:
         fixture = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as error:
         raise WorldBuildError(f"cannot load fixture {path}: {error}") from error
+    if fixture.get("schema_version") == 4:
+        registry_reference = fixture.get("registry")
+        if not isinstance(registry_reference, str):
+            raise WorldBuildError("Stage 3C fixture must declare a symbolic registry path")
+        fixture = resolve_world_source(fixture, PROJECT_ROOT / registry_reference)
     validate_fixture(fixture)
     return fixture
 
 
 def validate_fixture(fixture: dict[str, Any]) -> None:
     schema_version = fixture.get("schema_version")
-    if schema_version not in (1, 2):
-        raise WorldBuildError("only Stage 2 schema 1 and Stage 3A schema 2 are supported")
+    if schema_version not in (1, 2, 3):
+        raise WorldBuildError("only resolved Stage 2, Stage 3A, and Stage 3B/3C schemas are supported")
+    if schema_version == 3:
+        _validate_stage3b_fixture(fixture)
+        return
     dimensions = fixture.get("dimensions", {})
     if dimensions != {"width": 32, "height": 32}:
         raise WorldBuildError("Stage 2 is deliberately limited to one 32x32 map")
@@ -113,6 +134,100 @@ def validate_fixture(fixture: dict[str, Any]) -> None:
             raise WorldBuildError(f"Stage 3A terrain {key} must be a byte")
     if terrain.get("block_border") is not True:
         raise WorldBuildError("Stage 3A requires a blocked perimeter")
+
+
+def _validate_stage3b_fixture(fixture: dict[str, Any]) -> None:
+    namespace = fixture.get("artifact_namespace")
+    is_stage3c = namespace == "stage3c" and fixture.get("canonical_schema_version") == 4
+    if namespace != "stage3b" and not is_stage3c:
+        raise WorldBuildError("resolved multi-map schema must use the stage3b or stage3c artifact namespace")
+    if fixture.get("dimensions") != {"width": MAP_TILES, "height": MAP_TILES}:
+        raise WorldBuildError("Stage 3B map members must each be 32x32")
+    slots = fixture.get("slots", {})
+    required_slots = {"matrix", "event", "script", "start_script", "script_header", "text"}
+    if set(slots) != required_slots or any(not isinstance(value, int) or value < 0 for value in slots.values()):
+        raise WorldBuildError("Stage 3B slots must contain exactly the six shared deterministic IDs")
+    if slots["matrix"] != 1:
+        raise WorldBuildError("Stage 3B matrix slot must remain verified controlled slot 1")
+
+    matrix = fixture.get("world", {}).get("matrix", {})
+    if matrix.get("width") != 2 or matrix.get("height") != 2:
+        raise WorldBuildError("Stage 3B requires exactly one 2x2 matrix")
+    try:
+        matrix_name = matrix.get("name", "").encode("ascii")
+    except UnicodeEncodeError as exc:
+        raise WorldBuildError("Stage 3B matrix name must be ASCII") from exc
+    expected_name = "stage3c-2x2" if is_stage3c else "stage3b-2x2"
+    if matrix.get("name") != expected_name or len(matrix_name) > 16:
+        raise WorldBuildError(f"multi-map matrix name must be the bounded ASCII identifier {expected_name}")
+    cells = matrix.get("cells")
+    if cells != list(STAGE3B_CELL_ORDER):
+        raise WorldBuildError("Stage 3B cells must be the row-major order nw, ne, sw, se")
+    if len(cells) != matrix["width"] * matrix["height"]:
+        raise WorldBuildError("Stage 3B matrix dimensions disagree with its cell count")
+    if matrix.get("altitudes") != [0, 0, 0, 0]:
+        raise WorldBuildError("Stage 3B uses an explicit flat, row-major four-byte altitude grid")
+    if matrix.get("external_boundaries") != "blocked":
+        raise WorldBuildError("Stage 3B exterior matrix boundaries must use valid blocked collision")
+
+    maps = fixture.get("maps")
+    if not isinstance(maps, dict) or set(maps) != set(STAGE3B_CELL_ORDER):
+        raise WorldBuildError("Stage 3B maps must define exactly nw, ne, sw, and se")
+    header_ids: list[int] = []
+    member_ids: list[int] = []
+    identity_tiles: set[tuple[int, int]] = set()
+    for index, name in enumerate(STAGE3B_CELL_ORDER):
+        map_spec = maps[name]
+        if set(map_spec) != {"cell", "map_header", "map_member", "edge_openings", "identity_blocked_tile"}:
+            raise WorldBuildError(f"Stage 3B map {name} has unsupported or missing fields")
+        expected_cell = {"row": index // 2, "column": index % 2}
+        if map_spec["cell"] != expected_cell:
+            raise WorldBuildError(f"Stage 3B map {name} has an inconsistent matrix cell")
+        if map_spec["map_header"] != STAGE3B_CONTROLLED_HEADERS[name]:
+            raise WorldBuildError(f"Stage 3B map {name} must use its verified controlled header")
+        if map_spec["map_member"] != STAGE3B_CONTROLLED_MEMBERS[name]:
+            raise WorldBuildError(f"Stage 3B map {name} must use its verified unreferenced member")
+        header_ids.append(map_spec["map_header"])
+        member_ids.append(map_spec["map_member"])
+        tile = map_spec["identity_blocked_tile"]
+        if not (
+            isinstance(tile, list) and len(tile) == 2
+            and all(isinstance(value, int) and 1 <= value < MAP_TILES - 1 for value in tile)
+        ):
+            raise WorldBuildError(f"Stage 3B map {name} identity tile must be an interior coordinate")
+        if tuple(tile) in identity_tiles:
+            raise WorldBuildError("Stage 3B map identity tiles must be distinct")
+        identity_tiles.add(tuple(tile))
+        openings = map_spec["edge_openings"]
+        if not isinstance(openings, dict) or any(edge not in CARDINAL_DELTAS for edge in openings):
+            raise WorldBuildError(f"Stage 3B map {name} contains an invalid edge opening")
+        for edge, coordinates in openings.items():
+            if not (
+                isinstance(coordinates, list) and coordinates
+                and len(set(coordinates)) == len(coordinates)
+                and all(isinstance(value, int) and 1 <= value < MAP_TILES - 1 for value in coordinates)
+            ):
+                raise WorldBuildError(f"Stage 3B map {name} edge {edge} has malformed openings")
+            row = expected_cell["row"] + CARDINAL_DELTAS[edge][0]
+            column = expected_cell["column"] + CARDINAL_DELTAS[edge][1]
+            if not (0 <= row < 2 and 0 <= column < 2):
+                raise WorldBuildError(f"Stage 3B map {name} cannot open exterior edge {edge}")
+            neighbor = STAGE3B_CELL_ORDER[row * 2 + column]
+            reciprocal = maps[neighbor].get("edge_openings", {}).get(OPPOSITE_EDGE[edge])
+            if reciprocal != coordinates:
+                raise WorldBuildError(f"Stage 3B edge {name}:{edge} is not reciprocal with {neighbor}")
+
+    if len(set(header_ids)) != 4 or len(set(member_ids)) != 4:
+        raise WorldBuildError("Stage 3B headers and map-member assignments must each be unique")
+    expected_start = {"map": "nw", "local_x": 16, "local_z": 16, "direction": 3}
+    if fixture.get("player_start") != expected_start:
+        raise WorldBuildError("Stage 3B controlled start must use the bounded NW profile")
+    if fixture.get("warps") != [] or "npc" in fixture:
+        raise WorldBuildError("Stage 3B native transitions forbid event warps and NPC content")
+    terrain = fixture.get("terrain", {})
+    for key in ("permission_type", "walkable_collision", "blocked_collision"):
+        if not isinstance(terrain.get(key), int) or not 0 <= terrain[key] <= 255:
+            raise WorldBuildError(f"Stage 3B terrain {key} must be a byte")
 
 
 def _dict_offsets(data: bytes, base: int, entry_size: int = 4) -> list[int]:
@@ -312,17 +427,53 @@ def split_hgss_map_member(member: bytes) -> dict[str, bytes]:
     return {"bgs": bgs_header + bgs_payload, "per": per, "bld": bld, "nsbmd": nsbmd, "bdhc": bdhc}
 
 
-def build_per(fixture: dict[str, Any]) -> bytes:
+def _build_bgs(fixture: dict[str, Any], template_bgs: bytes) -> bytes:
+    if len(template_bgs) < 4:
+        raise WorldBuildError("template BGS section is missing its four-byte header")
+    if fixture["schema_version"] != 3:
+        return template_bgs
+    # The BGS header's second u16 is its payload length.  The Stage 2
+    # physical invariant places PER immediately after this four-byte header
+    # at member offset 0x14, so Stage 3B declares an empty BGS payload.
+    return template_bgs[:2] + b"\0\0"
+
+
+def _stage3b_open_tiles(map_spec: dict[str, Any]) -> set[tuple[int, int]]:
+    tiles: set[tuple[int, int]] = set()
+    for edge, coordinates in map_spec["edge_openings"].items():
+        for coordinate in coordinates:
+            if edge == "north":
+                tiles.add((coordinate, 0))
+            elif edge == "east":
+                tiles.add((31, coordinate))
+            elif edge == "south":
+                tiles.add((coordinate, 31))
+            else:
+                tiles.add((0, coordinate))
+    return tiles
+
+
+def build_per(fixture: dict[str, Any], map_name: str | None = None) -> bytes:
     terrain = fixture["terrain"]
     output = bytearray()
-    blocked = {tuple(tile) for tile in terrain.get("blocked_tiles", [])}
+    if fixture["schema_version"] == 3:
+        if map_name not in fixture["maps"]:
+            raise WorldBuildError("Stage 3B PER generation requires a declared map name")
+        map_spec = fixture["maps"][map_name]
+        blocked = {tuple(map_spec["identity_blocked_tile"])}
+        open_border = _stage3b_open_tiles(map_spec)
+    else:
+        blocked = {tuple(tile) for tile in terrain.get("blocked_tiles", [])}
+        open_border = set()
     warps = {(warp["x"], warp["z"]) for warp in fixture.get("warps", [])}
     # HGSS PER is row-major (Z, then X), with the permission byte immediately
     # followed by the walkability byte. PDSMS names these row/column loops
     # j/k; DSPRE stores them in its first/second rectangular-array indices.
     for z in range(32):
         for x in range(32):
-            is_border = terrain["block_border"] and (x in (0, 31) or z in (0, 31))
+            is_border = (x in (0, 31) or z in (0, 31)) and (x, z) not in open_border
+            if fixture["schema_version"] != 3:
+                is_border = terrain["block_border"] and is_border
             collision = terrain["blocked_collision"] if is_border or (x, z) in blocked else terrain["walkable_collision"]
             permission = terrain.get("warp_permission_type", terrain["permission_type"]) if (x, z) in warps else terrain["permission_type"]
             output.extend((permission, collision))
@@ -374,7 +525,7 @@ def build_bdhc(fixture: dict[str, Any]) -> bytes:
         return bytes(output)
 
     extent = fixture["model"]["half_extent"]
-    height = fixture["terrain"]["height"]
+    height = fixture["terrain"].get("height", 0)
     if height != 0:
         raise WorldBuildError("Stage 2 BDHC subset supports only a zero-height plane")
     output = bytearray(b"BDHC")
@@ -389,7 +540,11 @@ def build_bdhc(fixture: dict[str, Any]) -> bytes:
     return bytes(output)
 
 
-def build_map_member(fixture: dict[str, Any], template_member: bytes) -> tuple[bytes, dict[str, Any]]:
+def build_map_member(
+    fixture: dict[str, Any],
+    template_member: bytes,
+    map_name: str | None = None,
+) -> tuple[bytes, dict[str, Any]]:
     template = split_hgss_map_member(template_member)
     if fixture["schema_version"] == 2:
         model, model_info = transform_template_nsbmd(
@@ -401,22 +556,35 @@ def build_map_member(fixture: dict[str, Any], template_member: bytes) -> tuple[b
             template["nsbmd"], fixture["model"]["template_shape"]
         )
         model_info["flat_display_list_bytes"] = model_info["display_list_bytes"]
-    per = build_per(fixture)
+    per = build_per(fixture, map_name)
     bld = b""
     bdhc = build_bdhc(fixture)
+    bgs = _build_bgs(fixture, template["bgs"])
     header = struct.pack("<4I", len(per), len(bld), len(model), len(bdhc))
-    member = header + template["bgs"][:4] + per + bld + template["bgs"][4:] + model + bdhc
-    return member, {"bgs_bytes_reused": len(template["bgs"]), **model_info}
+    member = header + bgs[:4] + per + bld + bgs[4:] + model + bdhc
+    return member, {"bgs_bytes_reused": len(bgs), **model_info}
 
 
 def build_matrix(fixture: dict[str, Any]) -> bytes:
+    if fixture["schema_version"] == 3:
+        matrix = fixture["world"]["matrix"]
+        name = matrix["name"].encode("ascii")
+        cells = [fixture["maps"][cell] for cell in matrix["cells"]]
+        headers = [cell["map_header"] for cell in cells]
+        members = [cell["map_member"] for cell in cells]
+        output = bytearray((matrix["width"], matrix["height"], 1, 1, len(name)))
+        output += name
+        output += struct.pack(f"<{len(headers)}H", *headers)
+        output += bytes(matrix["altitudes"])
+        output += struct.pack(f"<{len(members)}H", *members)
+        return bytes(output)
     name = b"stage2-proof" if fixture["schema_version"] == 1 else b"stage3a-height"
     slots = fixture["slots"]
     return bytes((1, 1, 1, 1, len(name))) + name + struct.pack("<H", slots["map_header"]) + b"\0" + struct.pack("<H", slots["map_member"])
 
 
 def build_event(fixture: dict[str, Any]) -> bytes:
-    if fixture["schema_version"] == 2:
+    if fixture["schema_version"] in (2, 3):
         return struct.pack("<4I", 0, 0, 0, 0)
     npc = fixture["npc"]
     output = bytearray(struct.pack("<I", 0))
@@ -433,7 +601,19 @@ def build_event(fixture: dict[str, Any]) -> bytes:
     return bytes(output)
 
 
-def build_map_header(fixture: dict[str, Any], arm9: bytes) -> bytes:
+def _map_header_id(fixture: dict[str, Any], map_name: str | None) -> int:
+    if fixture["schema_version"] == 3:
+        if map_name not in fixture["maps"]:
+            raise WorldBuildError("Stage 3B map-header generation requires a declared map name")
+        return fixture["maps"][map_name]["map_header"]
+    return fixture["slots"]["map_header"]
+
+
+def build_map_header(
+    fixture: dict[str, Any],
+    arm9: bytes,
+    map_name: str | None = None,
+) -> bytes:
     slots = fixture["slots"]
     template_id = fixture["header_template"]
     template_offset = HGSS_US_HEADER_OFFSET + template_id * MAP_HEADER_SIZE
@@ -448,14 +628,20 @@ def build_map_header(fixture: dict[str, Any], arm9: bytes) -> bytes:
 
 
 def _write_script_source(fixture: dict[str, Any], source: Path, output: Path) -> None:
-    if fixture["schema_version"] == 2:
+    if fixture["schema_version"] in (2, 3):
+        if fixture["schema_version"] == 2:
+            label = "stage3a_height_noop"
+        elif fixture.get("artifact_namespace") == "stage3c":
+            label = "stage3c_registry_noop"
+        else:
+            label = "stage3b_multimap_noop"
         source.write_text(
             ".nds\n.thumb\n\n"
             '.include "armips/include/scriptmacros.s"\n\n'
             f'.create "{output.as_posix()}", 0\n\n'
-            "scrdef stage3a_height_noop\n"
+            f"scrdef {label}\n"
             "scrdef_end\n\n"
-            "stage3a_height_noop:\n"
+            f"{label}:\n"
             "    end\n\n.close\n",
             encoding="utf-8",
         )
@@ -485,7 +671,13 @@ def _write_script_source(fixture: dict[str, Any], source: Path, output: Path) ->
 
 def _write_start_script_source(fixture: dict[str, Any], source: Path, output: Path) -> None:
     start = fixture["player_start"]
-    header = fixture["slots"]["map_header"]
+    header = _map_header_id(fixture, start.get("map"))
+    if fixture["schema_version"] == 3:
+        map_spec = fixture["maps"][start["map"]]
+        x = map_spec["cell"]["column"] * MAP_TILES + start["local_x"]
+        z = map_spec["cell"]["row"] * MAP_TILES + start["local_z"]
+    else:
+        x, z = start["x"], start["z"]
     source.write_text(
         ".nds\n.thumb\n\n"
         '.include "armips/include/scriptmacros.s"\n\n'
@@ -493,7 +685,7 @@ def _write_start_script_source(fixture: dict[str, Any], source: Path, output: Pa
         "scrdef stage2_start\n"
         "scrdef_end\n\n"
         "stage2_start:\n"
-        f"    warp {header}, 0xFFFF, {start['x']}, {start['z']}, {start['direction']}\n"
+        f"    warp {header}, 0xFFFF, {x}, {z}, {start['direction']}\n"
         "    end\n\n.close\n",
         encoding="utf-8",
     )
@@ -512,6 +704,48 @@ def _replace_narc(source: Path, member_id: int, member: bytes, destination: Path
     archive.files[member_id] = member
     destination.parent.mkdir(parents=True, exist_ok=True)
     archive.saveToFile(str(destination))
+
+
+def _replace_narc_members(source: Path, replacements: dict[int, bytes], destination: Path) -> None:
+    archive = NARC.fromFile(str(source))
+    for member_id, member in sorted(replacements.items()):
+        if member_id >= len(archive.files):
+            raise WorldBuildError(f"member {member_id} is outside {source} ({len(archive.files)} files)")
+        archive.files[member_id] = member
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    archive.saveToFile(str(destination))
+
+
+def validate_stage3b_cross_references(
+    fixture: dict[str, Any],
+    matrix: bytes,
+    map_headers: dict[str, bytes],
+) -> None:
+    """Reject generated Stage 3B artifacts whose derived references disagree."""
+    if fixture["schema_version"] != 3:
+        raise WorldBuildError("Stage 3B cross-reference validation requires schema 3")
+    width, height, has_headers, has_altitudes, name_length = matrix[:5]
+    expected_matrix = fixture["world"]["matrix"]
+    if (width, height, has_headers, has_altitudes) != (2, 2, 1, 1):
+        raise WorldBuildError("generated Stage 3B matrix header is inconsistent")
+    offset = 5 + name_length
+    header_grid = list(struct.unpack_from("<4H", matrix, offset))
+    altitude_grid = list(matrix[offset + 8:offset + 12])
+    member_grid = list(struct.unpack_from("<4H", matrix, offset + 12))
+    expected_cells = [fixture["maps"][name] for name in expected_matrix["cells"]]
+    if header_grid != [cell["map_header"] for cell in expected_cells]:
+        raise WorldBuildError("generated Stage 3B header grid disagrees with its cells")
+    if altitude_grid != expected_matrix["altitudes"]:
+        raise WorldBuildError("generated Stage 3B altitude grid disagrees with its cells")
+    if member_grid != [cell["map_member"] for cell in expected_cells]:
+        raise WorldBuildError("generated Stage 3B member grid disagrees with its cells")
+    if set(map_headers) != set(STAGE3B_CELL_ORDER):
+        raise WorldBuildError("generated Stage 3B map-header set is incomplete")
+    for name, header in map_headers.items():
+        if len(header) != MAP_HEADER_SIZE:
+            raise WorldBuildError(f"generated Stage 3B header {name} has the wrong size")
+        if struct.unpack_from("<H", header, 4)[0] != fixture["slots"]["matrix"]:
+            raise WorldBuildError(f"generated Stage 3B header {name} points at the wrong matrix")
 
 
 def generate_world(
@@ -536,6 +770,10 @@ def generate_world(
     rom_path = root / "rom.nds"
     if not rom_path.is_file():
         raise WorldBuildError("missing ignored user-supplied rom.nds template source")
+    if fixture.get("artifact_namespace") == "stage3c":
+        registry_reference = fixture["registry_resolution"]["registry"]
+        registry = load_registry(root / registry_reference)
+        verify_rom_revision(registry, rom_path)
     rom = NintendoDSRom.fromFile(str(rom_path))
     template_archive = NARC(rom.getFileByName("a/0/6/5"))
     template = template_archive.files[fixture["model"]["template_map_member"]]
@@ -546,25 +784,53 @@ def generate_world(
             f"{fixture['model']['template_member_sha256']}, got {actual_template_hash}"
         )
 
-    map_member, model_info = build_map_member(fixture, template)
     matrix = build_matrix(fixture)
     event = build_event(fixture)
-    map_header = build_map_header(fixture, arm9)
-    split_member = split_hgss_map_member(map_member)
-    raw_components = {
-        "map_member.bin": map_member,
-        "nsbmd.bin": split_member["nsbmd"],
-        "per.bin": split_member["per"],
-        "bdhc.bin": split_member["bdhc"],
-        "matrix.bin": matrix,
-        "event.bin": event,
-        "map_header.bin": map_header,
-    }
+    if fixture["schema_version"] == 3:
+        map_members: dict[str, bytes] = {}
+        model_info: dict[str, Any] = {}
+        map_headers = {}
+        raw_components = {"matrix.bin": matrix, "event.bin": event}
+        if fixture.get("artifact_namespace") == "stage3c":
+            raw_components["resolved-registry.json"] = (
+                json.dumps(fixture["registry_resolution"], indent=2, sort_keys=True) + "\n"
+            ).encode("utf-8")
+        for name in STAGE3B_CELL_ORDER:
+            member, info = build_map_member(fixture, template, name)
+            split_member = split_hgss_map_member(member)
+            map_members[name] = member
+            model_info[name] = info
+            map_headers[name] = build_map_header(fixture, arm9, name)
+            raw_components.update({
+                f"maps/{name}/map_member.bin": member,
+                f"maps/{name}/nsbmd.bin": split_member["nsbmd"],
+                f"maps/{name}/per.bin": split_member["per"],
+                f"maps/{name}/bdhc.bin": split_member["bdhc"],
+                f"headers/{name}.bin": map_headers[name],
+            })
+        validate_stage3b_cross_references(fixture, matrix, map_headers)
+    else:
+        map_member, model_info = build_map_member(fixture, template)
+        map_members = {"map": map_member}
+        map_header = build_map_header(fixture, arm9)
+        map_headers = {"map": map_header}
+        split_member = split_hgss_map_member(map_member)
+        raw_components = {
+            "map_member.bin": map_member,
+            "nsbmd.bin": split_member["nsbmd"],
+            "per.bin": split_member["per"],
+            "bdhc.bin": split_member["bdhc"],
+            "matrix.bin": matrix,
+            "event.bin": event,
+            "map_header.bin": map_header,
+        }
     for name, data in raw_components.items():
-        (components / name).write_bytes(data)
+        path = components / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(data)
 
     script_output = components / f"2_{slots['script']:03d}"
-    stage_name = "stage2" if fixture["schema_version"] == 1 else "stage3a"
+    stage_name = fixture.get("artifact_namespace", {1: "stage2", 2: "stage3a", 3: "stage3b"}[fixture["schema_version"]])
     script_source = components / f"{stage_name}_script.s"
     _write_script_source(fixture, script_source, script_output)
     _run_checked([str(root / "tools/armips"), str(script_source)], root)
@@ -586,13 +852,28 @@ def generate_world(
         root,
     )
 
+    installed_paths: dict[str, str] = {}
+    if fixture["schema_version"] == 3:
+        map_replacements = {
+            fixture["maps"][name]["map_member"]: map_members[name]
+            for name in STAGE3B_CELL_ORDER
+        }
+        map_destination = generated_root / NARC_PATHS["map"].relative_to("base/root")
+        _replace_narc_members(root / NARC_PATHS["map"], map_replacements, map_destination)
+        if install:
+            shutil.copyfile(map_destination, root / NARC_PATHS["map"])
+            installed_paths["map"] = str(root / NARC_PATHS["map"])
+    else:
+        map_destination = generated_root / NARC_PATHS["map"].relative_to("base/root")
+        _replace_narc(root / NARC_PATHS["map"], slots["map_member"], map_members["map"], map_destination)
+        if install:
+            shutil.copyfile(map_destination, root / NARC_PATHS["map"])
+            installed_paths["map"] = str(root / NARC_PATHS["map"])
     replacements = {
-        "map": (slots["map_member"], map_member),
         "matrix": (slots["matrix"], matrix),
         "event": (slots["event"], event),
         "text": (slots["text"], text_output.read_bytes()),
     }
-    installed_paths: dict[str, str] = {}
     for name, (member_id, member) in replacements.items():
         destination = generated_root / NARC_PATHS[name].relative_to("base/root")
         _replace_narc(root / NARC_PATHS[name], member_id, member, destination)
@@ -617,8 +898,12 @@ def generate_world(
         installed_paths["script"] = str(root / NARC_PATHS["script"])
 
     patched_arm9 = bytearray(arm9)
-    header_offset = HGSS_US_HEADER_OFFSET + slots["map_header"] * MAP_HEADER_SIZE
-    patched_arm9[header_offset:header_offset + MAP_HEADER_SIZE] = map_header
+    for name, map_header in map_headers.items():
+        header_id = _map_header_id(fixture, name if fixture["schema_version"] == 3 else None)
+        header_offset = HGSS_US_HEADER_OFFSET + header_id * MAP_HEADER_SIZE
+        if header_offset + MAP_HEADER_SIZE > len(patched_arm9):
+            raise WorldBuildError(f"map header {header_id} is outside arm9.bin")
+        patched_arm9[header_offset:header_offset + MAP_HEADER_SIZE] = map_header
     generated_arm9 = output_dir / "arm9.bin"
     generated_arm9.write_bytes(patched_arm9)
     if install:
@@ -632,6 +917,7 @@ def generate_world(
     hashes = {str(path.relative_to(output_dir)): sha256_bytes(path.read_bytes()) for path in artifacts}
     manifest = {
         "schema_version": fixture["schema_version"],
+        "canonical_schema_version": fixture.get("canonical_schema_version", fixture["schema_version"]),
         "fixture": str(fixture_path),
         "fixture_sha256": sha256_bytes(fixture_path.read_bytes()),
         "template_member_sha256": actual_template_hash,

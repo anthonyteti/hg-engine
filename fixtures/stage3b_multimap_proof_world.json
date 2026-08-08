@@ -1,0 +1,78 @@
+{
+  "schema_version": 3,
+  "id": "stage3b_native_2x2",
+  "artifact_namespace": "stage3b",
+  "dimensions": {
+    "width": 32,
+    "height": 32
+  },
+  "world": {
+    "matrix": {
+      "width": 2,
+      "height": 2,
+      "name": "stage3b-2x2",
+      "cells": ["nw", "ne", "sw", "se"],
+      "altitudes": [0, 0, 0, 0],
+      "external_boundaries": "blocked"
+    }
+  },
+  "maps": {
+    "nw": {
+      "cell": {"row": 0, "column": 0},
+      "map_header": 538,
+      "map_member": 633,
+      "edge_openings": {"east": [16], "south": [16]},
+      "identity_blocked_tile": [4, 4]
+    },
+    "ne": {
+      "cell": {"row": 0, "column": 1},
+      "map_header": 9,
+      "map_member": 630,
+      "edge_openings": {"south": [16], "west": [16]},
+      "identity_blocked_tile": [5, 4]
+    },
+    "sw": {
+      "cell": {"row": 1, "column": 0},
+      "map_header": 10,
+      "map_member": 631,
+      "edge_openings": {"north": [16], "east": [16]},
+      "identity_blocked_tile": [4, 5]
+    },
+    "se": {
+      "cell": {"row": 1, "column": 1},
+      "map_header": 11,
+      "map_member": 632,
+      "edge_openings": {"north": [16], "west": [16]},
+      "identity_blocked_tile": [5, 5]
+    }
+  },
+  "slots": {
+    "matrix": 1,
+    "event": 57,
+    "script": 842,
+    "start_script": 3,
+    "script_header": 399,
+    "text": 542
+  },
+  "model": {
+    "template_map_member": 0,
+    "template_member_sha256": "f9fbf0196f416739019288f24be604fd6c096a2ec4ebf7e820e116e7ecc329cc",
+    "template_shape": 6,
+    "area_data": 2,
+    "half_extent": 16
+  },
+  "terrain": {
+    "permission_type": 0,
+    "walkable_collision": 0,
+    "blocked_collision": 128
+  },
+  "player_start": {
+    "map": "nw",
+    "local_x": 16,
+    "local_z": 16,
+    "direction": 3
+  },
+  "warps": [],
+  "text": "STAGE 3B MULTIMAP PROOF",
+  "header_template": 67
+}

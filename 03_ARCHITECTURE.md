@@ -104,6 +104,19 @@ The agent should choose the least invasive layout after inspecting HG-Engine's r
 
 ## Map architecture
 
+### Symbolic resource registry
+
+Canonical world/content source must refer to HeartGold resources by stable
+symbols. `world/registry.json` centrally owns numeric IDs, physical collision
+domains, slot provenance, revision coupling, and persistent allocations.
+Registry resolution and cross-reference validation occur before the binary
+serializers run; serializers receive resolved numeric values and do not contain
+allocation policy.
+
+New automatic allocations may consume only source-backed `KNOWN_FREE` ranges.
+Controlled vanilla replacements remain explicit, and unknown NARC capacity is
+not treated as free. See `docs/STAGE_3C_TECHNICAL_REPORT.md`.
+
 ### Source
 
 Maps should be authored through structured data, not mouse placement.

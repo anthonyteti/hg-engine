@@ -1,0 +1,468 @@
+{
+  "schema_version": 1,
+  "target": {
+    "game_code": "IPKE",
+    "region": "US",
+    "rom_sha256": "65f02a56842b75aa92d775d56d657a56fe3fa993550b04dc20704ab82d760105",
+    "arm9_sha256": "5eeaa2dcabfb66b4ff5d151687cff2c9214de9e272ba7afdae7a01d57cf319af",
+    "source_revisions": {
+      "pret_pokeheartgold": "8dcf4c981ac650ae1f4f80c926b588b06293ee0e",
+      "dspre": "d86737c3c94a3a698fcb2c6be2d2fdff5e880411"
+    },
+    "archives": {
+      "event_banks": {
+        "path": "a/0/3/2",
+        "members": 491,
+        "sha256": "70815852d040ed7831830fbec2f9e9282371ff6cf544260b900b9dcd6049c020"
+      },
+      "map_members": {
+        "path": "a/0/6/5",
+        "members": 676,
+        "sha256": "0817bd81cc30342bc40dd6ce829121e9a8be4e9d04d0b790f8d9d99688c4bebe"
+      },
+      "matrices": {
+        "path": "a/0/4/1",
+        "members": 288,
+        "sha256": "c7254a9e18d40b18e5acd0fe77d1a0e0519b021af05f7a5211b354158db5abdd"
+      },
+      "scripts": {
+        "path": "a/0/1/2",
+        "members": 965,
+        "sha256": "bab429408b962c513d3e3ba89f67d8d74d6824563cd30fc317d473edacd05d18"
+      },
+      "text_banks": {
+        "path": "a/0/2/7",
+        "members": 829,
+        "sha256": "570433fadb7f2959c99e73ee446ad7bc770702dd71b472acf51c0e358a51136c"
+      }
+    }
+  },
+  "namespaces": {
+    "area_data_banks": {
+      "storage": "map_header_u8_reference",
+      "collision_domain": "area_data_banks",
+      "allocation_policy": "read_only_until_a_separate_area_data_audit",
+      "numeric_min": 0,
+      "numeric_max": 255,
+      "ranges": [
+        {
+          "start": 0,
+          "end": 255,
+          "classification": "VANILLA_OWNED",
+          "evidence": "MapHeader.areaDataBank is u8; Stage 2-3B only source-backed bank 2 was runtime-proven."
+        }
+      ],
+      "slot_overrides": {},
+      "resources": [
+        {
+          "symbol": "verified_outdoor_area_data",
+          "id": 2,
+          "access": "read_only",
+          "note": "Verified source dependency, never a generated replacement in Stage 3C."
+        }
+      ]
+    },
+    "common_scripts": {
+      "storage": "field_script_narc_member_u16",
+      "collision_domain": "script_narc",
+      "allocation_policy": "persistent_controlled_replacements_only",
+      "numeric_min": 0,
+      "numeric_max": 65535,
+      "ranges": [
+        {
+          "start": 0,
+          "end": 964,
+          "classification": "VANILLA_OWNED",
+          "evidence": "Supported ROM script NARC has 965 members; blank-looking members are not assumed free."
+        },
+        {
+          "start": 965,
+          "end": 65535,
+          "classification": "UNKNOWN",
+          "evidence": "u16 is structurally addressable, but appended script members are not emulator-proven."
+        }
+      ],
+      "slot_overrides": {
+        "3": {
+          "classification": "CONTROLLED_REPLACEMENT",
+          "evidence": "Stages 2-3B replace script NARC member 3 as the deterministic test start hook."
+        }
+      },
+      "resources": [
+        {
+          "symbol": "stage3c_controlled_start_script",
+          "id": 3,
+          "access": "write"
+        }
+      ]
+    },
+    "event_banks": {
+      "storage": "event_narc_member_u16",
+      "collision_domain": "event_narc",
+      "allocation_policy": "persistent_controlled_replacements_only",
+      "numeric_min": 0,
+      "numeric_max": 65535,
+      "ranges": [
+        {
+          "start": 0,
+          "end": 490,
+          "classification": "VANILLA_OWNED",
+          "evidence": "Supported ROM event NARC has 491 members; no member is classified free by appearance."
+        },
+        {
+          "start": 491,
+          "end": 65535,
+          "classification": "UNKNOWN",
+          "evidence": "MapHeader.eventsBank is u16, but appended event members are not emulator-proven."
+        }
+      ],
+      "slot_overrides": {
+        "57": {
+          "classification": "CONTROLLED_REPLACEMENT",
+          "evidence": "Stages 2-3B replace event member 57 and verify the generated event at runtime."
+        }
+      },
+      "resources": [
+        {
+          "symbol": "stage3c_empty_events",
+          "id": 57,
+          "access": "write"
+        }
+      ]
+    },
+    "flags": {
+      "storage": "save_flags_and_temporary_flags",
+      "collision_domain": "flags",
+      "allocation_policy": "unsupported_pending_save_and_script_usage_audit",
+      "numeric_min": 0,
+      "numeric_max": 65535,
+      "ranges": [
+        {
+          "start": 0,
+          "end": 0,
+          "classification": "RESERVED",
+          "evidence": "Flag zero is not a project allocation candidate."
+        },
+        {
+          "start": 1,
+          "end": 2911,
+          "classification": "VANILLA_OWNED",
+          "evidence": "pret constants and SaveVarsFlags define NUM_FLAGS=2912; unknown names are not proof of free ownership."
+        },
+        {
+          "start": 2912,
+          "end": 16383,
+          "classification": "UNKNOWN",
+          "evidence": "No runtime-backed allocation policy exists for this numeric gap."
+        },
+        {
+          "start": 16384,
+          "end": 16447,
+          "classification": "RESERVED",
+          "evidence": "pret save_vars_flags.c treats 0x4000-0x403F as temporary flags with separate semantics."
+        },
+        {
+          "start": 16448,
+          "end": 65535,
+          "classification": "UNKNOWN",
+          "evidence": "Outside the confirmed persistent and temporary flag domains."
+        }
+      ],
+      "slot_overrides": {},
+      "resources": []
+    },
+    "local_script_banks": {
+      "storage": "field_script_narc_member_u16",
+      "collision_domain": "script_narc",
+      "allocation_policy": "persistent_controlled_replacements_only",
+      "numeric_min": 0,
+      "numeric_max": 65535,
+      "ranges": [
+        {
+          "start": 0,
+          "end": 964,
+          "classification": "VANILLA_OWNED",
+          "evidence": "Supported ROM script NARC has 965 members; local and common scripts share this archive."
+        },
+        {
+          "start": 965,
+          "end": 65535,
+          "classification": "UNKNOWN",
+          "evidence": "MapHeader.scriptsBank is u16, but appended members are not emulator-proven."
+        }
+      ],
+      "slot_overrides": {
+        "842": {
+          "classification": "CONTROLLED_REPLACEMENT",
+          "evidence": "Stages 2-3B replace script member 842 and build/run it through HG-Engine."
+        }
+      },
+      "resources": [
+        {
+          "symbol": "stage3c_noop_scripts",
+          "id": 842,
+          "access": "write"
+        }
+      ]
+    },
+    "map_headers": {
+      "storage": "fixed_arm9_table_24_bytes_each",
+      "collision_domain": "map_headers",
+      "allocation_policy": "persistent_controlled_replacements_only",
+      "numeric_min": 0,
+      "numeric_max": 539,
+      "ranges": [
+        {
+          "start": 0,
+          "end": 539,
+          "classification": "VANILLA_OWNED",
+          "evidence": "include/constants/maps.h defines 540 fixed map IDs; src/map_header.c indexes the compiled 24-byte header array."
+        }
+      ],
+      "slot_overrides": {
+        "9": {
+          "classification": "CONTROLLED_REPLACEMENT",
+          "evidence": "Stage 3B deliberately replaces normal-overworld vanilla header 9; it is not a free slot."
+        },
+        "10": {
+          "classification": "CONTROLLED_REPLACEMENT",
+          "evidence": "Stage 3B deliberately replaces normal-overworld vanilla header 10; it is not a free slot."
+        },
+        "11": {
+          "classification": "CONTROLLED_REPLACEMENT",
+          "evidence": "Stage 3B deliberately replaces normal-overworld vanilla header 11; it is not a free slot."
+        },
+        "538": {
+          "classification": "CONTROLLED_REPLACEMENT",
+          "evidence": "maps.h names 538 MAP_R00; Stages 3A/3B control it, but Stage 3C does not call it production-free."
+        }
+      },
+      "resources": [
+        {
+          "symbol": "stage3c_proof_northeast_header",
+          "id": 9,
+          "access": "write"
+        },
+        {
+          "symbol": "stage3c_proof_northwest_header",
+          "id": 538,
+          "access": "write"
+        },
+        {
+          "symbol": "stage3c_proof_southeast_header",
+          "id": 11,
+          "access": "write"
+        },
+        {
+          "symbol": "stage3c_proof_southwest_header",
+          "id": 10,
+          "access": "write"
+        },
+        {
+          "symbol": "verified_normal_overworld_header_template",
+          "id": 67,
+          "access": "read_only",
+          "note": "Read-only template whose normal-overworld behavior was verified in Stages 3A/3B."
+        }
+      ]
+    },
+    "map_members": {
+      "storage": "land_data_narc_member_u16",
+      "collision_domain": "map_member_narc",
+      "allocation_policy": "persistent_controlled_replacements_only",
+      "numeric_min": 0,
+      "numeric_max": 65535,
+      "ranges": [
+        {
+          "start": 0,
+          "end": 675,
+          "classification": "VANILLA_OWNED",
+          "evidence": "Supported ROM land-data NARC has 676 members; no blank-looking member is presumed free."
+        },
+        {
+          "start": 676,
+          "end": 65535,
+          "classification": "UNKNOWN",
+          "evidence": "Matrix members are u16, but appended land-data NARC members are not emulator-proven."
+        }
+      ],
+      "slot_overrides": {
+        "630": {
+          "classification": "CONTROLLED_REPLACEMENT",
+          "evidence": "Stage 3B deliberately replaces member 630; prior lack of references is test evidence, not universal free-slot proof."
+        },
+        "631": {
+          "classification": "CONTROLLED_REPLACEMENT",
+          "evidence": "Stage 3B deliberately replaces member 631; prior lack of references is test evidence, not universal free-slot proof."
+        },
+        "632": {
+          "classification": "CONTROLLED_REPLACEMENT",
+          "evidence": "Stage 3B deliberately replaces member 632; prior lack of references is test evidence, not universal free-slot proof."
+        },
+        "633": {
+          "classification": "CONTROLLED_REPLACEMENT",
+          "evidence": "Stages 2-3B deliberately replace member 633; it is not blessed as production-free."
+        }
+      },
+      "resources": [
+        {
+          "symbol": "stage3c_proof_northeast_member",
+          "id": 630,
+          "access": "write"
+        },
+        {
+          "symbol": "stage3c_proof_northwest_member",
+          "id": 633,
+          "access": "write"
+        },
+        {
+          "symbol": "stage3c_proof_southeast_member",
+          "id": 632,
+          "access": "write"
+        },
+        {
+          "symbol": "stage3c_proof_southwest_member",
+          "id": 631,
+          "access": "write"
+        },
+        {
+          "symbol": "verified_stage2_model_template",
+          "id": 0,
+          "access": "read_only",
+          "note": "Hash-verified input template only; never overwritten by Stage 3C."
+        }
+      ]
+    },
+    "matrices": {
+      "storage": "map_matrix_narc_member_u16",
+      "collision_domain": "matrix_narc",
+      "allocation_policy": "persistent_controlled_replacements_only",
+      "numeric_min": 0,
+      "numeric_max": 65535,
+      "ranges": [
+        {
+          "start": 0,
+          "end": 287,
+          "classification": "VANILLA_OWNED",
+          "evidence": "Supported ROM matrix NARC has 288 members; the map header stores matrixId as u16."
+        },
+        {
+          "start": 288,
+          "end": 65535,
+          "classification": "UNKNOWN",
+          "evidence": "Appended matrix members are structurally addressable but not emulator-proven."
+        }
+      ],
+      "slot_overrides": {
+        "1": {
+          "classification": "CONTROLLED_REPLACEMENT",
+          "evidence": "Stages 2-3B replace matrix member 1 after source/reference inspection and runtime proof."
+        }
+      },
+      "resources": [
+        {
+          "symbol": "stage3c_proof_matrix",
+          "id": 1,
+          "access": "write"
+        }
+      ]
+    },
+    "script_headers": {
+      "storage": "field_script_narc_member_u16",
+      "collision_domain": "script_narc",
+      "allocation_policy": "persistent_controlled_references_only",
+      "numeric_min": 0,
+      "numeric_max": 65535,
+      "ranges": [
+        {
+          "start": 0,
+          "end": 964,
+          "classification": "VANILLA_OWNED",
+          "evidence": "MapHeader.scriptHeaderBank is u16 and shares the 965-member script NARC."
+        },
+        {
+          "start": 965,
+          "end": 65535,
+          "classification": "UNKNOWN",
+          "evidence": "Appended script-header members are not emulator-proven."
+        }
+      ],
+      "slot_overrides": {
+        "399": {
+          "classification": "CONTROLLED_REPLACEMENT",
+          "evidence": "Stages 2-3B deliberately point generated headers at the verified member 399 behavior."
+        }
+      },
+      "resources": [
+        {
+          "symbol": "stage3c_script_header",
+          "id": 399,
+          "access": "write"
+        }
+      ]
+    },
+    "text_banks": {
+      "storage": "message_narc_member_u16",
+      "collision_domain": "text_narc",
+      "allocation_policy": "persistent_controlled_replacements_only",
+      "numeric_min": 0,
+      "numeric_max": 65535,
+      "ranges": [
+        {
+          "start": 0,
+          "end": 828,
+          "classification": "VANILLA_OWNED",
+          "evidence": "Supported ROM message NARC has 829 members; MapHeader.msgBank is u16."
+        },
+        {
+          "start": 829,
+          "end": 65535,
+          "classification": "UNKNOWN",
+          "evidence": "Appended message members are not emulator-proven."
+        }
+      ],
+      "slot_overrides": {
+        "542": {
+          "classification": "CONTROLLED_REPLACEMENT",
+          "evidence": "Stages 2-3B replace message member 542 and runtime-load the associated maps."
+        }
+      },
+      "resources": [
+        {
+          "symbol": "stage3c_proof_text",
+          "id": 542,
+          "access": "write"
+        }
+      ]
+    },
+    "variables": {
+      "storage": "save_vars_and_temporary_vars",
+      "collision_domain": "variables",
+      "allocation_policy": "unsupported_pending_save_and_script_usage_audit",
+      "numeric_min": 16384,
+      "numeric_max": 16623,
+      "ranges": [
+        {
+          "start": 16384,
+          "end": 16623,
+          "classification": "VANILLA_OWNED",
+          "evidence": "pret save_vars_flags.c bounds vars by VAR_BASE=0x4000 and NUM_VARS=0x170; unknown names are not free-slot proof."
+        }
+      ],
+      "slot_overrides": {
+        "16384": {
+          "classification": "CONTROLLED_REPLACEMENT",
+          "evidence": "Stage 2 uses temporary variable 0x4000 only as a bounded automated dialogue marker."
+        }
+      },
+      "resources": [
+        {
+          "symbol": "stage2_dialogue_test_marker",
+          "id": 16384,
+          "access": "write",
+          "note": "Test-only; not a production variable allocation."
+        }
+      ]
+    }
+  }
+}

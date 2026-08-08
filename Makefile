@@ -131,6 +131,12 @@ WORLD_INSTALL_ARGS :=
 ifeq ($(STAGE3A_HEIGHT),Y)
     WORLD_INSTALL_ARGS := --fixture fixtures/stage3a_height_proof_map.json --output build/stage3a/generated
 endif
+ifeq ($(STAGE3B_MULTIMAP),Y)
+    WORLD_INSTALL_ARGS := --fixture fixtures/stage3b_multimap_proof_world.json --output build/stage3b/generated
+endif
+ifeq ($(STAGE3C_REGISTRY),Y)
+    WORLD_INSTALL_ARGS := --fixture fixtures/stage3c_symbolic_registry_world.json --output build/stage3c/generated
+endif
 
 ####################### Output #######################
 C_SUBDIR = src
@@ -359,6 +365,16 @@ stage2-proof:
 stage3a-height-proof:
 	$(MAKE) clean
 	$(MAKE) STAGE2_MAP=Y STAGE3A_HEIGHT=Y
+
+.PHONY: stage3b-multimap-proof
+stage3b-multimap-proof:
+	$(MAKE) clean
+	$(MAKE) STAGE2_MAP=Y STAGE3B_MULTIMAP=Y
+
+.PHONY: stage3c-registry-proof
+stage3c-registry-proof:
+	$(MAKE) clean
+	$(MAKE) STAGE2_MAP=Y STAGE3C_REGISTRY=Y
 
 ALL_CODE_OBJS := $(patsubst $(C_SUBDIR)/%.c,$(BUILD)/%.o,$(ALL_C_SRCS)) \
  $(patsubst $(ASM_SUBDIR)/%.s,$(BUILD)/%.o,$(ALL_ASM_SRCS)) \

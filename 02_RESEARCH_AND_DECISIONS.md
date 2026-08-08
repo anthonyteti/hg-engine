@@ -97,3 +97,18 @@ For the one-map zero-GUI proof, use a hash-locked transformation of a user-local
 This decision rejects a silent dependency on Nintendo `g3dcvtr` and does not claim to solve general NSBMD authoring. A broader open model compiler remains a later kill gate before world-content scaling. The proof is sufficient to continue with HeartGold because it generates new flat geometry, boots through the native engine, and keeps the proprietary input boundary identical to the existing ROM build.
 
 See `docs/knowledge/nsbmd-stage2-model-path.md` and `docs/STAGE_2_TECHNICAL_REPORT.md`.
+
+## Stage 3C decision: symbolic IDs with conservative provenance
+
+All new world authoring must use stable symbolic resource identities resolved
+through the tracked `world/registry.json`. Numeric ownership, collision domains,
+revision hashes, and persistent allocations belong to the registry layer, not
+to authoring agents or binary serializers.
+
+The earlier proof IDs remain explicit `CONTROLLED_REPLACEMENT` records. Existing
+vanilla members are not considered free, and structurally addressable appended
+NARC IDs remain `UNKNOWN` until runtime-tested. This conservative policy removes
+raw LLM-managed IDs without claiming unsupported capacity.
+
+See `docs/STAGE_3C_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage3c-reference-registry.md`.

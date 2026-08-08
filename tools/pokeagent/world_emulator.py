@@ -1,4 +1,4 @@
-"""Headless runtime assertions for the bounded Stage 2 and Stage 3A proofs."""
+"""Headless runtime assertions for the bounded Stage 2 through 3C proofs."""
 
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ from .rom import (
     utc_now,
     write_json_report,
 )
-from .world import DEFAULT_FIXTURE, load_fixture
+from .world import DEFAULT_FIXTURE, MAP_TILES, STAGE3B_CELL_ORDER, load_fixture
 
 
 FIELD_SYSTEM_POINTER_OFFSET = 0x14
@@ -31,6 +31,18 @@ FIELD_PLAYER_AVATAR_OFFSET = 0x40
 PLAYER_MAP_OBJECT_OFFSET = 0x30
 MAP_OBJECT_CURRENT_HEIGHT_OFFSET = 0x68
 MAP_OBJECT_POSITION_Y_OFFSET = 0x74
+MAP_MATRIX_POINTER_OFFSET = 0x30
+MAP_LOAD_MANAGER_POINTER_OFFSET = 0x2C
+MAP_LOAD_ACTIVE_INDEX_OFFSET = 0xA4
+MAP_LOAD_ACTIVE_QUADRANT_OFFSET = 0xAC
+MAP_LOAD_WIDTH_OFFSET = 0xC4
+MAP_LOAD_HEIGHT_OFFSET = 0xC8
+MAP_LOAD_SLOT_POINTER_OFFSET = 0x90
+LOADED_MAP_MATRIX_INDEX_OFFSET = 0x860
+LOADED_MAP_READY_OFFSET = 0x864
+MAP_MATRIX_HEADERS_OFFSET = 6
+MAP_MATRIX_ALTITUDES_OFFSET = 1604
+MAP_MATRIX_MEMBERS_OFFSET = 2404
 
 
 def _symbols(root: Path) -> dict[str, int]:
@@ -83,12 +95,41 @@ def _press(emu: Any, key: int, deadline: float, held: int = 4, after: int = 35) 
     _cycle(emu, after, deadline)
 
 
+def _move_to_coordinate(
+    emu: Any,
+    key: int,
+    field_pointer_symbol: int,
+    axis: str,
+    target: int,
+    deadline: float,
+    max_attempts: int = 96,
+) -> dict[str, int]:
+    """Repeat bounded normal input until one global coordinate reaches target."""
+    if axis not in ("x", "z"):
+        raise ValueError(f"unsupported movement axis {axis}")
+    for _ in range(max_attempts):
+        location = _location(emu, field_pointer_symbol)
+        if location is not None and location[axis] == target:
+            return location
+        _press(emu, key, deadline, held=6, after=45)
+    location = _location(emu, field_pointer_symbol)
+    raise AssertionError(f"movement did not reach {axis}={target}: {location}")
+
+
 def _read_u32(emu: Any, address: int) -> int:
     return int(emu.memory.unsigned[address:address:4])
 
 
 def _read_i32(emu: Any, address: int) -> int:
     return int(emu.memory.signed[address:address:4])
+
+
+def _read_u8(emu: Any, address: int) -> int:
+    return int(emu.memory.unsigned[address:address:1])
+
+
+def _read_u16(emu: Any, address: int) -> int:
+    return int(emu.memory.unsigned[address:address:2])
 
 
 def _location(emu: Any, field_pointer_symbol: int) -> dict[str, int] | None:
@@ -149,6 +190,111 @@ def _bdhc_runtime_state(emu: Any, field_pointer_symbol: int) -> list[dict[str, o
     return slots
 
 
+def _stage3b_runtime_state(emu: Any, field_pointer_symbol: int) -> dict[str, object]:
+    field_system = _read_u32(emu, field_pointer_symbol)
+    if not field_system:
+        raise RuntimeError("Stage 3B field-system pointer is null")
+    location = _location(emu, field_pointer_symbol)
+    map_matrix = _read_u32(emu, field_system + MAP_MATRIX_POINTER_OFFSET)
+    manager = _read_u32(emu, field_system + MAP_LOAD_MANAGER_POINTER_OFFSET)
+    if location is None or not map_matrix or not manager:
+        raise RuntimeError("Stage 3B runtime state contains a null world pointer")
+    active_quadrant = _read_u8(emu, manager + MAP_LOAD_ACTIVE_QUADRANT_OFFSET)
+    loaded_slots = []
+    for slot in range(4):
+        loaded_map = _read_u32(emu, manager + MAP_LOAD_SLOT_POINTER_OFFSET + slot * 4)
+        loaded_slots.append({
+            "slot": slot,
+            "pointer": f"0x{loaded_map:08x}" if loaded_map else None,
+            "matrix_index": _read_i32(emu, loaded_map + LOADED_MAP_MATRIX_INDEX_OFFSET) if loaded_map else None,
+            "ready": _read_u32(emu, loaded_map + LOADED_MAP_READY_OFFSET) if loaded_map else None,
+        })
+    active_slot = loaded_slots[active_quadrant] if active_quadrant < len(loaded_slots) else None
+    matrix_state = {
+        "id": _read_u8(emu, map_matrix + 2),
+        "width": _read_u8(emu, map_matrix),
+        "height": _read_u8(emu, map_matrix + 1),
+        "headers": [_read_u16(emu, map_matrix + MAP_MATRIX_HEADERS_OFFSET + index * 2) for index in range(4)],
+        "altitudes": [_read_u8(emu, map_matrix + MAP_MATRIX_ALTITUDES_OFFSET + index) for index in range(4)],
+        "members": [_read_u16(emu, map_matrix + MAP_MATRIX_MEMBERS_OFFSET + index * 2) for index in range(4)],
+    }
+    active_index = _read_i32(emu, manager + MAP_LOAD_ACTIVE_INDEX_OFFSET)
+    active_pointer = (
+        int(active_slot["pointer"], 16)
+        if active_slot and active_slot["pointer"] is not None
+        else 0
+    )
+    local_z = location["z"] % MAP_TILES
+    loaded_per_hashes = []
+    for slot in loaded_slots:
+        pointer = int(slot["pointer"], 16) if slot["pointer"] is not None else 0
+        values = [
+            _read_u16(emu, pointer + index * 2)
+            for index in range(MAP_TILES * MAP_TILES)
+        ] if pointer and slot["ready"] == 1 else []
+        data = b"".join(struct.pack("<H", value) for value in values)
+        loaded_per_hashes.append(hashlib.sha256(data).hexdigest() if data else None)
+    return {
+        "location": location,
+        "local": {"x": location["x"] % MAP_TILES, "z": location["z"] % MAP_TILES},
+        "cell": {"column": location["x"] // MAP_TILES, "row": location["z"] // MAP_TILES},
+        "matrix": matrix_state,
+        "load_manager": {
+            "active_index": active_index,
+            "active_quadrant": active_quadrant,
+            "width": _read_i32(emu, manager + MAP_LOAD_WIDTH_OFFSET),
+            "height": _read_i32(emu, manager + MAP_LOAD_HEIGHT_OFFSET),
+            "active_loaded_index": active_slot["matrix_index"] if active_slot else None,
+            "active_member": matrix_state["members"][active_index] if 0 <= active_index < 4 else None,
+            "active_ready": active_slot["ready"] if active_slot else None,
+            # ov01_021F65E4 returns this allocation directly and the runtime
+            # indexes it as 32x32 u16 PER records. Retain a compact row sample
+            # in reports so a failed traversal distinguishes input, generated
+            # collision, and map-selection failures without guesswork.
+            "active_per_row_sample": [
+                _read_u16(emu, active_pointer + 2 * (local_z * MAP_TILES + x))
+                for x in range(14, 23)
+            ] if active_pointer else [],
+            "loaded_per_sha256": loaded_per_hashes,
+            "loaded_slots": loaded_slots,
+        },
+    }
+
+
+def _stage3b_state_matches(
+    state: dict[str, object],
+    fixture: dict[str, Any],
+    map_name: str,
+    x: int,
+    z: int,
+) -> bool:
+    spec = fixture["maps"][map_name]
+    index = spec["cell"]["row"] * 2 + spec["cell"]["column"]
+    location = state["location"]
+    matrix = state["matrix"]
+    manager = state["load_manager"]
+    return (
+        location["map"] == spec["map_header"]
+        and (location["x"], location["z"]) == (x, z)
+        and state["cell"] == spec["cell"]
+        and state["local"] == {"x": x % MAP_TILES, "z": z % MAP_TILES}
+        and matrix == {
+            "id": fixture["slots"]["matrix"],
+            "width": 2,
+            "height": 2,
+            "headers": [fixture["maps"][name]["map_header"] for name in STAGE3B_CELL_ORDER],
+            "altitudes": fixture["world"]["matrix"]["altitudes"],
+            "members": [fixture["maps"][name]["map_member"] for name in STAGE3B_CELL_ORDER],
+        }
+        and manager["active_index"] == index
+        and manager["width"] == 2
+        and manager["height"] == 2
+        and manager["active_loaded_index"] == index
+        and manager["active_member"] == spec["map_member"]
+        and manager["active_ready"] == 1
+    )
+
+
 def _warp_events(emu: Any, field_pointer_symbol: int, count: int) -> list[dict[str, int]]:
     field_system = _read_u32(emu, field_pointer_symbol)
     event_data = _read_u32(emu, field_system + FIELD_SYSTEM_POINTER_OFFSET)
@@ -201,7 +347,11 @@ def _worker(
     emu = None
     payload: dict[str, object] = {
         "schema_version": fixture["schema_version"],
-        "operation": "stage2_map_emulator_worker" if fixture["schema_version"] == 1 else "stage3a_height_emulator_worker",
+        "operation": "stage3c_registry_emulator_worker" if fixture.get("artifact_namespace") == "stage3c" else {
+            1: "stage2_map_emulator_worker",
+            2: "stage3a_height_emulator_worker",
+            3: "stage3b_multimap_emulator_worker",
+        }[fixture["schema_version"]],
         "success": False,
         "rom": str(rom_path),
         "symbols": {name: f"0x{address:08x}" for name, address in symbols.items()},
@@ -225,7 +375,11 @@ def _worker(
         _cycle(emu, 4, deadline)
         emu.input.touch_release()
         _cycle(emu, 400, deadline)
-        target_header = fixture["slots"]["map_header"]
+        if fixture["schema_version"] == 3:
+            start_spec = fixture["maps"][fixture["player_start"]["map"]]
+            target_header = start_spec["map_header"]
+        else:
+            target_header = fixture["slots"]["map_header"]
         for _ in range(75):
             current = _location(emu, symbols["gFieldSysPtr"])
             if current is not None and current["map"] == target_header:
@@ -237,13 +391,158 @@ def _worker(
 
         start = _location(emu, symbols["gFieldSysPtr"])
         expected_start = fixture["player_start"]
+        if fixture["schema_version"] == 3:
+            expected_start_x = start_spec["cell"]["column"] * MAP_TILES + expected_start["local_x"]
+            expected_start_z = start_spec["cell"]["row"] * MAP_TILES + expected_start["local_z"]
+        else:
+            expected_start_x, expected_start_z = expected_start["x"], expected_start["z"]
         observations["start"] = start
         checks["map_loaded"] = start is not None and start["map"] == target_header
         checks["controlled_start"] = start is not None and (start["x"], start["z"]) == (
-            expected_start["x"], expected_start["z"]
+            expected_start_x, expected_start_z
         )
         counts = _event_counts(emu, symbols["gFieldSysPtr"])
         observations["event_counts"] = counts
+        if fixture["schema_version"] == 3:
+            start_state = _stage3b_runtime_state(emu, symbols["gFieldSysPtr"])
+            observations["start_state"] = start_state
+            checks["matrix_runtime_layout"] = start_state["matrix"] == {
+                "id": 1,
+                "width": 2,
+                "height": 2,
+                "headers": [538, 9, 10, 11],
+                "altitudes": [0, 0, 0, 0],
+                "members": [633, 630, 631, 632],
+            }
+            checks["start_identifies_nw"] = _stage3b_state_matches(
+                start_state, fixture, "nw", 16, 16
+            )
+            checks["four_distinct_members_loaded"] = {
+                entry["matrix_index"] for entry in start_state["load_manager"]["loaded_slots"]
+                if entry["ready"] == 1
+            } == {0, 1, 2, 3} and set(start_state["matrix"]["members"]) == {630, 631, 632, 633}
+            checks["no_explicit_warp_events"] = counts == {
+                "background": 0, "npc": 0, "warp": 0, "coordinate": 0,
+            }
+            screenshots["nw_start"] = _capture(emu, artifact_dir / "nw-start.png")
+
+            _move_to_coordinate(emu, Keys.KEY_RIGHT, symbols["gFieldSysPtr"], "x", 31, deadline)
+            nw_east_approach = _stage3b_runtime_state(emu, symbols["gFieldSysPtr"])
+            _move_to_coordinate(emu, Keys.KEY_RIGHT, symbols["gFieldSysPtr"], "x", 32, deadline)
+            ne_entered = _stage3b_runtime_state(emu, symbols["gFieldSysPtr"])
+            _move_to_coordinate(emu, Keys.KEY_RIGHT, symbols["gFieldSysPtr"], "x", 33, deadline)
+            ne_continued = _stage3b_runtime_state(emu, symbols["gFieldSysPtr"])
+            observations["nw_to_ne"] = {
+                "approach": nw_east_approach, "entered": ne_entered, "continued": ne_continued,
+            }
+            checks["nw_east_edge_approached"] = _stage3b_state_matches(
+                nw_east_approach, fixture, "nw", 31, 16
+            )
+            checks["nw_to_ne_native_transition"] = (
+                _stage3b_state_matches(ne_entered, fixture, "ne", 32, 16)
+                and ne_entered["local"] == {"x": 0, "z": 16}
+                and ne_entered["location"]["warp"] == nw_east_approach["location"]["warp"]
+            )
+            checks["movement_continues_in_ne"] = _stage3b_state_matches(
+                ne_continued, fixture, "ne", 33, 16
+            )
+            screenshots["ne_entered"] = _capture(emu, artifact_dir / "ne-entered.png")
+
+            _move_to_coordinate(emu, Keys.KEY_RIGHT, symbols["gFieldSysPtr"], "x", 48, deadline)
+            _move_to_coordinate(emu, Keys.KEY_DOWN, symbols["gFieldSysPtr"], "z", 31, deadline)
+            ne_south_approach = _stage3b_runtime_state(emu, symbols["gFieldSysPtr"])
+            _move_to_coordinate(emu, Keys.KEY_DOWN, symbols["gFieldSysPtr"], "z", 32, deadline)
+            se_entered = _stage3b_runtime_state(emu, symbols["gFieldSysPtr"])
+            _move_to_coordinate(emu, Keys.KEY_DOWN, symbols["gFieldSysPtr"], "z", 33, deadline)
+            se_continued = _stage3b_runtime_state(emu, symbols["gFieldSysPtr"])
+            observations["ne_to_se"] = {
+                "approach": ne_south_approach, "entered": se_entered, "continued": se_continued,
+            }
+            checks["ne_south_edge_approached"] = _stage3b_state_matches(
+                ne_south_approach, fixture, "ne", 48, 31
+            )
+            checks["ne_to_se_native_transition"] = (
+                _stage3b_state_matches(se_entered, fixture, "se", 48, 32)
+                and se_entered["local"] == {"x": 16, "z": 0}
+                and se_entered["location"]["warp"] == ne_south_approach["location"]["warp"]
+            )
+            checks["movement_continues_in_se"] = _stage3b_state_matches(
+                se_continued, fixture, "se", 48, 33
+            )
+            screenshots["se_entered"] = _capture(emu, artifact_dir / "se-entered.png")
+
+            _move_to_coordinate(emu, Keys.KEY_DOWN, symbols["gFieldSysPtr"], "z", 48, deadline)
+            _move_to_coordinate(emu, Keys.KEY_LEFT, symbols["gFieldSysPtr"], "x", 32, deadline)
+            se_west_approach = _stage3b_runtime_state(emu, symbols["gFieldSysPtr"])
+            _move_to_coordinate(emu, Keys.KEY_LEFT, symbols["gFieldSysPtr"], "x", 31, deadline)
+            sw_entered = _stage3b_runtime_state(emu, symbols["gFieldSysPtr"])
+            _move_to_coordinate(emu, Keys.KEY_LEFT, symbols["gFieldSysPtr"], "x", 30, deadline)
+            sw_continued = _stage3b_runtime_state(emu, symbols["gFieldSysPtr"])
+            observations["se_to_sw"] = {
+                "approach": se_west_approach, "entered": sw_entered, "continued": sw_continued,
+            }
+            checks["se_west_edge_approached"] = _stage3b_state_matches(
+                se_west_approach, fixture, "se", 32, 48
+            )
+            checks["se_to_sw_native_transition"] = (
+                _stage3b_state_matches(sw_entered, fixture, "sw", 31, 48)
+                and sw_entered["local"] == {"x": 31, "z": 16}
+                and sw_entered["location"]["warp"] == se_west_approach["location"]["warp"]
+            )
+            checks["movement_continues_in_sw"] = _stage3b_state_matches(
+                sw_continued, fixture, "sw", 30, 48
+            )
+            screenshots["sw_entered"] = _capture(emu, artifact_dir / "sw-entered.png")
+
+            _move_to_coordinate(emu, Keys.KEY_LEFT, symbols["gFieldSysPtr"], "x", 16, deadline)
+            _move_to_coordinate(emu, Keys.KEY_UP, symbols["gFieldSysPtr"], "z", 32, deadline)
+            sw_north_approach = _stage3b_runtime_state(emu, symbols["gFieldSysPtr"])
+            _move_to_coordinate(emu, Keys.KEY_UP, symbols["gFieldSysPtr"], "z", 31, deadline)
+            nw_returned = _stage3b_runtime_state(emu, symbols["gFieldSysPtr"])
+            _move_to_coordinate(emu, Keys.KEY_UP, symbols["gFieldSysPtr"], "z", 30, deadline)
+            nw_continued = _stage3b_runtime_state(emu, symbols["gFieldSysPtr"])
+            observations["sw_to_nw"] = {
+                "approach": sw_north_approach, "entered": nw_returned, "continued": nw_continued,
+            }
+            checks["sw_north_edge_approached"] = _stage3b_state_matches(
+                sw_north_approach, fixture, "sw", 16, 32
+            )
+            checks["sw_to_nw_native_transition"] = (
+                _stage3b_state_matches(nw_returned, fixture, "nw", 16, 31)
+                and nw_returned["local"] == {"x": 16, "z": 31}
+                and nw_returned["location"]["warp"] == sw_north_approach["location"]["warp"]
+            )
+            checks["movement_continues_after_loop"] = _stage3b_state_matches(
+                nw_continued, fixture, "nw", 16, 30
+            )
+            screenshots["nw_returned"] = _capture(emu, artifact_dir / "nw-returned.png")
+
+            _move_to_coordinate(emu, Keys.KEY_UP, symbols["gFieldSysPtr"], "z", 1, deadline)
+            exterior_approach = _stage3b_runtime_state(emu, symbols["gFieldSysPtr"])
+            _press(emu, Keys.KEY_UP, deadline, after=60)
+            exterior_blocked = _stage3b_runtime_state(emu, symbols["gFieldSysPtr"])
+            observations["exterior_north_boundary"] = {
+                "approach": exterior_approach, "blocked": exterior_blocked,
+            }
+            checks["nw_exterior_boundary_blocked"] = (
+                _stage3b_state_matches(exterior_approach, fixture, "nw", 16, 1)
+                and _stage3b_state_matches(exterior_blocked, fixture, "nw", 16, 1)
+            )
+            screenshots["exterior_blocked"] = _capture(emu, artifact_dir / "exterior-blocked.png")
+
+            event_counts_after_transitions = _event_counts(emu, symbols["gFieldSysPtr"])
+            observations["event_counts_after_transitions"] = event_counts_after_transitions
+            checks["edge_loop_never_loaded_warp_records"] = event_counts_after_transitions == counts
+            _cycle(emu, 600, deadline)
+            stable = _stage3b_runtime_state(emu, symbols["gFieldSysPtr"])
+            observations["after_stability_window"] = stable
+            checks["rom_stable_600_frames"] = (
+                bool(emu.is_running()) and _stage3b_state_matches(stable, fixture, "nw", 16, 1)
+            )
+            payload["success"] = all(checks.values())
+            if not payload["success"]:
+                payload["error"] = "one or more Stage 3B runtime assertions failed"
+            return 0 if payload["success"] else 1
         if fixture["schema_version"] == 2:
             observations["bdhc_runtime"] = _bdhc_runtime_state(emu, symbols["gFieldSysPtr"])
             checks["parsed_bdhc_loaded"] = any(
@@ -468,7 +767,11 @@ def run_world_test(
     errors: list[str] = []
     report: dict[str, object] = {
         "schema_version": fixture["schema_version"],
-        "operation": "stage2_map_emulator" if fixture["schema_version"] == 1 else "stage3a_height_emulator",
+        "operation": "stage3c_registry_emulator" if namespace == "stage3c" else {
+            1: "stage2_map_emulator",
+            2: "stage3a_height_emulator",
+            3: "stage3b_multimap_emulator",
+        }[fixture["schema_version"]],
         "success": False,
         "rom_sha256": sha256_file(rom_path) if rom_path.is_file() else None,
         "artifacts": {"directory": str(artifact_dir), "report": str(report_path), "log": str(log_path)},
