@@ -22,7 +22,7 @@ from .rom import (
     utc_now,
     write_json_report,
 )
-from .world import DEFAULT_FIXTURE, MAP_TILES, STAGE3B_CELL_ORDER, load_fixture
+from .world import DEFAULT_FIXTURE, HGSS_US_HEADER_OFFSET, MAP_TILES, STAGE3B_CELL_ORDER, load_fixture
 
 
 FIELD_SYSTEM_POINTER_OFFSET = 0x14
@@ -43,6 +43,8 @@ LOADED_MAP_READY_OFFSET = 0x864
 MAP_MATRIX_HEADERS_OFFSET = 6
 MAP_MATRIX_ALTITUDES_OFFSET = 1604
 MAP_MATRIX_MEMBERS_OFFSET = 2404
+ARM9_RAM_BASE = 0x02000000
+MAP_EVENTS_SCRIPT_HEADER_OFFSET = 0x820
 
 
 def _symbols(root: Path) -> dict[str, int]:
@@ -63,7 +65,7 @@ def _symbols(root: Path) -> dict[str, int]:
         raise RuntimeError(f"cannot inspect linked symbols: {result.stdout[-500:]}")
     wanted = {
         "gFieldSysPtr", "gStage2ProofDialogueSeen", "gStage2ProofMetatileBehavior",
-        "gStage2ProofWarpBehaviorSeen",
+        "gStage2ProofWarpBehaviorSeen", "gStage3E1ProofDialogueMarker",
     }
     found: dict[str, int] = {}
     for line in result.stdout.splitlines():
@@ -150,6 +152,49 @@ def _event_counts(emu: Any, field_pointer_symbol: int) -> dict[str, int]:
         raise RuntimeError("field event pointer is null")
     names = ("background", "npc", "warp", "coordinate")
     return {name: _read_u32(emu, event_data + index * 4) for index, name in enumerate(names)}
+
+
+def _active_header_banks(emu: Any, map_id: int) -> dict[str, int]:
+    address = ARM9_RAM_BASE + HGSS_US_HEADER_OFFSET + map_id * 24
+    values = struct.unpack("<7H", bytes(emu.memory.unsigned[address + 4:address + 18]))
+    return dict(zip(("matrix", "script", "script_header", "text", "music_day", "music_night", "event"), values))
+
+
+def _event_npcs(emu: Any, field_pointer_symbol: int) -> list[dict[str, int]]:
+    field_system = _read_u32(emu, field_pointer_symbol)
+    events = _read_u32(emu, field_system + FIELD_SYSTEM_POINTER_OFFSET)
+    count = _read_u32(emu, events + 4)
+    pointer = _read_u32(emu, events + 20)
+    output = []
+    for index in range(count):
+        values = struct.unpack(
+            "<6Hh3HhhHHi",
+            bytes(emu.memory.unsigned[pointer + index * 32:pointer + (index + 1) * 32]),
+        )
+        output.append({
+            "local_id": values[0], "graphics_id": values[1], "script_index": values[5],
+            "direction": values[6], "x": values[12], "z": values[13],
+        })
+    return output
+
+
+def _stage3e1_runtime_state(emu: Any, field_pointer_symbol: int) -> dict[str, object]:
+    state = _stage3b_runtime_state(emu, field_pointer_symbol)
+    state["matrix"]["cached_id_u8"] = state["matrix"].pop("id")
+    for key in ("headers", "altitudes", "members"):
+        state["matrix"][key] = state["matrix"][key][:2]
+    map_id = state["location"]["map"]
+    state["active_header_banks"] = _active_header_banks(emu, map_id)
+    field_system = _read_u32(emu, field_pointer_symbol)
+    events = _read_u32(emu, field_system + FIELD_SYSTEM_POINTER_OFFSET)
+    state["script_header_signature"] = bytes(
+        emu.memory.unsigned[
+            events + MAP_EVENTS_SCRIPT_HEADER_OFFSET:events + MAP_EVENTS_SCRIPT_HEADER_OFFSET + 4
+        ]
+    ).hex()
+    state["event_counts"] = _event_counts(emu, field_pointer_symbol)
+    state["npcs"] = _event_npcs(emu, field_pointer_symbol)
+    return state
 
 
 def _height_state(emu: Any, field_pointer_symbol: int) -> dict[str, int]:
@@ -295,6 +340,38 @@ def _stage3b_state_matches(
     )
 
 
+def _stage3e1_state_matches(
+    state: dict[str, object], fixture: dict[str, Any], map_name: str, x: int, z: int,
+) -> bool:
+    spec = fixture["maps"][map_name]
+    index = spec["cell"]["column"]
+    manager = state["load_manager"]
+    expected_header = {
+        "matrix": fixture["slots"]["matrix"], "script": spec["script"],
+        "script_header": spec["script_header"], "text": spec["text"],
+        "event": spec["event"],
+    }
+    return (
+        state["location"]["map"] == spec["map_header"]
+        and (state["location"]["x"], state["location"]["z"]) == (x, z)
+        and state["cell"] == spec["cell"]
+        and state["local"] == {"x": x % MAP_TILES, "z": z % MAP_TILES}
+        and state["matrix"] == {
+            "cached_id_u8": fixture["slots"]["matrix"] & 0xFF,
+            "width": 2, "height": 1,
+            "headers": [fixture["maps"][name]["map_header"] for name in ("west", "east")],
+            "altitudes": [0, 0],
+            "members": [fixture["maps"][name]["map_member"] for name in ("west", "east")],
+        }
+        and all(state["active_header_banks"][key] == value for key, value in expected_header.items())
+        and manager["active_index"] == index
+        and manager["width"] == 2 and manager["height"] == 1
+        and manager["active_loaded_index"] == index
+        and manager["active_member"] == spec["map_member"]
+        and manager["active_ready"] == 1
+    )
+
+
 def _warp_events(emu: Any, field_pointer_symbol: int, count: int) -> list[dict[str, int]]:
     field_system = _read_u32(emu, field_pointer_symbol)
     event_data = _read_u32(emu, field_system + FIELD_SYSTEM_POINTER_OFFSET)
@@ -352,6 +429,7 @@ def _worker(
             2: "stage3a_height_emulator_worker",
             3: "stage3b_multimap_emulator_worker",
             5: "stage3d_geometry_emulator_worker",
+            6: "stage3e1_narc_append_emulator_worker",
         }[fixture["schema_version"]],
         "success": False,
         "rom": str(rom_path),
@@ -376,7 +454,7 @@ def _worker(
         _cycle(emu, 4, deadline)
         emu.input.touch_release()
         _cycle(emu, 400, deadline)
-        if fixture["schema_version"] == 3:
+        if fixture["schema_version"] in (3, 6):
             start_spec = fixture["maps"][fixture["player_start"]["map"]]
             target_header = start_spec["map_header"]
         else:
@@ -395,7 +473,7 @@ def _worker(
 
         start = _location(emu, symbols["gFieldSysPtr"])
         expected_start = fixture["player_start"]
-        if fixture["schema_version"] == 3:
+        if fixture["schema_version"] in (3, 6):
             expected_start_x = start_spec["cell"]["column"] * MAP_TILES + expected_start["local_x"]
             expected_start_z = start_spec["cell"]["row"] * MAP_TILES + expected_start["local_z"]
         else:
@@ -407,6 +485,99 @@ def _worker(
         )
         counts = _event_counts(emu, symbols["gFieldSysPtr"])
         observations["event_counts"] = counts
+        if fixture["schema_version"] == 6:
+            west = _stage3e1_runtime_state(emu, symbols["gFieldSysPtr"])
+            observations["west_start"] = west
+            checks["appended_matrix_loaded"] = (
+                west["active_header_banks"]["matrix"] == 288
+                and west["matrix"]["cached_id_u8"] == 32
+                and west["matrix"]["members"] == [676, 677]
+            )
+            checks["west_appended_member_active"] = _stage3e1_state_matches(
+                west, fixture, "west", 16, 16
+            )
+            checks["west_appended_event_loaded"] = (
+                west["event_counts"] == {"background": 0, "npc": 1, "warp": 0, "coordinate": 0}
+                and west["npcs"] == [{
+                    "local_id": 0, "graphics_id": 146, "script_index": 1,
+                    "direction": 1, "x": 16, "z": 14,
+                }]
+            )
+            checks["west_appended_script_header_loaded"] = west["script_header_signature"] == "00a1e100"
+            checks["no_explicit_warp_records"] = west["event_counts"]["warp"] == 0
+            screenshots["west_start"] = _capture(emu, artifact_dir / "west-start.png")
+
+            _press(emu, Keys.KEY_UP, deadline, after=60)
+            _press(emu, Keys.KEY_A, deadline, after=90)
+            west_marker = _read_u32(emu, symbols["gStage3E1ProofDialogueMarker"])
+            observations["west_dialogue_marker"] = west_marker
+            screenshots["west_dialogue"] = _capture(emu, artifact_dir / "west-dialogue.png")
+            checks["west_appended_script_executed"] = west_marker == 43
+            checks["west_appended_text_displayed"] = (
+                west["active_header_banks"]["text"] == 854
+                and screenshots["west_dialogue"]["pixel_sha256"] != screenshots["west_start"]["pixel_sha256"]
+            )
+            _press(emu, Keys.KEY_A, deadline, after=60)
+            _press(emu, Keys.KEY_DOWN, deadline, after=60)
+
+            _move_to_coordinate(emu, Keys.KEY_RIGHT, symbols["gFieldSysPtr"], "x", 31, deadline)
+            approach = _stage3e1_runtime_state(emu, symbols["gFieldSysPtr"])
+            _move_to_coordinate(emu, Keys.KEY_RIGHT, symbols["gFieldSysPtr"], "x", 32, deadline)
+            east = _stage3e1_runtime_state(emu, symbols["gFieldSysPtr"])
+            observations["native_transition"] = {"approach": approach, "entered": east}
+            checks["native_west_to_east_transition"] = (
+                _stage3e1_state_matches(approach, fixture, "west", 31, 16)
+                and _stage3e1_state_matches(east, fixture, "east", 32, 16)
+                and east["local"] == {"x": 0, "z": 16}
+                and east["location"]["warp"] == approach["location"]["warp"]
+            )
+            checks["east_appended_event_loaded"] = (
+                east["event_counts"] == {"background": 0, "npc": 1, "warp": 0, "coordinate": 0}
+                and east["npcs"] == [{
+                    "local_id": 0, "graphics_id": 146, "script_index": 1,
+                    "direction": 1, "x": 36, "z": 14,
+                }]
+            )
+            checks["east_appended_script_header_loaded"] = east["script_header_signature"] == "00a2e100"
+            screenshots["east_entered"] = _capture(emu, artifact_dir / "east-entered.png")
+
+            _move_to_coordinate(emu, Keys.KEY_RIGHT, symbols["gFieldSysPtr"], "x", 36, deadline)
+            _press(emu, Keys.KEY_UP, deadline, after=60)
+            _press(emu, Keys.KEY_A, deadline, after=90)
+            east_marker = _read_u32(emu, symbols["gStage3E1ProofDialogueMarker"])
+            observations["east_dialogue_marker"] = east_marker
+            east_dialogue_state = _stage3e1_runtime_state(emu, symbols["gFieldSysPtr"])
+            screenshots["east_dialogue"] = _capture(emu, artifact_dir / "east-dialogue.png")
+            checks["east_appended_script_executed"] = east_marker == 44
+            checks["east_appended_text_displayed"] = (
+                east_dialogue_state["active_header_banks"]["text"] == 855
+                and screenshots["east_dialogue"]["pixel_sha256"] != screenshots["east_entered"]["pixel_sha256"]
+            )
+            checks["east_appended_member_active"] = _stage3e1_state_matches(
+                east_dialogue_state, fixture, "east", 36, 15
+            )
+            _press(emu, Keys.KEY_A, deadline, after=60)
+            _press(emu, Keys.KEY_DOWN, deadline, after=60)
+            _press(emu, Keys.KEY_LEFT, deadline, after=60)
+            moved = _location(emu, symbols["gFieldSysPtr"])
+            _press(emu, Keys.KEY_RIGHT, deadline, after=60)
+            returned = _location(emu, symbols["gFieldSysPtr"])
+            observations["east_movement"] = [moved, returned]
+            checks["movement_collision_functional"] = (
+                moved is not None and returned is not None
+                and (moved["x"], moved["z"]) == (35, 16)
+                and (returned["x"], returned["z"]) == (36, 16)
+            )
+            _cycle(emu, 600, deadline)
+            stable = _stage3e1_runtime_state(emu, symbols["gFieldSysPtr"])
+            observations["after_stability_window"] = stable
+            checks["rom_stable_600_frames"] = (
+                bool(emu.is_running()) and _stage3e1_state_matches(stable, fixture, "east", 36, 16)
+            )
+            payload["success"] = all(checks.values())
+            if not payload["success"]:
+                payload["error"] = "one or more Stage 3E1 runtime assertions failed"
+            return 0 if payload["success"] else 1
         if fixture["schema_version"] == 3:
             start_state = _stage3b_runtime_state(emu, symbols["gFieldSysPtr"])
             observations["start_state"] = start_state
@@ -904,6 +1075,7 @@ def run_world_test(
             2: "stage3a_height_emulator",
             3: "stage3b_multimap_emulator",
             5: "stage3d_geometry_emulator",
+            6: "stage3e1_narc_append_emulator",
         }[fixture["schema_version"]],
         "success": False,
         "rom_sha256": sha256_file(rom_path) if rom_path.is_file() else None,

@@ -117,6 +117,14 @@ New automatic allocations may consume only source-backed `KNOWN_FREE` ranges.
 Controlled vanilla replacements remain explicit, and unknown NARC capacity is
 not treated as free. See `docs/STAGE_3C_TECHNICAL_REPORT.md`.
 
+For the five proven world-resource NARCs, Stage 3E1 adds a second, distinct
+allocation path: persistent contiguous members inside revision-locked
+`APPEND_PROVEN` windows become `PROJECT_APPENDED`. Retail members remain
+vanilla-owned, HG-Engine's generated text prefix remains `ENGINE_OWNED`, and
+all logical script namespaces share the physical script-NARC collision
+domain. No other archive or map-header capacity is implied. See
+`docs/STAGE_3E1_TECHNICAL_REPORT.md`.
+
 ### Source
 
 Maps should be authored through structured data, not mouse placement.

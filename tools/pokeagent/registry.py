@@ -1,8 +1,9 @@
 """Stable symbolic resource registry for the deterministic world compiler.
 
 The registry intentionally separates numeric slot provenance from binary
-serialization.  Existing allocations are persistent records; new allocations
-may only consume ranges explicitly classified KNOWN_FREE.
+serialization. Existing allocations are persistent records; new allocations
+may consume explicitly classified KNOWN_FREE slots or revision-locked,
+contiguous APPEND_PROVEN NARC windows.
 """
 
 from __future__ import annotations
@@ -22,14 +23,19 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_REGISTRY = PROJECT_ROOT / "world" / "registry.json"
 DEFAULT_INVENTORY = PROJECT_ROOT / "build" / "registry" / "slot-inventory.json"
 CLASSIFICATIONS = {
+    "APPEND_PROVEN",
     "KNOWN_FREE",
     "CONTROLLED_REPLACEMENT",
+    "ENGINE_OWNED",
+    "PROJECT_APPENDED",
     "PROJECT_ALLOCATED",
     "VANILLA_OWNED",
     "RESERVED",
     "UNKNOWN",
 }
-WRITABLE_CLASSIFICATIONS = {"KNOWN_FREE", "CONTROLLED_REPLACEMENT", "PROJECT_ALLOCATED"}
+WRITABLE_CLASSIFICATIONS = {
+    "KNOWN_FREE", "CONTROLLED_REPLACEMENT", "PROJECT_ALLOCATED", "PROJECT_APPENDED",
+}
 SYMBOL_PATTERN = re.compile(r"^[a-z][a-z0-9_]*$")
 
 
@@ -65,6 +71,14 @@ def _slot_classification(namespace: dict[str, Any], numeric_id: int) -> tuple[st
     return "UNKNOWN", {"classification": "UNKNOWN", "evidence": "no classified range"}
 
 
+def _range_classification(namespace: dict[str, Any], numeric_id: int) -> tuple[str, dict[str, Any]]:
+    """Return range provenance without allowing a persistent override to hide it."""
+    for range_spec in namespace.get("ranges", []):
+        if range_spec["start"] <= numeric_id <= range_spec["end"]:
+            return range_spec["classification"], range_spec
+    return "UNKNOWN", {"classification": "UNKNOWN", "evidence": "no classified range"}
+
+
 def validate_registry(registry: dict[str, Any]) -> dict[str, Any]:
     if registry.get("schema_version") != 1:
         raise RegistryError("unsupported_schema", "registry schema_version must be 1")
@@ -82,6 +96,7 @@ def validate_registry(registry: dict[str, Any]) -> dict[str, Any]:
 
     symbols: dict[str, tuple[str, dict[str, Any]]] = {}
     numeric_owners: dict[tuple[str, int], tuple[str, str]] = {}
+    append_domains: dict[str, dict[str, Any]] = {}
     for namespace_name in sorted(namespaces):
         namespace = namespaces[namespace_name]
         if not SYMBOL_PATTERN.fullmatch(namespace_name):
@@ -95,6 +110,40 @@ def validate_registry(registry: dict[str, Any]) -> dict[str, Any]:
         collision_domain = namespace.get("collision_domain")
         if not isinstance(collision_domain, str) or not collision_domain:
             raise RegistryError("invalid_namespace", f"namespace {namespace_name} needs a collision_domain")
+
+        append = namespace.get("append")
+        if append is not None:
+            if not isinstance(append, dict) or set(append) != {
+                "archive", "pristine_count", "allocation_start", "proven_max_id", "policy",
+            }:
+                raise RegistryError("invalid_append_policy", f"namespace {namespace_name} has malformed append metadata")
+            archive_name = append.get("archive")
+            pristine_count = append.get("pristine_count")
+            allocation_start = append.get("allocation_start")
+            proven_max_id = append.get("proven_max_id")
+            archive = target.get("archives", {}).get(archive_name)
+            if (
+                archive is None or not isinstance(pristine_count, int) or not isinstance(allocation_start, int)
+                or not isinstance(proven_max_id, int) or pristine_count != archive.get("members")
+                or allocation_start < pristine_count or proven_max_id < allocation_start
+                or append.get("policy") != "contiguous_from_pristine_count"
+            ):
+                raise RegistryError(
+                    "append_evidence_mismatch",
+                    f"namespace {namespace_name} append policy disagrees with pristine archive evidence",
+                )
+            domain_evidence = {
+                "archive": archive_name,
+                "pristine_count": pristine_count,
+                "allocation_start": allocation_start,
+                "proven_max_id": proven_max_id,
+            }
+            previous = append_domains.setdefault(collision_domain, domain_evidence)
+            if previous != domain_evidence:
+                raise RegistryError(
+                    "append_evidence_mismatch",
+                    f"collision domain {collision_domain} has inconsistent append evidence",
+                )
 
         previous_end = numeric_min - 1
         for range_spec in namespace.get("ranges", []):
@@ -124,6 +173,19 @@ def validate_registry(registry: dict[str, Any]) -> dict[str, Any]:
                 raise RegistryError("invalid_override", f"namespace {namespace_name} override {raw_id} has invalid classification")
             if not isinstance(override.get("evidence"), str) or not override["evidence"]:
                 raise RegistryError("missing_evidence", f"namespace {namespace_name} override {raw_id} needs evidence")
+            if override["classification"] == "PROJECT_APPENDED":
+                if append is None:
+                    raise RegistryError("unproven_append", f"namespace {namespace_name} cannot own appended members")
+                underlying, _ = _range_classification(namespace, numeric_id)
+                if (
+                    underlying != "APPEND_PROVEN"
+                    or numeric_id < append["allocation_start"]
+                    or numeric_id > append["proven_max_id"]
+                ):
+                    raise RegistryError(
+                        "invalid_appended_id",
+                        f"namespace {namespace_name} appended ID {numeric_id} is outside its proven window",
+                    )
 
         resources = namespace.get("resources", [])
         if not isinstance(resources, list):
@@ -167,6 +229,24 @@ def validate_registry(registry: dict[str, Any]) -> dict[str, Any]:
             if access == "write":
                 numeric_owners[owner_key] = (namespace_name, symbol)
             symbols[symbol] = (namespace_name, resource)
+
+    for collision_domain, append in append_domains.items():
+        appended_ids = sorted(
+            resource["id"]
+            for namespace in namespaces.values()
+            if namespace["collision_domain"] == collision_domain
+            for resource in namespace.get("resources", [])
+            if resource.get("access", "write") == "write"
+            and _slot_classification(namespace, resource["id"])[0] == "PROJECT_APPENDED"
+        )
+        if appended_ids:
+            expected = list(range(append["allocation_start"], appended_ids[-1] + 1))
+            if appended_ids != expected:
+                raise RegistryError(
+                    "append_gap",
+                    f"collision domain {collision_domain} has a gap in persistent appended ownership",
+                    expected=expected, actual=appended_ids,
+                )
     return registry
 
 
@@ -459,6 +539,127 @@ def resolve_stage3d_source(
     }
 
 
+def resolve_stage3e1_source(
+    source: dict[str, Any],
+    registry_path: Path = DEFAULT_REGISTRY,
+) -> dict[str, Any]:
+    """Resolve the symbolic two-cell NARC-append proof into serializer inputs."""
+    if source.get("schema_version") != 6 or source.get("artifact_namespace") != "stage3e1":
+        raise RegistryError("unsupported_world_schema", "Stage 3E1 symbolic source must use schema 6")
+    registry = load_registry(registry_path)
+    declared_registry = source.get("registry")
+    declared_path = (PROJECT_ROOT / declared_registry).resolve() if isinstance(declared_registry, str) else None
+    if declared_path != registry_path.resolve():
+        raise RegistryError("registry_mismatch", "Stage 3E1 source must name the registry used for resolution")
+    resolutions: dict[str, dict[str, Any]] = {}
+
+    def resolve(reference: object, namespace: str, *, writable: bool = True) -> int:
+        if not isinstance(reference, str):
+            raise RegistryError(
+                "numeric_reference", f"Stage 3E1 {namespace} references must be symbolic strings",
+                namespace=namespace, value=reference,
+            )
+        result = resolve_symbol(registry, reference, namespace, require_writable=writable)
+        resolutions[reference] = result
+        return int(result["id"])
+
+    matrix = source.get("world", {}).get("matrix", {})
+    required_matrix = {
+        "id", "append_probe", "width", "height", "name", "cells", "altitudes", "external_boundaries",
+    }
+    if not isinstance(matrix, dict) or set(matrix) != required_matrix:
+        raise RegistryError("invalid_matrix", "Stage 3E1 requires one exact symbolic matrix declaration")
+    if matrix["width"] != 2 or matrix["height"] != 1 or matrix["altitudes"] != [0, 0]:
+        raise RegistryError("invalid_matrix_dimensions", "Stage 3E1 proof matrix must be exactly 2x1")
+    cells = matrix["cells"]
+    if not isinstance(cells, list) or len(cells) != 2 or len(set(cells)) != 2:
+        raise RegistryError("invalid_matrix_cells", "Stage 3E1 matrix needs two unique map cells")
+    matrix_id = resolve(matrix["id"], "matrices")
+    matrix_probe_id = resolve(matrix["append_probe"], "matrices")
+    if matrix_probe_id != matrix_id + 1:
+        raise RegistryError("append_gap", "Stage 3E1 matrix probe must immediately follow the active matrix")
+
+    maps = source.get("maps")
+    if not isinstance(maps, dict) or set(maps) != set(cells):
+        raise RegistryError("dangling_map", "Stage 3E1 matrix cells and maps must match")
+    aliases_by_cell = {(0, 0): "west", (0, 1): "east"}
+    aliases_by_symbol: dict[str, str] = {}
+    resolved_maps: dict[str, dict[str, Any]] = {}
+    required_map = {
+        "cell", "matrix", "map_header", "map_member", "event_bank", "script_bank",
+        "script_header", "text_bank", "edge_openings", "identity_blocked_tile", "npc",
+    }
+    for map_symbol in cells:
+        map_spec = maps[map_symbol]
+        if not isinstance(map_spec, dict) or set(map_spec) != required_map:
+            raise RegistryError("invalid_map", f"Stage 3E1 map {map_symbol!r} has unsupported fields")
+        cell = map_spec["cell"]
+        if not isinstance(cell, dict) or set(cell) != {"row", "column"}:
+            raise RegistryError("invalid_map_cell", f"Stage 3E1 map {map_symbol!r} has malformed coordinates")
+        alias = aliases_by_cell.get((cell["row"], cell["column"]))
+        if alias is None or alias in resolved_maps:
+            raise RegistryError("invalid_map_cell", f"Stage 3E1 map {map_symbol!r} has duplicate/impossible coordinates")
+        if map_spec["matrix"] != matrix["id"]:
+            raise RegistryError("wrong_matrix_reference", f"Stage 3E1 map {map_symbol!r} points at the wrong matrix")
+        resolve(map_spec["matrix"], "matrices")
+        aliases_by_symbol[map_symbol] = alias
+        npc = copy.deepcopy(map_spec["npc"])
+        marker_symbol = npc.get("marker_variable")
+        npc["marker_var"] = resolve(marker_symbol, "variables")
+        npc.pop("marker_variable", None)
+        resolved_maps[alias] = {
+            "cell": copy.deepcopy(cell),
+            "map_header": resolve(map_spec["map_header"], "map_headers"),
+            "map_member": resolve(map_spec["map_member"], "map_members"),
+            "event": resolve(map_spec["event_bank"], "event_banks"),
+            "script": resolve(map_spec["script_bank"], "local_script_banks"),
+            "script_header": resolve(map_spec["script_header"], "script_headers"),
+            "text": resolve(map_spec["text_bank"], "text_banks"),
+            "edge_openings": copy.deepcopy(map_spec["edge_openings"]),
+            "identity_blocked_tile": copy.deepcopy(map_spec["identity_blocked_tile"]),
+            "npc": npc,
+        }
+    if [aliases_by_symbol[symbol] for symbol in cells] != ["west", "east"]:
+        raise RegistryError("invalid_matrix_order", "Stage 3E1 cells must be row-major west then east")
+
+    model = copy.deepcopy(source.get("model", {}))
+    model["template_map_member"] = resolve(model.get("template_map_member"), "map_members", writable=False)
+    model["area_data"] = resolve(model.get("area_data"), "area_data_banks", writable=False)
+    header_template = resolve(source.get("header_template"), "map_headers", writable=False)
+    start_script = resolve(source.get("resources", {}).get("start_script"), "common_scripts")
+    start = copy.deepcopy(source.get("player_start", {}))
+    if start.get("map") not in aliases_by_symbol:
+        raise RegistryError("unknown_reference", "Stage 3E1 player start references an undeclared map")
+    start["map"] = aliases_by_symbol[start["map"]]
+
+    resolved_matrix = copy.deepcopy(matrix)
+    for key in ("id", "append_probe"):
+        del resolved_matrix[key]
+    resolved_matrix["cells"] = [aliases_by_symbol[symbol] for symbol in cells]
+    return {
+        "schema_version": 6,
+        "canonical_schema_version": 6,
+        "id": source.get("id"),
+        "artifact_namespace": "stage3e1",
+        "dimensions": copy.deepcopy(source.get("dimensions")),
+        "world": {"matrix": resolved_matrix},
+        "maps": resolved_maps,
+        "slots": {"matrix": matrix_id, "matrix_probe": matrix_probe_id, "start_script": start_script},
+        "model": model,
+        "terrain": copy.deepcopy(source.get("terrain")),
+        "player_start": start,
+        "warps": copy.deepcopy(source.get("warps")),
+        "header_template": header_template,
+        "registry_resolution": {
+            "schema_version": 1,
+            "registry": declared_registry,
+            "registry_sha256": hashlib.sha256(registry_path.read_bytes()).hexdigest(),
+            "target_rom_sha256": registry["target"]["rom_sha256"],
+            "symbols": {symbol: resolutions[symbol] for symbol in sorted(resolutions)},
+        },
+    }
+
+
 def allocate_resource(
     registry: dict[str, Any],
     namespace_name: str,
@@ -520,6 +721,79 @@ def allocate_resource(
     return registry, resolve_symbol(registry, symbol, namespace_name)
 
 
+def allocate_appended_resource(
+    registry: dict[str, Any],
+    namespace_name: str,
+    symbol: str,
+    rom_path: Path,
+    pinned_id: int | None = None,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Persist one contiguous member in a revision-locked, append-proven NARC window."""
+    registry = copy.deepcopy(validate_registry(registry))
+    verify_rom_revision(registry, rom_path)
+    if not isinstance(symbol, str) or not SYMBOL_PATTERN.fullmatch(symbol):
+        raise RegistryError("invalid_symbol", f"invalid allocation symbol {symbol!r}")
+    try:
+        resolve_symbol(registry, symbol, require_writable=False)
+    except RegistryError as error:
+        if error.code != "unknown_reference":
+            raise
+    else:
+        raise RegistryError("duplicate_symbol", f"symbol {symbol} already exists")
+    namespace = registry.get("namespaces", {}).get(namespace_name)
+    if namespace is None:
+        raise RegistryError("unknown_namespace", f"unknown namespace {namespace_name!r}")
+    append = namespace.get("append")
+    if append is None:
+        raise RegistryError("unproven_append", f"namespace {namespace_name} has no append-proven window")
+
+    collision_domain = namespace["collision_domain"]
+    occupied = {
+        resource["id"]
+        for other in registry["namespaces"].values()
+        if other["collision_domain"] == collision_domain
+        for resource in other.get("resources", [])
+        if resource.get("access", "write") == "write"
+    }
+    pristine_count = append["pristine_count"]
+    allocation_start = append["allocation_start"]
+    next_id = allocation_start
+    while next_id in occupied:
+        next_id += 1
+    if pinned_id is not None:
+        if not isinstance(pinned_id, int):
+            raise RegistryError("invalid_append_pin", "appended manual pins must be integers")
+        if pinned_id < allocation_start:
+            raise RegistryError(
+                "append_below_pristine",
+                f"appended ID {pinned_id} is below allocation boundary {allocation_start} "
+                f"(retail count {pristine_count})",
+            )
+        if pinned_id != next_id:
+            raise RegistryError(
+                "noncontiguous_append_pin",
+                f"appended manual pin {pinned_id} would skip or collide with the next ID {next_id}",
+            )
+    numeric_id = next_id if pinned_id is None else pinned_id
+    if numeric_id > append["proven_max_id"]:
+        raise RegistryError(
+            "append_allocation_exhausted",
+            f"append-proven window is exhausted in namespace {namespace_name}",
+        )
+    if _range_classification(namespace, numeric_id)[0] != "APPEND_PROVEN":
+        raise RegistryError("unproven_append", f"ID {numeric_id} is not in an APPEND_PROVEN range")
+    namespace.setdefault("slot_overrides", {})[str(numeric_id)] = {
+        "classification": "PROJECT_APPENDED",
+        "evidence": "persistent contiguous allocation from the Stage 3E1 append-proven window",
+    }
+    namespace.setdefault("resources", []).append({
+        "symbol": symbol, "id": numeric_id, "access": "write",
+    })
+    namespace["resources"].sort(key=lambda item: item["symbol"])
+    validate_registry(registry)
+    return registry, resolve_symbol(registry, symbol, namespace_name)
+
+
 def verify_rom_revision(registry: dict[str, Any], rom_path: Path) -> dict[str, Any]:
     if not rom_path.is_file():
         raise RegistryError("rom_missing", f"supported user-local ROM is missing: {rom_path}")
@@ -562,6 +836,7 @@ def build_inventory(registry: dict[str, Any], rom_path: Path) -> dict[str, Any]:
             "storage": namespace["storage"],
             "collision_domain": namespace["collision_domain"],
             "allocation_policy": namespace["allocation_policy"],
+            "append": copy.deepcopy(namespace.get("append")),
             "resources": resources,
             "classification_counts": {
                 classification: sum(1 for resource in resources if resource["classification"] == classification)

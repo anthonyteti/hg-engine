@@ -65,7 +65,7 @@
     "common_scripts": {
       "storage": "field_script_narc_member_u16",
       "collision_domain": "script_narc",
-      "allocation_policy": "persistent_controlled_replacements_only",
+      "allocation_policy": "persistent_contiguous_append_after_stage3e1",
       "numeric_min": 0,
       "numeric_max": 65535,
       "ranges": [
@@ -77,11 +77,24 @@
         },
         {
           "start": 965,
+          "end": 968,
+          "classification": "APPEND_PROVEN",
+          "evidence": "Stage 3E1 source and runtime prove a bounded contiguous script-NARC append window shared by all script namespaces."
+        },
+        {
+          "start": 969,
           "end": 65535,
           "classification": "UNKNOWN",
-          "evidence": "u16 is structurally addressable, but appended script members are not emulator-proven."
+          "evidence": "Beyond the bounded Stage 3E1 runtime-tested append window."
         }
       ],
+      "append": {
+        "archive": "scripts",
+        "pristine_count": 965,
+        "allocation_start": 965,
+        "proven_max_id": 968,
+        "policy": "contiguous_from_pristine_count"
+      },
       "slot_overrides": {
         "3": {
           "classification": "CONTROLLED_REPLACEMENT",
@@ -99,7 +112,7 @@
     "event_banks": {
       "storage": "event_narc_member_u16",
       "collision_domain": "event_narc",
-      "allocation_policy": "persistent_controlled_replacements_only",
+      "allocation_policy": "persistent_contiguous_append_after_stage3e1",
       "numeric_min": 0,
       "numeric_max": 65535,
       "ranges": [
@@ -111,18 +124,49 @@
         },
         {
           "start": 491,
+          "end": 492,
+          "classification": "APPEND_PROVEN",
+          "evidence": "Stage 3E1 source and runtime prove two appended event banks."
+        },
+        {
+          "start": 493,
           "end": 65535,
           "classification": "UNKNOWN",
-          "evidence": "MapHeader.eventsBank is u16, but appended event members are not emulator-proven."
+          "evidence": "Beyond the bounded Stage 3E1 runtime-tested append window."
         }
       ],
+      "append": {
+        "archive": "event_banks",
+        "pristine_count": 491,
+        "allocation_start": 491,
+        "proven_max_id": 492,
+        "policy": "contiguous_from_pristine_count"
+      },
       "slot_overrides": {
         "57": {
           "classification": "CONTROLLED_REPLACEMENT",
           "evidence": "Stages 2-3B replace event member 57 and verify the generated event at runtime."
+        },
+        "491": {
+          "classification": "PROJECT_APPENDED",
+          "evidence": "Stage 3E1 persistent first appended event-bank allocation."
+        },
+        "492": {
+          "classification": "PROJECT_APPENDED",
+          "evidence": "Stage 3E1 persistent second appended event-bank allocation."
         }
       },
       "resources": [
+        {
+          "symbol": "stage3e1_east_events",
+          "id": 492,
+          "access": "write"
+        },
+        {
+          "symbol": "stage3e1_west_events",
+          "id": 491,
+          "access": "write"
+        },
         {
           "symbol": "stage3c_empty_events",
           "id": 57,
@@ -174,7 +218,7 @@
     "local_script_banks": {
       "storage": "field_script_narc_member_u16",
       "collision_domain": "script_narc",
-      "allocation_policy": "persistent_controlled_replacements_only",
+      "allocation_policy": "persistent_contiguous_append_after_stage3e1",
       "numeric_min": 0,
       "numeric_max": 65535,
       "ranges": [
@@ -186,18 +230,49 @@
         },
         {
           "start": 965,
+          "end": 968,
+          "classification": "APPEND_PROVEN",
+          "evidence": "Stage 3E1 source and runtime prove members 965-968 in the shared script NARC."
+        },
+        {
+          "start": 969,
           "end": 65535,
           "classification": "UNKNOWN",
-          "evidence": "MapHeader.scriptsBank is u16, but appended members are not emulator-proven."
+          "evidence": "Beyond the bounded Stage 3E1 runtime-tested append window."
         }
       ],
+      "append": {
+        "archive": "scripts",
+        "pristine_count": 965,
+        "allocation_start": 965,
+        "proven_max_id": 968,
+        "policy": "contiguous_from_pristine_count"
+      },
       "slot_overrides": {
         "842": {
           "classification": "CONTROLLED_REPLACEMENT",
           "evidence": "Stages 2-3B replace script member 842 and build/run it through HG-Engine."
+        },
+        "965": {
+          "classification": "PROJECT_APPENDED",
+          "evidence": "Stage 3E1 persistent first appended script-NARC allocation."
+        },
+        "966": {
+          "classification": "PROJECT_APPENDED",
+          "evidence": "Stage 3E1 persistent second appended script-NARC allocation."
         }
       },
       "resources": [
+        {
+          "symbol": "stage3e1_east_scripts",
+          "id": 966,
+          "access": "write"
+        },
+        {
+          "symbol": "stage3e1_west_scripts",
+          "id": 965,
+          "access": "write"
+        },
         {
           "symbol": "stage3c_noop_scripts",
           "id": 842,
@@ -208,7 +283,7 @@
     "map_headers": {
       "storage": "fixed_arm9_table_24_bytes_each",
       "collision_domain": "map_headers",
-      "allocation_policy": "persistent_controlled_replacements_only",
+      "allocation_policy": "persistent_contiguous_append_after_stage3e1",
       "numeric_min": 0,
       "numeric_max": 539,
       "ranges": [
@@ -281,11 +356,24 @@
         },
         {
           "start": 676,
+          "end": 677,
+          "classification": "APPEND_PROVEN",
+          "evidence": "Stage 3E1 source and runtime prove two appended land-data members."
+        },
+        {
+          "start": 678,
           "end": 65535,
           "classification": "UNKNOWN",
-          "evidence": "Matrix members are u16, but appended land-data NARC members are not emulator-proven."
+          "evidence": "Beyond the bounded Stage 3E1 runtime-tested append window."
         }
       ],
+      "append": {
+        "archive": "map_members",
+        "pristine_count": 676,
+        "allocation_start": 676,
+        "proven_max_id": 677,
+        "policy": "contiguous_from_pristine_count"
+      },
       "slot_overrides": {
         "630": {
           "classification": "CONTROLLED_REPLACEMENT",
@@ -302,9 +390,27 @@
         "633": {
           "classification": "CONTROLLED_REPLACEMENT",
           "evidence": "Stages 2-3B deliberately replace member 633; it is not blessed as production-free."
+        },
+        "676": {
+          "classification": "PROJECT_APPENDED",
+          "evidence": "Stage 3E1 persistent first appended land-data allocation."
+        },
+        "677": {
+          "classification": "PROJECT_APPENDED",
+          "evidence": "Stage 3E1 persistent second appended land-data allocation."
         }
       },
       "resources": [
+        {
+          "symbol": "stage3e1_east_member",
+          "id": 677,
+          "access": "write"
+        },
+        {
+          "symbol": "stage3e1_west_member",
+          "id": 676,
+          "access": "write"
+        },
         {
           "symbol": "stage3c_proof_northeast_member",
           "id": 630,
@@ -336,7 +442,7 @@
     "matrices": {
       "storage": "map_matrix_narc_member_u16",
       "collision_domain": "matrix_narc",
-      "allocation_policy": "persistent_controlled_replacements_only",
+      "allocation_policy": "persistent_contiguous_append_after_stage3e1",
       "numeric_min": 0,
       "numeric_max": 65535,
       "ranges": [
@@ -348,18 +454,49 @@
         },
         {
           "start": 288,
+          "end": 289,
+          "classification": "APPEND_PROVEN",
+          "evidence": "Stage 3E1 runtime loads member 288 and binary validation proves the later appended member 289."
+        },
+        {
+          "start": 290,
           "end": 65535,
           "classification": "UNKNOWN",
-          "evidence": "Appended matrix members are structurally addressable but not emulator-proven."
+          "evidence": "Beyond the bounded Stage 3E1 tested append window."
         }
       ],
+      "append": {
+        "archive": "matrices",
+        "pristine_count": 288,
+        "allocation_start": 288,
+        "proven_max_id": 289,
+        "policy": "contiguous_from_pristine_count"
+      },
       "slot_overrides": {
         "1": {
           "classification": "CONTROLLED_REPLACEMENT",
           "evidence": "Stages 2-3B replace matrix member 1 after source/reference inspection and runtime proof."
+        },
+        "288": {
+          "classification": "PROJECT_APPENDED",
+          "evidence": "Stage 3E1 persistent first appended matrix allocation."
+        },
+        "289": {
+          "classification": "PROJECT_APPENDED",
+          "evidence": "Stage 3E1 persistent later appended matrix probe allocation."
         }
       },
       "resources": [
+        {
+          "symbol": "stage3e1_active_matrix",
+          "id": 288,
+          "access": "write"
+        },
+        {
+          "symbol": "stage3e1_later_matrix_probe",
+          "id": 289,
+          "access": "write"
+        },
         {
           "symbol": "stage3c_proof_matrix",
           "id": 1,
@@ -370,7 +507,7 @@
     "script_headers": {
       "storage": "field_script_narc_member_u16",
       "collision_domain": "script_narc",
-      "allocation_policy": "persistent_controlled_references_only",
+      "allocation_policy": "persistent_contiguous_append_after_stage3e1",
       "numeric_min": 0,
       "numeric_max": 65535,
       "ranges": [
@@ -382,18 +519,49 @@
         },
         {
           "start": 965,
+          "end": 968,
+          "classification": "APPEND_PROVEN",
+          "evidence": "Stage 3E1 source and runtime prove members 965-968 in the shared script NARC."
+        },
+        {
+          "start": 969,
           "end": 65535,
           "classification": "UNKNOWN",
-          "evidence": "Appended script-header members are not emulator-proven."
+          "evidence": "Beyond the bounded Stage 3E1 runtime-tested append window."
         }
       ],
+      "append": {
+        "archive": "scripts",
+        "pristine_count": 965,
+        "allocation_start": 965,
+        "proven_max_id": 968,
+        "policy": "contiguous_from_pristine_count"
+      },
       "slot_overrides": {
         "399": {
           "classification": "CONTROLLED_REPLACEMENT",
           "evidence": "Stages 2-3B deliberately point generated headers at the verified member 399 behavior."
+        },
+        "967": {
+          "classification": "PROJECT_APPENDED",
+          "evidence": "Stage 3E1 persistent third appended script-NARC allocation for the west script header."
+        },
+        "968": {
+          "classification": "PROJECT_APPENDED",
+          "evidence": "Stage 3E1 persistent fourth appended script-NARC allocation for the east script header."
         }
       },
       "resources": [
+        {
+          "symbol": "stage3e1_east_script_header",
+          "id": 968,
+          "access": "write"
+        },
+        {
+          "symbol": "stage3e1_west_script_header",
+          "id": 967,
+          "access": "write"
+        },
         {
           "symbol": "stage3c_script_header",
           "id": 399,
@@ -404,7 +572,7 @@
     "text_banks": {
       "storage": "message_narc_member_u16",
       "collision_domain": "text_narc",
-      "allocation_policy": "persistent_controlled_replacements_only",
+      "allocation_policy": "persistent_contiguous_append_after_stage3e1",
       "numeric_min": 0,
       "numeric_max": 65535,
       "ranges": [
@@ -416,18 +584,55 @@
         },
         {
           "start": 829,
+          "end": 853,
+          "classification": "ENGINE_OWNED",
+          "evidence": "HG-Engine tracked data/text sources deterministically rebuild members 829-853 before world installation."
+        },
+        {
+          "start": 854,
+          "end": 855,
+          "classification": "APPEND_PROVEN",
+          "evidence": "Stage 3E1 source and runtime prove two project-appended message banks after the engine-owned prefix."
+        },
+        {
+          "start": 856,
           "end": 65535,
           "classification": "UNKNOWN",
-          "evidence": "Appended message members are not emulator-proven."
+          "evidence": "Beyond the bounded Stage 3E1 runtime-tested append window."
         }
       ],
+      "append": {
+        "archive": "text_banks",
+        "pristine_count": 829,
+        "allocation_start": 854,
+        "proven_max_id": 855,
+        "policy": "contiguous_from_pristine_count"
+      },
       "slot_overrides": {
         "542": {
           "classification": "CONTROLLED_REPLACEMENT",
           "evidence": "Stages 2-3B replace message member 542 and runtime-load the associated maps."
+        },
+        "854": {
+          "classification": "PROJECT_APPENDED",
+          "evidence": "Stage 3E1 persistent first appended message-bank allocation."
+        },
+        "855": {
+          "classification": "PROJECT_APPENDED",
+          "evidence": "Stage 3E1 persistent second appended message-bank allocation."
         }
       },
       "resources": [
+        {
+          "symbol": "stage3e1_east_text",
+          "id": 855,
+          "access": "write"
+        },
+        {
+          "symbol": "stage3e1_west_text",
+          "id": 854,
+          "access": "write"
+        },
         {
           "symbol": "stage3c_proof_text",
           "id": 542,

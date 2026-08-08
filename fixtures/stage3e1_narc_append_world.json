@@ -1,0 +1,95 @@
+{
+  "schema_version": 6,
+  "id": "stage3e1_appended_2x1",
+  "artifact_namespace": "stage3e1",
+  "registry": "world/registry.json",
+  "dimensions": {
+    "width": 32,
+    "height": 32
+  },
+  "world": {
+    "matrix": {
+      "id": "stage3e1_active_matrix",
+      "append_probe": "stage3e1_later_matrix_probe",
+      "width": 2,
+      "height": 1,
+      "name": "stage3e1-append",
+      "cells": ["stage3e1_west", "stage3e1_east"],
+      "altitudes": [0, 0],
+      "external_boundaries": "blocked"
+    }
+  },
+  "maps": {
+    "stage3e1_west": {
+      "cell": {"row": 0, "column": 0},
+      "matrix": "stage3e1_active_matrix",
+      "map_header": "stage3c_proof_northwest_header",
+      "map_member": "stage3e1_west_member",
+      "event_bank": "stage3e1_west_events",
+      "script_bank": "stage3e1_west_scripts",
+      "script_header": "stage3e1_west_script_header",
+      "text_bank": "stage3e1_west_text",
+      "edge_openings": {"east": [16]},
+      "identity_blocked_tile": [4, 4],
+      "npc": {
+        "local_id": 0,
+        "graphics_id": 146,
+        "movement_type": 0,
+        "direction": 1,
+        "local_x": 16,
+        "local_z": 14,
+        "script_index": 1,
+        "marker_variable": "stage2_dialogue_test_marker",
+        "marker_value": 43,
+        "dialogue": "STAGE 3E1: APPENDED WEST BANKS LOADED."
+      }
+    },
+    "stage3e1_east": {
+      "cell": {"row": 0, "column": 1},
+      "matrix": "stage3e1_active_matrix",
+      "map_header": "stage3c_proof_northeast_header",
+      "map_member": "stage3e1_east_member",
+      "event_bank": "stage3e1_east_events",
+      "script_bank": "stage3e1_east_scripts",
+      "script_header": "stage3e1_east_script_header",
+      "text_bank": "stage3e1_east_text",
+      "edge_openings": {"west": [16]},
+      "identity_blocked_tile": [5, 4],
+      "npc": {
+        "local_id": 0,
+        "graphics_id": 146,
+        "movement_type": 0,
+        "direction": 1,
+        "local_x": 4,
+        "local_z": 14,
+        "script_index": 1,
+        "marker_variable": "stage2_dialogue_test_marker",
+        "marker_value": 44,
+        "dialogue": "STAGE 3E1: APPENDED EAST BANKS LOADED."
+      }
+    }
+  },
+  "resources": {
+    "start_script": "stage3c_controlled_start_script"
+  },
+  "model": {
+    "template_map_member": "verified_stage2_model_template",
+    "template_member_sha256": "f9fbf0196f416739019288f24be604fd6c096a2ec4ebf7e820e116e7ecc329cc",
+    "template_shape": 6,
+    "area_data": "verified_outdoor_area_data",
+    "half_extent": 16
+  },
+  "terrain": {
+    "permission_type": 0,
+    "walkable_collision": 0,
+    "blocked_collision": 128
+  },
+  "player_start": {
+    "map": "stage3e1_west",
+    "local_x": 16,
+    "local_z": 16,
+    "direction": 3
+  },
+  "warps": [],
+  "header_template": "verified_normal_overworld_header_template"
+}

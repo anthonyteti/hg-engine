@@ -140,6 +140,9 @@ endif
 ifeq ($(STAGE3D_GEOMETRY),Y)
     WORLD_INSTALL_ARGS := --fixture fixtures/stage3d_static_geometry_world.json --output build/stage3d/generated
 endif
+ifeq ($(STAGE3E1_APPEND),Y)
+    WORLD_INSTALL_ARGS := --fixture fixtures/stage3e1_narc_append_world.json --output build/stage3e1/generated
+endif
 
 ####################### Output #######################
 C_SUBDIR = src
@@ -383,6 +386,11 @@ stage3c-registry-proof:
 stage3d-geometry-proof:
 	$(MAKE) clean
 	$(MAKE) STAGE2_MAP=Y STAGE3D_GEOMETRY=Y
+
+.PHONY: stage3e1-narc-append-proof
+stage3e1-narc-append-proof:
+	$(MAKE) clean
+	$(MAKE) STAGE2_MAP=Y STAGE3E1_APPEND=Y
 
 ALL_CODE_OBJS := $(patsubst $(C_SUBDIR)/%.c,$(BUILD)/%.o,$(ALL_C_SRCS)) \
  $(patsubst $(ASM_SUBDIR)/%.s,$(BUILD)/%.o,$(ALL_ASM_SRCS)) \

@@ -20,7 +20,13 @@ from ndspy.narc import NARC
 from ndspy.rom import NintendoDSRom
 
 from .geometry import MATERIAL_BINDINGS, MATERIAL_ORDER, GeometryError, compile_geometry
-from .registry import load_registry, resolve_stage3d_source, resolve_world_source, verify_rom_revision
+from .registry import (
+    load_registry,
+    resolve_stage3d_source,
+    resolve_stage3e1_source,
+    resolve_world_source,
+    verify_rom_revision,
+)
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -30,6 +36,7 @@ HGSS_US_HEADER_OFFSET = 0xF6BE0
 MAP_HEADER_SIZE = 24
 MAP_TILES = 32
 STAGE3B_CELL_ORDER = ("nw", "ne", "sw", "se")
+STAGE3E1_CELL_ORDER = ("west", "east")
 STAGE3B_CONTROLLED_HEADERS = {"nw": 538, "ne": 9, "sw": 10, "se": 11}
 STAGE3B_CONTROLLED_MEMBERS = {"nw": 633, "ne": 630, "sw": 631, "se": 632}
 CARDINAL_DELTAS = {
@@ -72,14 +79,22 @@ def load_fixture(path: Path = DEFAULT_FIXTURE) -> dict[str, Any]:
         if not isinstance(registry_reference, str):
             raise WorldBuildError("Stage 3D fixture must declare a symbolic registry path")
         fixture = resolve_stage3d_source(fixture, PROJECT_ROOT / registry_reference)
+    elif fixture.get("schema_version") == 6:
+        registry_reference = fixture.get("registry")
+        if not isinstance(registry_reference, str):
+            raise WorldBuildError("Stage 3E1 fixture must declare a symbolic registry path")
+        fixture = resolve_stage3e1_source(fixture, PROJECT_ROOT / registry_reference)
     validate_fixture(fixture)
     return fixture
 
 
 def validate_fixture(fixture: dict[str, Any]) -> None:
     schema_version = fixture.get("schema_version")
-    if schema_version not in (1, 2, 3, 5):
-        raise WorldBuildError("only resolved Stage 2 through Stage 3D schemas are supported")
+    if schema_version not in (1, 2, 3, 5, 6):
+        raise WorldBuildError("only resolved Stage 2 through Stage 3E1 schemas are supported")
+    if schema_version == 6:
+        _validate_stage3e1_fixture(fixture)
+        return
     if schema_version == 5:
         _validate_stage3d_fixture(fixture)
         return
@@ -167,6 +182,53 @@ def _validate_stage3d_fixture(fixture: dict[str, Any]) -> None:
     if fixture.get("model", {}).get("half_extent") != 16:
         raise WorldBuildError("Stage 3D template model must retain the 32x32 centered extent")
     compile_geometry(fixture.get("geometry"))
+
+
+def _validate_stage3e1_fixture(fixture: dict[str, Any]) -> None:
+    if fixture.get("artifact_namespace") != "stage3e1" or fixture.get("canonical_schema_version") != 6:
+        raise WorldBuildError("resolved Stage 3E1 source must preserve schema and artifact identity")
+    if fixture.get("dimensions") != {"width": 32, "height": 32}:
+        raise WorldBuildError("Stage 3E1 members remain limited to 32x32")
+    matrix = fixture.get("world", {}).get("matrix", {})
+    if matrix != {
+        "width": 2, "height": 1, "name": "stage3e1-append",
+        "cells": ["west", "east"], "altitudes": [0, 0], "external_boundaries": "blocked",
+    }:
+        raise WorldBuildError("Stage 3E1 requires the bounded west/east 2x1 matrix")
+    slots = fixture.get("slots", {})
+    if set(slots) != {"matrix", "matrix_probe", "start_script"}:
+        raise WorldBuildError("Stage 3E1 slots must contain active/probe matrices and controlled start")
+    if slots["matrix"] != 288 or slots["matrix_probe"] != 289 or slots["start_script"] != 3:
+        raise WorldBuildError("Stage 3E1 append IDs must match the persistent registry proof window")
+    maps = fixture.get("maps")
+    if not isinstance(maps, dict) or tuple(maps) != STAGE3E1_CELL_ORDER:
+        raise WorldBuildError("Stage 3E1 maps must resolve in deterministic west/east order")
+    expected = {
+        "west": {"cell": {"row": 0, "column": 0}, "header": 538, "member": 676,
+                 "event": 491, "script": 965, "script_header": 967, "text": 854, "edge": {"east": [16]}},
+        "east": {"cell": {"row": 0, "column": 1}, "header": 9, "member": 677,
+                 "event": 492, "script": 966, "script_header": 968, "text": 855, "edge": {"west": [16]}},
+    }
+    for name in STAGE3E1_CELL_ORDER:
+        spec = maps[name]
+        profile = expected[name]
+        for key in ("cell", "map_header", "map_member", "event", "script", "script_header", "text"):
+            expected_value = profile[{"map_header": "header", "map_member": "member"}.get(key, key)]
+            if spec.get(key) != expected_value:
+                raise WorldBuildError(f"Stage 3E1 {name} {key} disagrees with the registry proof profile")
+        if spec.get("edge_openings") != profile["edge"]:
+            raise WorldBuildError(f"Stage 3E1 {name} must expose only the reciprocal native edge")
+        npc = spec.get("npc", {})
+        required_npc = {
+            "local_id", "graphics_id", "movement_type", "direction", "local_x", "local_z",
+            "script_index", "marker_value", "dialogue", "marker_var",
+        }
+        if set(npc) != required_npc or npc["marker_var"] != 0x4000 or npc["script_index"] != 1:
+            raise WorldBuildError(f"Stage 3E1 {name} NPC/script proof is malformed")
+    if fixture.get("player_start") != {"map": "west", "local_x": 16, "local_z": 16, "direction": 3}:
+        raise WorldBuildError("Stage 3E1 controlled start must begin in the west member")
+    if fixture.get("warps") != []:
+        raise WorldBuildError("Stage 3E1 native adjacency must not use event warps")
 
 
 def _validate_stage3b_fixture(fixture: dict[str, Any]) -> None:
@@ -497,7 +559,7 @@ def split_hgss_map_member(member: bytes) -> dict[str, bytes]:
 def _build_bgs(fixture: dict[str, Any], template_bgs: bytes) -> bytes:
     if len(template_bgs) < 4:
         raise WorldBuildError("template BGS section is missing its four-byte header")
-    if fixture["schema_version"] != 3:
+    if fixture["schema_version"] not in (3, 6):
         return template_bgs
     # The BGS header's second u16 is its payload length.  The Stage 2
     # physical invariant places PER immediately after this four-byte header
@@ -525,9 +587,9 @@ def build_per(fixture: dict[str, Any], map_name: str | None = None) -> bytes:
         return compile_geometry(fixture["geometry"])["per"]
     terrain = fixture["terrain"]
     output = bytearray()
-    if fixture["schema_version"] == 3:
+    if fixture["schema_version"] in (3, 6):
         if map_name not in fixture["maps"]:
-            raise WorldBuildError("Stage 3B PER generation requires a declared map name")
+            raise WorldBuildError("multi-map PER generation requires a declared map name")
         map_spec = fixture["maps"][map_name]
         blocked = {tuple(map_spec["identity_blocked_tile"])}
         open_border = _stage3b_open_tiles(map_spec)
@@ -541,7 +603,7 @@ def build_per(fixture: dict[str, Any], map_name: str | None = None) -> bytes:
     for z in range(32):
         for x in range(32):
             is_border = (x in (0, 31) or z in (0, 31)) and (x, z) not in open_border
-            if fixture["schema_version"] != 3:
+            if fixture["schema_version"] not in (3, 6):
                 is_border = terrain["block_border"] and is_border
             collision = terrain["blocked_collision"] if is_border or (x, z) in blocked else terrain["walkable_collision"]
             permission = terrain.get("warp_permission_type", terrain["permission_type"]) if (x, z) in warps else terrain["permission_type"]
@@ -648,7 +710,7 @@ def build_map_member(
 
 
 def build_matrix(fixture: dict[str, Any]) -> bytes:
-    if fixture["schema_version"] == 3:
+    if fixture["schema_version"] in (3, 6):
         matrix = fixture["world"]["matrix"]
         name = matrix["name"].encode("ascii")
         cells = [fixture["maps"][cell] for cell in matrix["cells"]]
@@ -668,7 +730,23 @@ def build_matrix(fixture: dict[str, Any]) -> bytes:
     return bytes((1, 1, 1, 1, len(name))) + name + struct.pack("<H", slots["map_header"]) + b"\0" + struct.pack("<H", slots["map_member"])
 
 
-def build_event(fixture: dict[str, Any]) -> bytes:
+def build_event(fixture: dict[str, Any], map_name: str | None = None) -> bytes:
+    if fixture["schema_version"] == 6:
+        if map_name not in fixture["maps"]:
+            raise WorldBuildError("Stage 3E1 event generation requires a declared map name")
+        spec = fixture["maps"][map_name]
+        npc = spec["npc"]
+        x = spec["cell"]["column"] * MAP_TILES + npc["local_x"]
+        z = spec["cell"]["row"] * MAP_TILES + npc["local_z"]
+        output = bytearray(struct.pack("<I", 0))
+        output += struct.pack("<I", 1)
+        output += struct.pack(
+            "<6Hh3HhhHHi",
+            npc["local_id"], npc["graphics_id"], npc["movement_type"], 0, 0,
+            npc["script_index"], npc["direction"], 0, 0, 0, 0, 0, x, z, 0,
+        )
+        output += struct.pack("<II", 0, 0)
+        return bytes(output)
     if fixture["schema_version"] in (2, 3, 5):
         return struct.pack("<4I", 0, 0, 0, 0)
     npc = fixture["npc"]
@@ -687,7 +765,7 @@ def build_event(fixture: dict[str, Any]) -> bytes:
 
 
 def _map_header_id(fixture: dict[str, Any], map_name: str | None) -> int:
-    if fixture["schema_version"] == 3:
+    if fixture["schema_version"] in (3, 6):
         if map_name not in fixture["maps"]:
             raise WorldBuildError("Stage 3B map-header generation requires a declared map name")
         return fixture["maps"][map_name]["map_header"]
@@ -707,12 +785,48 @@ def build_map_header(
     output = bytearray(arm9[template_offset:template_offset + MAP_HEADER_SIZE])
     output[0] = 0xFF
     output[1] = fixture["model"]["area_data"]
-    struct.pack_into("<7H", output, 4, slots["matrix"], slots["script"], slots["script_header"], slots["text"],
-                     struct.unpack_from("<H", output, 12)[0], struct.unpack_from("<H", output, 14)[0], slots["event"])
+    if fixture["schema_version"] == 6:
+        if map_name not in fixture["maps"]:
+            raise WorldBuildError("Stage 3E1 header generation requires a declared map name")
+        banks = fixture["maps"][map_name]
+        matrix_id = slots["matrix"]
+    else:
+        banks = slots
+        matrix_id = slots["matrix"]
+    struct.pack_into(
+        "<7H", output, 4, matrix_id, banks["script"], banks["script_header"], banks["text"],
+        struct.unpack_from("<H", output, 12)[0], struct.unpack_from("<H", output, 14)[0], banks["event"],
+    )
     return bytes(output)
 
 
-def _write_script_source(fixture: dict[str, Any], source: Path, output: Path) -> None:
+def _write_script_source(
+    fixture: dict[str, Any], source: Path, output: Path, map_name: str | None = None,
+) -> None:
+    if fixture["schema_version"] == 6:
+        if map_name not in fixture["maps"]:
+            raise WorldBuildError("Stage 3E1 script generation requires a declared map name")
+        npc = fixture["maps"][map_name]["npc"]
+        source.write_text(
+            ".nds\n.thumb\n\n"
+            '.include "armips/include/scriptmacros.s"\n'
+            '.include "armips/include/soundeffects.s"\n\n'
+            f'.create "{output.as_posix()}", 0\n\n'
+            f"scrdef stage3e1_{map_name}_npc\n"
+            "scrdef_end\n\n"
+            f"stage3e1_{map_name}_npc:\n"
+            "    play_se SEQ_SE_DP_SELECT\n"
+            "    lockall\n"
+            "    faceplayer\n"
+            f"    setvar {npc['marker_var']}, {npc['marker_value']}\n"
+            "    npc_msg 0\n"
+            "    wait_button_or_walk_away\n"
+            "    closemsg\n"
+            "    releaseall\n"
+            "    end\n\n.close\n",
+            encoding="utf-8",
+        )
+        return
     if fixture["schema_version"] in (2, 3, 5):
         if fixture["schema_version"] == 5:
             label = "stage3d_geometry_noop"
@@ -759,7 +873,7 @@ def _write_script_source(fixture: dict[str, Any], source: Path, output: Path) ->
 def _write_start_script_source(fixture: dict[str, Any], source: Path, output: Path) -> None:
     start = fixture["player_start"]
     header = _map_header_id(fixture, start.get("map"))
-    if fixture["schema_version"] == 3:
+    if fixture["schema_version"] in (3, 6):
         map_spec = fixture["maps"][start["map"]]
         x = map_spec["cell"]["column"] * MAP_TILES + start["local_x"]
         z = map_spec["cell"]["row"] * MAP_TILES + start["local_z"]
@@ -784,23 +898,58 @@ def _run_checked(command: list[str], root: Path) -> None:
         raise WorldBuildError(f"command failed ({result.returncode}): {' '.join(command)}\n{result.stdout[-2000:]}")
 
 
-def _replace_narc(source: Path, member_id: int, member: bytes, destination: Path) -> None:
-    archive = NARC.fromFile(str(source))
-    if member_id >= len(archive.files):
-        raise WorldBuildError(f"member {member_id} is outside {source} ({len(archive.files)} files)")
-    archive.files[member_id] = member
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    archive.saveToFile(str(destination))
+def _narc_btaf_count(data: bytes) -> int:
+    offset = data.find(b"BTAF")
+    if offset < 0 or offset + 10 > len(data):
+        raise WorldBuildError("rebuilt archive is missing a complete BTAF section")
+    return struct.unpack_from("<H", data, offset + 8)[0]
 
 
-def _replace_narc_members(source: Path, replacements: dict[int, bytes], destination: Path) -> None:
+def _replace_narc(source: Path, member_id: int, member: bytes, destination: Path) -> dict[str, Any]:
+    return _replace_narc_members(source, {member_id: member}, destination)
+
+
+def _replace_narc_members(
+    source: Path, replacements: dict[int, bytes], destination: Path,
+) -> dict[str, Any]:
     archive = NARC.fromFile(str(source))
+    pristine_files = list(archive.files)
     for member_id, member in sorted(replacements.items()):
-        if member_id >= len(archive.files):
-            raise WorldBuildError(f"member {member_id} is outside {source} ({len(archive.files)} files)")
-        archive.files[member_id] = member
+        if member_id < len(archive.files):
+            archive.files[member_id] = member
+        elif member_id == len(archive.files):
+            archive.files.append(member)
+        else:
+            raise WorldBuildError(
+                f"member {member_id} would create an unsupported NARC gap after {len(archive.files) - 1}"
+            )
     destination.parent.mkdir(parents=True, exist_ok=True)
     archive.saveToFile(str(destination))
+    rebuilt = NARC.fromFile(str(destination))
+    btaf_count = _narc_btaf_count(destination.read_bytes())
+    if len(rebuilt.files) != len(archive.files) or btaf_count != len(rebuilt.files):
+        raise WorldBuildError("rebuilt NARC member count disagrees with its BTAF header")
+    changed_retail = [
+        index for index, (before, after) in enumerate(zip(pristine_files, rebuilt.files))
+        if before != after
+    ]
+    expected_changed_retail = sorted(index for index in replacements if index < len(pristine_files))
+    if changed_retail != expected_changed_retail:
+        raise WorldBuildError("rebuilt NARC changed an undeclared pristine member")
+    for member_id, expected in replacements.items():
+        if rebuilt.files[member_id] != expected:
+            raise WorldBuildError(f"rebuilt NARC member {member_id} does not match generated bytes")
+    return {
+        "pristine_count": len(pristine_files),
+        "rebuilt_count": len(rebuilt.files),
+        "btaf_count": btaf_count,
+        "replacement_ids": sorted(expected_changed_retail),
+        "appended_ids": sorted(index for index in replacements if index >= len(pristine_files)),
+        "members": {
+            str(member_id): {"bytes": len(member), "sha256": sha256_bytes(member)}
+            for member_id, member in sorted(replacements.items())
+        },
+    }
 
 
 def validate_stage3b_cross_references(
@@ -857,7 +1006,7 @@ def generate_world(
     rom_path = root / "rom.nds"
     if not rom_path.is_file():
         raise WorldBuildError("missing ignored user-supplied rom.nds template source")
-    if fixture.get("artifact_namespace") in ("stage3c", "stage3d"):
+    if fixture.get("artifact_namespace") in ("stage3c", "stage3d", "stage3e1"):
         registry_reference = fixture["registry_resolution"]["registry"]
         registry = load_registry(root / registry_reference)
         verify_rom_revision(registry, rom_path)
@@ -872,7 +1021,41 @@ def generate_world(
         )
 
     matrix = build_matrix(fixture)
-    event = build_event(fixture)
+    if fixture["schema_version"] == 6:
+        events = {name: build_event(fixture, name) for name in STAGE3E1_CELL_ORDER}
+        map_members = {}
+        model_info = {}
+        map_headers = {}
+        raw_components = {
+            "matrix.bin": matrix,
+            "matrix-probe.bin": matrix,
+            "resolved-registry.json": (
+                json.dumps(fixture["registry_resolution"], indent=2, sort_keys=True) + "\n"
+            ).encode("utf-8"),
+            "append-allocation-snapshot.json": (
+                json.dumps({
+                    symbol: value
+                    for symbol, value in fixture["registry_resolution"]["symbols"].items()
+                    if value["classification"] == "PROJECT_APPENDED"
+                }, indent=2, sort_keys=True) + "\n"
+            ).encode("utf-8"),
+        }
+        for name in STAGE3E1_CELL_ORDER:
+            member, info = build_map_member(fixture, template, name)
+            split_member = split_hgss_map_member(member)
+            map_members[name] = member
+            model_info[name] = info
+            map_headers[name] = build_map_header(fixture, arm9, name)
+            raw_components.update({
+                f"maps/{name}/map_member.bin": member,
+                f"maps/{name}/nsbmd.bin": split_member["nsbmd"],
+                f"maps/{name}/per.bin": split_member["per"],
+                f"maps/{name}/bdhc.bin": split_member["bdhc"],
+                f"events/{name}.bin": events[name],
+                f"headers/{name}.bin": map_headers[name],
+            })
+    else:
+        event = build_event(fixture)
     if fixture["schema_version"] == 3:
         map_members: dict[str, bytes] = {}
         model_info: dict[str, Any] = {}
@@ -896,7 +1079,7 @@ def generate_world(
                 f"headers/{name}.bin": map_headers[name],
             })
         validate_stage3b_cross_references(fixture, matrix, map_headers)
-    else:
+    elif fixture["schema_version"] != 6:
         map_member, model_info = build_map_member(fixture, template)
         map_members = {"map": map_member}
         map_header = build_map_header(fixture, arm9)
@@ -936,31 +1119,104 @@ def generate_world(
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(data)
 
-    script_output = components / f"2_{slots['script']:03d}"
     stage_name = fixture.get("artifact_namespace") or {1: "stage2", 2: "stage3a", 3: "stage3b"}[fixture["schema_version"]]
-    script_source = components / f"{stage_name}_script.s"
-    _write_script_source(fixture, script_source, script_output)
-    _run_checked([str(root / "tools/armips"), str(script_source)], root)
+    if fixture["schema_version"] == 6:
+        script_outputs: dict[str, bytes] = {}
+        script_header_outputs: dict[str, bytes] = {}
+        text_outputs: dict[str, bytes] = {}
+        for index, name in enumerate(STAGE3E1_CELL_ORDER):
+            spec = fixture["maps"][name]
+            script_path = components / f"2_{spec['script']:03d}"
+            script_source = components / f"{stage_name}_{name}_script.s"
+            _write_script_source(fixture, script_source, script_path, name)
+            _run_checked([str(root / "tools/armips"), str(script_source)], root)
+            script_outputs[name] = script_path.read_bytes()
+            header = bytes((0, 0xA1 + index, 0xE1, 0))
+            script_header_outputs[name] = header
+            (components / f"2_{spec['script_header']:03d}").write_bytes(header)
+            text_source = components / f"{stage_name}_{name}_dialogue.txt"
+            text_path = components / f"7_{spec['text']:03d}"
+            text_source.write_text(spec["npc"]["dialogue"] + "\n", encoding="utf-8")
+            _run_checked(
+                [str(root / "tools/msgenc"), "-e", "-k", "0x2A2A", "-c", "charmap.txt",
+                 str(text_source), str(text_path)],
+                root,
+            )
+            text_outputs[name] = text_path.read_bytes()
+    else:
+        script_output = components / f"2_{slots['script']:03d}"
+        script_source = components / f"{stage_name}_script.s"
+        _write_script_source(fixture, script_source, script_output)
+        _run_checked([str(root / "tools/armips"), str(script_source)], root)
 
     start_script_output = components / f"2_{slots['start_script']:03d}"
     start_script_source = components / f"{stage_name}_start_script.s"
     _write_start_script_source(fixture, start_script_source, start_script_output)
     _run_checked([str(root / "tools/armips"), str(start_script_source)], root)
 
-    text_source = components / f"{stage_name}_dialogue.txt"
-    text_output = components / f"7_{slots['text']:03d}"
-    text = fixture["npc"]["dialogue"] if fixture["schema_version"] == 1 else fixture["text"]
-    text_source.write_text(text + "\n", encoding="utf-8")
-    # msgenc derives its default key from the entire output path, which makes
-    # two clean output directories byte-different. The key is stored in the
-    # bank header, so a fixed explicit Stage 2 key is both valid and stable.
-    _run_checked(
-        [str(root / "tools/msgenc"), "-e", "-k", "0x2A2A", "-c", "charmap.txt", str(text_source), str(text_output)],
-        root,
-    )
+    if fixture["schema_version"] != 6:
+        text_source = components / f"{stage_name}_dialogue.txt"
+        text_output = components / f"7_{slots['text']:03d}"
+        text = fixture["npc"]["dialogue"] if fixture["schema_version"] == 1 else fixture["text"]
+        text_source.write_text(text + "\n", encoding="utf-8")
+        # msgenc derives its default key from the entire output path, which makes
+        # two clean output directories byte-different. The key is stored in the
+        # bank header, so a fixed explicit Stage 2 key is both valid and stable.
+        _run_checked(
+            [str(root / "tools/msgenc"), "-e", "-k", "0x2A2A", "-c", "charmap.txt", str(text_source), str(text_output)],
+            root,
+        )
 
     installed_paths: dict[str, str] = {}
-    if fixture["schema_version"] == 3:
+    narc_reports: dict[str, dict[str, Any]] = {}
+    if fixture["schema_version"] == 6:
+        archive_replacements: dict[str, dict[int, bytes]] = {
+            "map": {
+                fixture["maps"][name]["map_member"]: map_members[name]
+                for name in STAGE3E1_CELL_ORDER
+            },
+            "matrix": {slots["matrix"]: matrix, slots["matrix_probe"]: matrix},
+            "event": {
+                fixture["maps"][name]["event"]: events[name]
+                for name in STAGE3E1_CELL_ORDER
+            },
+            "text": {
+                fixture["maps"][name]["text"]: text_outputs[name]
+                for name in STAGE3E1_CELL_ORDER
+            },
+            "script": {slots["start_script"]: start_script_output.read_bytes()},
+        }
+        for name in STAGE3E1_CELL_ORDER:
+            spec = fixture["maps"][name]
+            archive_replacements["script"][spec["script"]] = script_outputs[name]
+            archive_replacements["script"][spec["script_header"]] = script_header_outputs[name]
+        for archive_name in ("map", "matrix", "event", "script", "text"):
+            destination = generated_root / NARC_PATHS[archive_name].relative_to("base/root")
+            narc_reports[archive_name] = _replace_narc_members(
+                root / NARC_PATHS[archive_name], archive_replacements[archive_name], destination,
+            )
+        expected_source_counts = {"map": 676, "matrix": 288, "event": 491, "script": 965, "text": 854}
+        expected_counts = {"map": 678, "matrix": 290, "event": 493, "script": 969, "text": 856}
+        if {name: report["pristine_count"] for name, report in narc_reports.items()} != expected_source_counts:
+            raise WorldBuildError("Stage 3E1 source NARC counts disagree with scanner/build evidence")
+        if {name: report["rebuilt_count"] for name, report in narc_reports.items()} != expected_counts:
+            raise WorldBuildError("Stage 3E1 rebuilt NARC counts disagree with the bounded proof")
+        retail_keys = {
+            "map": "map_members", "matrix": "matrices", "event": "event_banks",
+            "script": "scripts", "text": "text_banks",
+        }
+        for name, report in narc_reports.items():
+            report["retail_count"] = registry["target"]["archives"][retail_keys[name]]["members"]
+            report["source_count_kind"] = "hg_engine_owned_prefix" if name == "text" else "pristine_retail"
+        if install:
+            for archive_name in ("map", "matrix", "event", "script", "text"):
+                destination = generated_root / NARC_PATHS[archive_name].relative_to("base/root")
+                target = root / NARC_PATHS[archive_name]
+                shutil.copyfile(destination, target)
+                installed_paths[archive_name] = str(target)
+        narc_report_path = components / "narc-append-report.json"
+        narc_report_path.write_text(json.dumps(narc_reports, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    elif fixture["schema_version"] == 3:
         map_replacements = {
             fixture["maps"][name]["map_member"]: map_members[name]
             for name in STAGE3B_CELL_ORDER
@@ -976,37 +1232,32 @@ def generate_world(
         if install:
             shutil.copyfile(map_destination, root / NARC_PATHS["map"])
             installed_paths["map"] = str(root / NARC_PATHS["map"])
-    replacements = {
-        "matrix": (slots["matrix"], matrix),
-        "event": (slots["event"], event),
-        "text": (slots["text"], text_output.read_bytes()),
-    }
-    for name, (member_id, member) in replacements.items():
-        destination = generated_root / NARC_PATHS[name].relative_to("base/root")
-        _replace_narc(root / NARC_PATHS[name], member_id, member, destination)
-        if install:
-            target = root / NARC_PATHS[name]
-            shutil.copyfile(destination, target)
-            installed_paths[name] = str(target)
+    if fixture["schema_version"] != 6:
+        replacements = {
+            "matrix": (slots["matrix"], matrix),
+            "event": (slots["event"], event),
+            "text": (slots["text"], text_output.read_bytes()),
+        }
+        for name, (member_id, member) in replacements.items():
+            destination = generated_root / NARC_PATHS[name].relative_to("base/root")
+            _replace_narc(root / NARC_PATHS[name], member_id, member, destination)
+            if install:
+                target = root / NARC_PATHS[name]
+                shutil.copyfile(destination, target)
+                installed_paths[name] = str(target)
 
-    script_archive = NARC.fromFile(str(root / NARC_PATHS["script"]))
-    for member_id, member in (
-        (slots["script"], script_output.read_bytes()),
-        (slots["start_script"], start_script_output.read_bytes()),
-    ):
-        if member_id >= len(script_archive.files):
-            raise WorldBuildError(f"script member {member_id} is outside the script NARC")
-        script_archive.files[member_id] = member
-    script_destination = generated_root / NARC_PATHS["script"].relative_to("base/root")
-    script_destination.parent.mkdir(parents=True, exist_ok=True)
-    script_archive.saveToFile(str(script_destination))
-    if install:
-        shutil.copyfile(script_destination, root / NARC_PATHS["script"])
-        installed_paths["script"] = str(root / NARC_PATHS["script"])
+        script_destination = generated_root / NARC_PATHS["script"].relative_to("base/root")
+        _replace_narc_members(root / NARC_PATHS["script"], {
+            slots["script"]: script_output.read_bytes(),
+            slots["start_script"]: start_script_output.read_bytes(),
+        }, script_destination)
+        if install:
+            shutil.copyfile(script_destination, root / NARC_PATHS["script"])
+            installed_paths["script"] = str(root / NARC_PATHS["script"])
 
     patched_arm9 = bytearray(arm9)
     for name, map_header in map_headers.items():
-        header_id = _map_header_id(fixture, name if fixture["schema_version"] == 3 else None)
+        header_id = _map_header_id(fixture, name if fixture["schema_version"] in (3, 6) else None)
         header_offset = HGSS_US_HEADER_OFFSET + header_id * MAP_HEADER_SIZE
         if header_offset + MAP_HEADER_SIZE > len(patched_arm9):
             raise WorldBuildError(f"map header {header_id} is outside arm9.bin")

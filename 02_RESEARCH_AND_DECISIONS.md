@@ -128,3 +128,19 @@ separate future decisions. The tested result supports continuing on HeartGold.
 
 See `docs/STAGE_3D_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage3d-static-geometry.md`.
+
+## Stage 3E1 decision: provenance-aware contiguous NARC append
+
+The five NARCs used by the world compiler may allocate only the small,
+revision-locked contiguous windows proven by source inspection, binary
+validation, and live gameplay. Appended members are `APPEND_PROVEN` /
+`PROJECT_APPENDED`, not `KNOWN_FREE`; HG-Engine's post-retail text prefix is
+separately `ENGINE_OWNED`. Local scripts, common scripts, and script headers
+share one physical collision domain.
+
+This decision establishes bounded new resource capacity without claiming the
+whole `u16` space or expanding the fixed map-header table. Stage 3E2 remains a
+separate kill gate.
+
+See `docs/STAGE_3E1_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage3e1-narc-append.md`.

@@ -581,6 +581,7 @@ u8 pendingNextTest = 0;
 volatile u32 gStage2ProofDialogueSeen = 0;
 volatile u32 gStage2ProofMetatileBehavior = 0;
 volatile u32 gStage2ProofWarpBehaviorSeen = 0;
+volatile u32 gStage3E1ProofDialogueMarker = 0;
 #endif
 
 BOOL IsPlayerOnLadder(void)
@@ -591,6 +592,7 @@ BOOL IsPlayerOnLadder(void)
     u32 mapId = gFieldSysPtr->location->mapId;
 #ifdef STAGE2_MAP_TEST
     gStage2ProofMetatileBehavior = collision;
+    gStage3E1ProofDialogueMarker = VarGet(gFieldSysPtr, 0x4000);
     if (collision == 101)
         gStage2ProofWarpBehaviorSeen = 1;
     if (VarGet(gFieldSysPtr, 0x4000) == 42)
