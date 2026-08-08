@@ -305,6 +305,25 @@ Useful automated checks:
 
 Avoid brittle pixel-perfect testing for normal gameplay.
 
+Stage 4A adds a reusable declarative layer without removing the specialized
+runtime regressions:
+
+```text
+tracked qa/scenarios JSON
+  -> validation + deterministic plan hash
+  -> bounded headless worker
+  -> semantic HeartGold state adapter
+  -> actions/assertions
+  -> ignored trace, report, log, and screenshots
+```
+
+`tools.pokeagent.qa` owns schema, planning, subprocess orchestration, and the
+stable CLI. `tools.pokeagent.qa_emulator` owns input and runtime execution while
+reusing revision-specific state readers from `world_emulator`. Canonical
+scenarios use map, matrix, member, position, height, collision, resource, and
+marker semantics; revision-specific addresses remain centralized. See
+`docs/knowledge/hgss-stage4a-gameplay-qa.md`.
+
 ## Agent loop
 
 For a normal map request:

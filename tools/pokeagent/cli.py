@@ -19,6 +19,7 @@ from .registry import (
     write_inventory,
 )
 from .rom import PROJECT_ROOT, build_rom, run_preflight
+from .qa import inspect_scenario, load_scenario, run_scenario
 from .world import (
     DEFAULT_FIXTURE, DEFAULT_OUTPUT, generate_world, inspect_geometry, load_fixture,
     verify_determinism, write_project_header_include,
@@ -107,6 +108,19 @@ def build_parser() -> argparse.ArgumentParser:
     registry_resolve.add_argument("--namespace")
     registry_resolve.add_argument("--registry", type=Path, default=DEFAULT_REGISTRY)
     _add_output_argument(registry_resolve)
+
+    qa_parser = subparsers.add_parser("qa", help="validate and run declarative gameplay QA scenarios")
+    qa_subparsers = qa_parser.add_subparsers(dest="qa_command", required=True)
+    for command, help_text in (
+        ("validate", "validate one tracked QA scenario"),
+        ("inspect", "show its deterministic action/assertion plan"),
+        ("run", "execute it through the bounded headless emulator worker"),
+    ):
+        child = qa_subparsers.add_parser(command, help=help_text)
+        child.add_argument("scenario", type=Path)
+        if command == "run":
+            child.add_argument("--timeout", type=float, default=300)
+        _add_output_argument(child)
     return parser
 
 
@@ -214,6 +228,20 @@ def _print_registry(payload: dict[str, object]) -> None:
         print(f"  Inventory: {_relative_or_absolute(payload['output'])}")
 
 
+def _print_qa(payload: dict[str, object]) -> None:
+    print(f"qa: {'PASS' if payload.get('success') else 'FAIL'}")
+    print(f"  Scenario: {payload.get('scenario')}")
+    if "plan" in payload:
+        print(f"  Plan: {payload['plan'].get('step_count')} steps sha256={payload['plan'].get('sha256')}")
+    worker = payload.get("worker") or {}
+    if worker:
+        print(f"  Assertions: {worker.get('assertions_passed')}/{worker.get('assertions_total')}")
+        final = worker.get("final_state") or {}
+        print(f"  Final: map={final.get('map_id')} position={final.get('position')} frame={final.get('frame')}")
+    for error in payload.get("errors", []):
+        print(f"  ERROR {error}")
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -271,6 +299,16 @@ def main(argv: list[str] | None = None) -> int:
             payload = resolve_symbol(load_registry(args.registry), args.symbol, args.namespace, require_writable=False)
             payload["success"] = True
             _print_json(payload) if args.json else _print_registry(payload)
+        elif args.command == "qa" and args.qa_command == "validate":
+            scenario = load_scenario(args.scenario, PROJECT_ROOT)
+            payload = {"success": True, "scenario": scenario["id"], "fixture": scenario["fixture"]}
+            _print_json(payload) if args.json else _print_qa(payload)
+        elif args.command == "qa" and args.qa_command == "inspect":
+            payload = inspect_scenario(args.scenario, PROJECT_ROOT)
+            _print_json(payload) if args.json else _print_qa(payload)
+        elif args.command == "qa" and args.qa_command == "run":
+            payload = run_scenario(args.scenario, PROJECT_ROOT, args.timeout)
+            _print_json(payload) if args.json else _print_qa(payload)
         else:
             parser.error("unsupported command")
             return 2

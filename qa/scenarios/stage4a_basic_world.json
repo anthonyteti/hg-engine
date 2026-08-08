@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": "stage4a_basic_world",
+  "fixture": "fixtures/stage2_proof_map.json",
+  "build_target": "stage2-proof",
+  "entry": {"mode": "new_game_controlled"},
+  "steps": [
+    {"assert": "rom_running", "value": true},
+    {"assert": "map_id", "value": 267},
+    {"assert": "position", "x": 16, "z": 16},
+    {"assert": "event_counts", "npc": 1, "warp": 2},
+    {"assert": "collision_blocked", "direction": "east"},
+    {"action": "move", "direction": "west", "tiles": 1},
+    {"assert": "movement_succeeded", "value": true},
+    {"action": "move", "direction": "east", "tiles": 1},
+    {"action": "capture", "name": "basic_world"},
+    {"assert": "screenshot_valid", "name": "basic_world"},
+    {"action": "wait", "frames": 600},
+    {"assert": "rom_running", "value": true},
+    {"assert": "position", "x": 16, "z": 16}
+  ]
+}

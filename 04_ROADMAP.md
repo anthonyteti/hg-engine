@@ -115,6 +115,20 @@ Acceptance:
 
 The agent can modify a test map, rebuild, launch, inspect evidence, and fix an error without human emulator interaction.
 
+### Completed infrastructure checkpoint: Stage 4A
+
+A tracked JSON scenario can now drive bounded deterministic field actions and
+semantic assertions through one headless DeSmuME runner. Representative Stage
+2 movement/collision, Stage 3D height/terrain, and Stage 3E2 native
+transition/save/reset/Continue flows pass through the reusable engine. Each run
+writes an ignored machine-readable trace/report, captures named screenshots,
+and reports actionable expected/observed failure context.
+
+This checkpoint does not add pathfinding, OCR, battle automation, assets, or an
+autonomous Game Director. Historical specialized regressions remain in place
+for format- and proof-specific instrumentation. See
+`docs/STAGE_4A_TECHNICAL_REPORT.md`.
+
 ## Completed infrastructure checkpoint: Stage 3E2
 
 The revision-locked hybrid map-header layer has been proven for project IDs
