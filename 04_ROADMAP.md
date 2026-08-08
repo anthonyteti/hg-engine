@@ -129,6 +129,20 @@ autonomous Game Director. Historical specialized regressions remain in place
 for format- and proof-specific instrumentation. See
 `docs/STAGE_4A_TECHNICAL_REPORT.md`.
 
+### Completed infrastructure checkpoint: Stage 4B
+
+One tracked project-authored quad OBJ now compiles deterministically through a
+manifest/catalog, neutral normalized mesh IR, conservative budget, existing
+Nitro display-list encoder, symbolic placement, and manifest-derived PER
+collision. It renders as a grounded static shed shell and passes declarative
+Stage 4A approach, collision, around-object movement, screenshot, and stability
+QA without Blender or GUI cleanup.
+
+This checkpoint deliberately reuses one verified template material and merges
+the prop into an existing map-model shape. It does not add triangles, new
+textures/materials, BLD, independent prop resources, asset kits, image-to-3D,
+or production content. See `docs/STAGE_4B_TECHNICAL_REPORT.md`.
+
 ## Completed infrastructure checkpoint: Stage 3E2
 
 The revision-locked hybrid map-header layer has been proven for project IDs

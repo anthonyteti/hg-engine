@@ -163,3 +163,21 @@ registrations remain future content-system work, not a core field blocker.
 See `docs/STAGE_3E2_TECHNICAL_REPORT.md`,
 `docs/knowledge/hgss-stage3e2-map-header-expansion.md`, and
 `docs/knowledge/hgss-stage3e2-map-id-width-audit.md`.
+
+## Stage 4B decision: bounded quad OBJ ingestion into map geometry
+
+Accept one deterministic project-authored OBJ subset: explicit planar quads,
+UVs, normals, and manifest-mapped source materials. Normalize source axes,
+units, scale, anchor, and winding into the Stage 3D tile/Y convention, then
+encode the result through the already proven Nitro quad path. Reject unsupported
+topology and capacity overflow before ROM build.
+
+For the first proof, merge symbolic asset placements into verified existing map
+NSBMD shapes and derive rectangular PER collision proxies from the same manifest
+placement. Reuse hash-locked template materials/textures; do not introduce BLD,
+new NSBTX/material authoring, Blender, triangles, or a general model importer.
+This keeps the legal boundary local and proves source-driven asset ingestion
+without overstating the supported asset envelope.
+
+See `docs/STAGE_4B_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4b-asset-ingestion.md`.

@@ -8,6 +8,7 @@ from pathlib import Path
 import shlex
 import sys
 
+from .assets import compile_asset, compile_asset_outputs
 from .emulator import run_smoke
 from .registry import (
     DEFAULT_INVENTORY,
@@ -120,6 +121,19 @@ def build_parser() -> argparse.ArgumentParser:
         child.add_argument("scenario", type=Path)
         if command == "run":
             child.add_argument("--timeout", type=float, default=300)
+        _add_output_argument(child)
+
+    asset_parser = subparsers.add_parser("asset", help="validate and compile bounded environment assets")
+    asset_subparsers = asset_parser.add_subparsers(dest="asset_command", required=True)
+    for command, help_text in (
+        ("validate", "validate one tracked asset manifest and source mesh"),
+        ("inspect", "report normalized geometry, material, collision, and DS budgets"),
+        ("compile", "write deterministic ignored asset artifacts"),
+    ):
+        child = asset_subparsers.add_parser(command, help=help_text)
+        child.add_argument("manifest", type=Path)
+        if command == "compile":
+            child.add_argument("--output", type=Path)
         _add_output_argument(child)
     return parser
 
@@ -242,6 +256,20 @@ def _print_qa(payload: dict[str, object]) -> None:
         print(f"  ERROR {error}")
 
 
+def _print_asset(payload: dict[str, object]) -> None:
+    print(f"asset: {'PASS' if payload.get('success') else 'FAIL'}")
+    print(f"  Asset: {payload.get('asset_id')}")
+    counts = payload.get("normalized_counts") or {}
+    print(f"  Geometry: {counts.get('vertices')} vertices, {counts.get('quads')} quads")
+    if "display_list_bytes" in payload:
+        print(
+            f"  Display list: {payload['display_list_bytes']}/{payload['display_list_capacity_bytes']} bytes "
+            f"({payload['shape_utilization_percent']}%)"
+        )
+    if "outputs" in payload:
+        print(f"  Report: {_relative_or_absolute(payload['outputs'].get('report'))}")
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -309,6 +337,14 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "qa" and args.qa_command == "run":
             payload = run_scenario(args.scenario, PROJECT_ROOT, args.timeout)
             _print_json(payload) if args.json else _print_qa(payload)
+        elif args.command == "asset" and args.asset_command in ("validate", "inspect"):
+            payload = compile_asset(args.manifest, PROJECT_ROOT)["report"]
+            _print_json(payload) if args.json else _print_asset(payload)
+        elif args.command == "asset" and args.asset_command == "compile":
+            compiled = compile_asset(args.manifest, PROJECT_ROOT)
+            output = args.output or PROJECT_ROOT / "build" / "assets" / compiled["manifest"]["id"]
+            payload = compile_asset_outputs(args.manifest, output, PROJECT_ROOT)
+            _print_json(payload) if args.json else _print_asset(payload)
         else:
             parser.error("unsupported command")
             return 2

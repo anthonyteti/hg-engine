@@ -214,3 +214,18 @@ Unknown or deliberately unsupported:
 - arbitrary memory addresses not present in the revision-locked symbol map;
 - other ROM revisions or emulator backends;
 - automatic source repair or a Game Director loop.
+
+## Battery-save isolation note
+
+The py-desmume/DeSmuME process uses the shared user-local
+`~/.config/desmume/test.dsv` path for `test.nds`. A specialized proof that saves
+can therefore affect a later scenario whose entry contract is
+`new_game_controlled`. Stage 4B regression reproduced this: Scenario C observed
+the right header/resources but a persisted field follower blocked its first
+movement. Isolating the generated DSV and rerunning from a clean battery state
+passed 19/19 assertions without scenario changes.
+
+Until the adapter gives every run a private battery-save path, orchestration
+must explicitly preserve/remove or isolate that ignored DSV according to the
+scenario's entry strategy. This is confirmed runtime behavior, not an emulator
+savestate issue.

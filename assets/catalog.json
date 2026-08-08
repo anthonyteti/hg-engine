@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "assets": [
+    {
+      "id": "stage4b_test_shed",
+      "manifest": "assets/manifests/stage4b_test_shed.json"
+    }
+  ]
+}

@@ -372,3 +372,24 @@ The current proven window is deliberately only IDs 540 and 541. Optional
 vanilla UI/static tables do not automatically acquire project-map entries and
 must be registered by later scoped systems. See
 `docs/knowledge/hgss-stage3e2-map-header-expansion.md`.
+
+## External static-asset boundary
+
+Stage 4B establishes a deliberately bounded project-local asset path:
+
+```text
+tracked OBJ + manifest/catalog symbol
+  -> bounded parser and normalized mesh IR
+  -> validation + DS-oriented budget report
+  -> Stage 3D quad display-list encoder
+  -> symbolic cardinal map placement
+  -> existing NSBMD shape + manifest-derived PER footprint
+```
+
+Source-format handling lives in `tools.pokeagent.assets`, not `world.py`.
+Global HGSS resource identity remains in the Stage 3C registry; reusable asset
+symbols remain in the separate asset catalog because they require no engine ID.
+The accepted path reuses verified template material/texture slots and fails on
+unknown topology, mappings, transforms, or shape overflow. It does not imply
+triangle, BLD, new texture/material, or arbitrary model support. See
+`docs/knowledge/hgss-stage4b-asset-ingestion.md`.

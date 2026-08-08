@@ -148,6 +148,9 @@ ifeq ($(STAGE3E2_HEADER),Y)
     WORLD_INSTALL_ARGS := --fixture fixtures/stage3e2_header_expansion_world.json --output build/stage3e2/generated
     PROJECT_HEADER_INCLUDE := include/constants/generated/project_map_headers.h
 endif
+ifeq ($(STAGE4B_ASSET),Y)
+    WORLD_INSTALL_ARGS := --fixture fixtures/stage4b_asset_world.json --output build/stage4b/generated
+endif
 
 ####################### Output #######################
 C_SUBDIR = src
@@ -408,6 +411,11 @@ stage3e1-narc-append-proof:
 stage3e2-header-expansion-proof:
 	$(MAKE) clean
 	$(MAKE) STAGE2_MAP=Y STAGE3E2_HEADER=Y
+
+.PHONY: stage4b-asset-proof
+stage4b-asset-proof:
+	$(MAKE) clean
+	$(MAKE) STAGE2_MAP=Y STAGE4B_ASSET=Y
 
 ALL_CODE_OBJS := $(patsubst $(C_SUBDIR)/%.c,$(BUILD)/%.o,$(ALL_C_SRCS)) \
  $(patsubst $(ASM_SUBDIR)/%.s,$(BUILD)/%.o,$(ALL_ASM_SRCS)) \

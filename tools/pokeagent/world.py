@@ -19,11 +19,13 @@ from typing import Any
 from ndspy.narc import NARC
 from ndspy.rom import NintendoDSRom
 
+from .assets import ASSET_MATERIAL_BINDINGS, compile_asset, compile_placements, load_catalog
 from .geometry import MATERIAL_BINDINGS, MATERIAL_ORDER, GeometryError, compile_geometry
 from .registry import (
     load_registry,
     resolve_stage3d_source,
     resolve_stage3e1_source,
+    resolve_stage4b_source,
     resolve_world_source,
     verify_rom_revision,
 )
@@ -89,14 +91,22 @@ def load_fixture(path: Path = DEFAULT_FIXTURE) -> dict[str, Any]:
         if not isinstance(registry_reference, str):
             raise WorldBuildError("Stage 3E2 fixture must declare a symbolic registry path")
         fixture = resolve_stage3e1_source(fixture, PROJECT_ROOT / registry_reference)
+    elif fixture.get("schema_version") == 8:
+        registry_reference = fixture.get("registry")
+        if not isinstance(registry_reference, str):
+            raise WorldBuildError("Stage 4B fixture must declare a symbolic registry path")
+        fixture = resolve_stage4b_source(fixture, PROJECT_ROOT / registry_reference)
     validate_fixture(fixture)
     return fixture
 
 
 def validate_fixture(fixture: dict[str, Any]) -> None:
     schema_version = fixture.get("schema_version")
-    if schema_version not in (1, 2, 3, 5, 6, 7):
-        raise WorldBuildError("only resolved Stage 2 through Stage 3E2 schemas are supported")
+    if schema_version not in (1, 2, 3, 5, 6, 7, 8):
+        raise WorldBuildError("only resolved Stage 2 through Stage 4B schemas are supported")
+    if schema_version == 8:
+        _validate_stage4b_fixture(fixture)
+        return
     if schema_version == 7:
         _validate_stage3e2_fixture(fixture)
         return
@@ -190,6 +200,40 @@ def _validate_stage3d_fixture(fixture: dict[str, Any]) -> None:
     if fixture.get("model", {}).get("half_extent") != 16:
         raise WorldBuildError("Stage 3D template model must retain the 32x32 centered extent")
     compile_geometry(fixture.get("geometry"))
+
+
+def _validate_stage4b_fixture(fixture: dict[str, Any]) -> None:
+    if fixture.get("artifact_namespace") != "stage4b" or fixture.get("canonical_schema_version") != 8:
+        raise WorldBuildError("resolved Stage 4B source must preserve schema and artifact identity")
+    if fixture.get("dimensions") != {"width": 32, "height": 32}:
+        raise WorldBuildError("Stage 4B remains limited to one 32x32 map")
+    required_slots = {
+        "map_header", "matrix", "map_member", "event", "script", "start_script", "script_header", "text",
+    }
+    slots = fixture.get("slots", {})
+    if set(slots) != required_slots or any(not isinstance(value, int) or value < 0 for value in slots.values()):
+        raise WorldBuildError("Stage 4B must resolve exactly eight registry-owned numeric slots")
+    matrix = fixture.get("world", {}).get("matrix", {})
+    if matrix != {"width": 1, "height": 1, "name": "stage4b-assets", "altitudes": [0]}:
+        raise WorldBuildError("Stage 4B requires the bounded 1x1 asset matrix")
+    if fixture.get("warps") != [] or "npc" in fixture:
+        raise WorldBuildError("Stage 4B asset proof must not add NPCs or warps")
+    if fixture.get("player_start") != {"x": 16, "z": 20, "direction": 0}:
+        raise WorldBuildError("Stage 4B controlled start must use the southern asset approach")
+    if fixture.get("model", {}).get("half_extent") != 16:
+        raise WorldBuildError("Stage 4B template model must retain the centered 32x32 extent")
+    terrain = fixture.get("terrain")
+    if terrain != {
+        "height": 0, "block_border": True, "permission_type": 0,
+        "walkable_collision": 0, "blocked_collision": 128,
+    }:
+        raise WorldBuildError("Stage 4B requires the exact flat normal-overworld terrain profile")
+    catalog = fixture.get("asset_catalog")
+    if not isinstance(catalog, str):
+        raise WorldBuildError("Stage 4B must declare its project-local asset catalog")
+    compiled = compile_placements(PROJECT_ROOT / catalog, fixture.get("assets"), PROJECT_ROOT)
+    if compiled["report"]["placement_count"] != 1:
+        raise WorldBuildError("Stage 4B proof requires exactly one external asset placement")
 
 
 def _validate_stage3e1_fixture(fixture: dict[str, Any]) -> None:
@@ -597,7 +641,7 @@ def split_hgss_map_member(member: bytes) -> dict[str, bytes]:
 def _build_bgs(fixture: dict[str, Any], template_bgs: bytes) -> bytes:
     if len(template_bgs) < 4:
         raise WorldBuildError("template BGS section is missing its four-byte header")
-    if fixture["schema_version"] not in (3, 6, 7):
+    if fixture["schema_version"] not in (3, 6, 7, 8):
         return template_bgs
     # The BGS header's second u16 is its payload length.  The Stage 2
     # physical invariant places PER immediately after this four-byte header
@@ -634,6 +678,11 @@ def build_per(fixture: dict[str, Any], map_name: str | None = None) -> bytes:
     else:
         blocked = {tuple(tile) for tile in terrain.get("blocked_tiles", [])}
         open_border = set()
+    if fixture["schema_version"] == 8:
+        compiled_assets = compile_placements(
+            PROJECT_ROOT / fixture["asset_catalog"], fixture["assets"], PROJECT_ROOT,
+        )
+        blocked.update(compiled_assets["blocked_tiles"])
     if fixture["schema_version"] == 7:
         warps = {
             (warp["local_x"], warp["local_z"])
@@ -734,6 +783,20 @@ def build_map_member(
         )
         model_info["geometry"] = geometry["report"]
         model_info["material_bindings"] = MATERIAL_BINDINGS
+    elif fixture["schema_version"] == 8:
+        assets = compile_placements(
+            PROJECT_ROOT / fixture["asset_catalog"], fixture["assets"], PROJECT_ROOT,
+        )
+        display_lists = {5: build_flat_display_list(), **assets["display_lists"]}
+        quad_counts = {5: 1, **assets["quad_counts"]}
+        model, model_info = transform_template_nsbmd_multi(
+            template["nsbmd"], display_lists, quad_counts,
+        )
+        model_info["asset_geometry"] = assets["report"]
+        model_info["material_bindings"] = {
+            "ground": MATERIAL_BINDINGS["ground"],
+            **ASSET_MATERIAL_BINDINGS,
+        }
     elif fixture["schema_version"] == 2:
         model, model_info = transform_template_nsbmd(
             template["nsbmd"], fixture["model"]["template_shape"],
@@ -766,7 +829,7 @@ def build_matrix(fixture: dict[str, Any]) -> bytes:
         output += bytes(matrix["altitudes"])
         output += struct.pack(f"<{len(members)}H", *members)
         return bytes(output)
-    if fixture["schema_version"] == 5:
+    if fixture["schema_version"] in (5, 8):
         name = fixture["world"]["matrix"]["name"].encode("ascii")
     else:
         name = b"stage2-proof" if fixture["schema_version"] == 1 else b"stage3a-height"
@@ -797,7 +860,7 @@ def build_event(fixture: dict[str, Any], map_name: str | None = None) -> bytes:
             output += struct.pack("<4HI", x, z, warp["destination_header"], warp["destination_warp"], 0)
         output += struct.pack("<I", 0)
         return bytes(output)
-    if fixture["schema_version"] in (2, 3, 5):
+    if fixture["schema_version"] in (2, 3, 5, 8):
         return struct.pack("<4I", 0, 0, 0, 0)
     npc = fixture["npc"]
     output = bytearray(struct.pack("<I", 0))
@@ -933,9 +996,11 @@ def _write_script_source(
             encoding="utf-8",
         )
         return
-    if fixture["schema_version"] in (2, 3, 5):
+    if fixture["schema_version"] in (2, 3, 5, 8):
         if fixture["schema_version"] == 5:
             label = "stage3d_geometry_noop"
+        elif fixture["schema_version"] == 8:
+            label = "stage4b_asset_noop"
         elif fixture["schema_version"] == 2:
             label = "stage3a_height_noop"
         elif fixture.get("artifact_namespace") == "stage3c":
@@ -1115,7 +1180,7 @@ def generate_world(
     rom_path = root / "rom.nds"
     if not rom_path.is_file():
         raise WorldBuildError("missing ignored user-supplied rom.nds template source")
-    if fixture.get("artifact_namespace") in ("stage3c", "stage3d", "stage3e1", "stage3e2"):
+    if fixture.get("artifact_namespace") in ("stage3c", "stage3d", "stage3e1", "stage3e2", "stage4b"):
         registry_reference = fixture["registry_resolution"]["registry"]
         registry = load_registry(root / registry_reference)
         verify_rom_revision(registry, rom_path)
@@ -1236,6 +1301,43 @@ def generate_world(
             ).encode("utf-8")
             for shape, display_list in sorted(geometry["display_lists"].items()):
                 raw_components[f"display-lists/shape-{shape}.bin"] = display_list
+        elif fixture["schema_version"] == 8:
+            assets = compile_placements(
+                root / fixture["asset_catalog"], fixture["assets"], root,
+            )
+            catalog = load_catalog(root / fixture["asset_catalog"], root)
+            raw_components["resolved-registry.json"] = (
+                json.dumps(fixture["registry_resolution"], indent=2, sort_keys=True) + "\n"
+            ).encode("utf-8")
+            raw_components["asset-placement-ir.json"] = (
+                json.dumps(assets["ir"], indent=2, sort_keys=True) + "\n"
+            ).encode("utf-8")
+            report = dict(assets["report"])
+            report["shape_capacities"] = [
+                {"shape": index, "capacity_bytes": capacity}
+                for index, capacity in enumerate(model_info["shape_capacities"])
+            ]
+            report["shape_assignments"] = model_info["assignments"]
+            raw_components["asset-world-report.json"] = (
+                json.dumps(report, indent=2, sort_keys=True) + "\n"
+            ).encode("utf-8")
+            for shape, display_list in sorted(assets["display_lists"].items()):
+                raw_components[f"display-lists/asset-shape-{shape}.bin"] = display_list
+            for asset_id in sorted({placement["asset"] for placement in fixture["assets"]}):
+                compiled_asset = compile_asset(catalog[asset_id], root)
+                raw_components[f"assets/{asset_id}/normalized-mesh.json"] = (
+                    json.dumps(compiled_asset["ir"], indent=2, sort_keys=True) + "\n"
+                ).encode("utf-8")
+                raw_components[f"assets/{asset_id}/asset-report.json"] = (
+                    json.dumps(compiled_asset["report"], indent=2, sort_keys=True) + "\n"
+                ).encode("utf-8")
+                raw_components[f"assets/{asset_id}/display-list.bin"] = compiled_asset["display_list"]
+                raw_components[f"assets/{asset_id}/collision.json"] = (
+                    json.dumps({
+                        "schema_version": 1, "asset_id": asset_id,
+                        "policy": "footprint_rect", "rectangle": compiled_asset["collision"],
+                    }, indent=2, sort_keys=True) + "\n"
+                ).encode("utf-8")
     for name, data in raw_components.items():
         path = components / name
         path.parent.mkdir(parents=True, exist_ok=True)

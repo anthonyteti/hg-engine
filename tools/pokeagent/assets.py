@@ -1,0 +1,654 @@
+"""Deterministic, bounded OBJ ingestion for Stage 4B static environment assets.
+
+The importer intentionally accepts one conservative subset: finite Y-up
+right-handed OBJ meshes made from planar quads with explicit UVs, normals, and
+one manifest-mapped material.  It produces the neutral normalized mesh IR,
+budget report, collision proxy, and the same Nitro quad command stream already
+proven by the Stage 3D terrain compiler.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+import hashlib
+import json
+import math
+from pathlib import Path
+import re
+from typing import Any
+
+from .geometry import MODEL_BASE_Y, MODEL_TILE_SCALE, Quad, encode_quads
+
+
+ASSET_SCHEMA_VERSION = 1
+CATALOG_SCHEMA_VERSION = 1
+SAFE_ID = re.compile(r"^[a-z][a-z0-9_]{0,63}$")
+STAGE4B_BUDGET = {
+    "max_source_bytes": 262_144,
+    "max_vertices": 64,
+    "max_uvs": 64,
+    "max_normals": 32,
+    "max_faces": 24,
+    "max_materials": 1,
+    "max_dimension_tiles": 8.0,
+    "max_height_tiles": 8.0,
+    "max_collision_tiles": 64,
+}
+ASSET_MATERIAL_BINDINGS = {
+    "prop": {
+        "shape": 1,
+        "material_index": 18,
+        "material_name": "road01_r",
+        "capacity_bytes": 2496,
+    },
+}
+
+
+class AssetError(ValueError):
+    """An asset source, manifest, placement, or budget is unsupported."""
+
+    def __init__(self, code: str, message: str, **details: object) -> None:
+        super().__init__(message)
+        self.code = code
+        self.details = details
+
+    def as_dict(self) -> dict[str, object]:
+        return {"code": self.code, "message": str(self), "details": self.details}
+
+
+@dataclass(frozen=True)
+class OBJCorner:
+    vertex: int
+    uv: int
+    normal: int
+
+
+@dataclass(frozen=True)
+class OBJFace:
+    id: str
+    material: str
+    corners: tuple[OBJCorner, OBJCorner, OBJCorner, OBJCorner]
+
+
+@dataclass(frozen=True)
+class OBJMesh:
+    vertices: tuple[tuple[float, float, float], ...]
+    uvs: tuple[tuple[float, float], ...]
+    normals: tuple[tuple[float, float, float], ...]
+    faces: tuple[OBJFace, ...]
+
+
+def _hash(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def _finite(token: str, *, field: str) -> float:
+    try:
+        value = float(token)
+    except ValueError as error:
+        raise AssetError("malformed_mesh", f"{field} is not numeric") from error
+    if not math.isfinite(value):
+        raise AssetError("nonfinite_coordinate", f"{field} must be finite")
+    return value
+
+
+def _safe_relative(root: Path, value: object, required_parent: Path, code: str) -> Path:
+    if not isinstance(value, str) or not value:
+        raise AssetError(code, "asset path must be a non-empty repository-relative string")
+    relative = Path(value)
+    if relative.is_absolute() or ".." in relative.parts:
+        raise AssetError("unsafe_path", f"asset path escapes its canonical source root: {value}")
+    resolved = (root / relative).resolve()
+    try:
+        resolved.relative_to((root / required_parent).resolve())
+    except ValueError as error:
+        raise AssetError("unsafe_path", f"asset path is outside {required_parent}: {value}") from error
+    return resolved
+
+
+def parse_obj(data: bytes) -> OBJMesh:
+    """Parse the exact deterministic quad-only Stage 4B OBJ subset."""
+    if len(data) > STAGE4B_BUDGET["max_source_bytes"]:
+        raise AssetError("source_too_large", "OBJ exceeds the Stage 4B source byte budget")
+    try:
+        text = data.decode("utf-8")
+    except UnicodeDecodeError as error:
+        raise AssetError("malformed_mesh", "OBJ must be UTF-8 text") from error
+    vertices: list[tuple[float, float, float]] = []
+    uvs: list[tuple[float, float]] = []
+    normals: list[tuple[float, float, float]] = []
+    faces: list[OBJFace] = []
+    material: str | None = None
+    allowed_ignored = {"o", "g", "s"}
+    for line_number, raw_line in enumerate(text.splitlines(), 1):
+        line = raw_line.split("#", 1)[0].strip()
+        if not line:
+            continue
+        fields = line.split()
+        keyword = fields[0]
+        if keyword == "v":
+            if len(fields) != 4:
+                raise AssetError("malformed_mesh", f"line {line_number}: vertex requires three coordinates")
+            vertices.append(tuple(_finite(value, field=f"line {line_number} vertex") for value in fields[1:]))
+        elif keyword == "vt":
+            if len(fields) != 3:
+                raise AssetError("malformed_mesh", f"line {line_number}: UV requires two coordinates")
+            uv = tuple(_finite(value, field=f"line {line_number} UV") for value in fields[1:])
+            if any(value < 0.0 or value > 1.0 for value in uv):
+                raise AssetError("invalid_uv", f"line {line_number}: Stage 4B UVs must be in 0..1")
+            uvs.append(uv)
+        elif keyword == "vn":
+            if len(fields) != 4:
+                raise AssetError("malformed_mesh", f"line {line_number}: normal requires three coordinates")
+            normal = tuple(_finite(value, field=f"line {line_number} normal") for value in fields[1:])
+            if math.sqrt(sum(value * value for value in normal)) <= 1e-9:
+                raise AssetError("invalid_normal", f"line {line_number}: normal must be nonzero")
+            normals.append(normal)
+        elif keyword == "usemtl":
+            if len(fields) != 2 or not SAFE_ID.fullmatch(fields[1]):
+                raise AssetError("unsupported_material", f"line {line_number}: material name is unsupported")
+            material = fields[1]
+        elif keyword == "f":
+            if len(fields) != 5:
+                raise AssetError(
+                    "unsupported_polygon", f"line {line_number}: Stage 4B accepts exactly four-corner faces",
+                )
+            if material is None:
+                raise AssetError("unsupported_material", f"line {line_number}: face has no usemtl assignment")
+            corners: list[OBJCorner] = []
+            for token in fields[1:]:
+                indices = token.split("/")
+                if len(indices) != 3 or not all(indices):
+                    raise AssetError("missing_uv_or_normal", f"line {line_number}: face corners require v/vt/vn")
+                try:
+                    vertex, uv, normal = (int(index) for index in indices)
+                except ValueError as error:
+                    raise AssetError("malformed_mesh", f"line {line_number}: invalid face index") from error
+                if min(vertex, uv, normal) <= 0:
+                    raise AssetError("unsupported_index", f"line {line_number}: zero/negative OBJ indices are unsupported")
+                corners.append(OBJCorner(vertex - 1, uv - 1, normal - 1))
+            faces.append(OBJFace(f"face_{len(faces):03d}", material, tuple(corners)))
+        elif keyword in allowed_ignored:
+            continue
+        else:
+            raise AssetError("unsupported_obj_statement", f"line {line_number}: unsupported OBJ statement {keyword!r}")
+    if not vertices or not faces:
+        raise AssetError("malformed_mesh", "OBJ must contain vertices and faces")
+    for face in faces:
+        for corner in face.corners:
+            if corner.vertex >= len(vertices) or corner.uv >= len(uvs) or corner.normal >= len(normals):
+                raise AssetError("invalid_index", f"{face.id} references an out-of-range OBJ index")
+    return OBJMesh(tuple(vertices), tuple(uvs), tuple(normals), tuple(faces))
+
+
+def _axis(value: object, field: str) -> tuple[float, float, float]:
+    axes = {
+        "+x": (1.0, 0.0, 0.0), "-x": (-1.0, 0.0, 0.0),
+        "+y": (0.0, 1.0, 0.0), "-y": (0.0, -1.0, 0.0),
+        "+z": (0.0, 0.0, 1.0), "-z": (0.0, 0.0, -1.0),
+    }
+    if value not in axes:
+        raise AssetError("invalid_axis", f"{field} must be a signed X, Y, or Z axis")
+    return axes[value]
+
+
+def _dot(a: tuple[float, float, float], b: tuple[float, float, float]) -> float:
+    return sum(x * y for x, y in zip(a, b, strict=True))
+
+
+def _cross(a: tuple[float, float, float], b: tuple[float, float, float]) -> tuple[float, float, float]:
+    return (
+        a[1] * b[2] - a[2] * b[1],
+        a[2] * b[0] - a[0] * b[2],
+        a[0] * b[1] - a[1] * b[0],
+    )
+
+
+def _subtract(a: tuple[float, float, float], b: tuple[float, float, float]) -> tuple[float, float, float]:
+    return tuple(x - y for x, y in zip(a, b, strict=True))
+
+
+def _normalize(vector: tuple[float, float, float], code: str) -> tuple[float, float, float]:
+    length = math.sqrt(_dot(vector, vector))
+    if length <= 1e-9:
+        raise AssetError(code, "vector has zero length")
+    return tuple(value / length for value in vector)
+
+
+def _bounds(vertices: tuple[tuple[float, float, float], ...]) -> dict[str, list[float]]:
+    return {
+        "min": [min(vertex[axis] for vertex in vertices) for axis in range(3)],
+        "max": [max(vertex[axis] for vertex in vertices) for axis in range(3)],
+    }
+
+
+def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
+    expected = {
+        "schema_version", "id", "source", "source_format", "category", "provenance",
+        "coordinate_system", "normalization", "material_policy", "collision", "budget", "status",
+    }
+    if not isinstance(data, dict) or set(data) != expected:
+        raise AssetError("invalid_manifest", "asset manifest has unsupported or missing fields")
+    if data.get("schema_version") != ASSET_SCHEMA_VERSION:
+        raise AssetError("unsupported_manifest_schema", "asset manifest schema_version must be 1")
+    if not isinstance(data.get("id"), str) or not SAFE_ID.fullmatch(data["id"]):
+        raise AssetError("invalid_asset_id", "asset id must be stable lower snake_case")
+    source = _safe_relative(root, data.get("source"), Path("assets/source"), "invalid_source")
+    if source.suffix.lower() != ".obj" or data.get("source_format") != "obj":
+        raise AssetError("unsupported_source_format", "Stage 4B supports OBJ source only")
+    if not source.is_file():
+        raise AssetError("missing_source", f"asset source does not exist: {data.get('source')}")
+    if data.get("category") not in {"building_shell", "outdoor_prop"}:
+        raise AssetError("invalid_category", "Stage 4B supports a building shell or outdoor prop")
+    if data.get("status") != "proof":
+        raise AssetError("invalid_status", "Stage 4B assets must retain proof status")
+    provenance = data.get("provenance")
+    if not isinstance(provenance, dict) or set(provenance) != {"kind", "license"}:
+        raise AssetError("invalid_provenance", "asset provenance must name kind and license")
+    if provenance["kind"] != "project_authored" or provenance["license"] not in {"CC0-1.0", "MIT"}:
+        raise AssetError("unsafe_provenance", "Stage 4B source must be explicitly project-authored and redistributable")
+    coordinates = data.get("coordinate_system")
+    if not isinstance(coordinates, dict) or set(coordinates) != {"units", "up_axis", "forward_axis", "handedness"}:
+        raise AssetError("invalid_coordinate_system", "coordinate_system declaration is incomplete")
+    if coordinates["units"] not in {"meters", "tiles"} or coordinates["handedness"] != "right":
+        raise AssetError("invalid_coordinate_system", "only explicit right-handed meter/tile sources are supported")
+    up = _axis(coordinates["up_axis"], "up_axis")
+    forward = _axis(coordinates["forward_axis"], "forward_axis")
+    if abs(_dot(up, forward)) > 1e-9:
+        raise AssetError("invalid_axis", "up and forward axes must be perpendicular")
+    normalization = data.get("normalization")
+    if not isinstance(normalization, dict) or set(normalization) != {"scale_policy", "units_to_tiles", "anchor"}:
+        raise AssetError("invalid_normalization", "normalization declaration is incomplete")
+    scale = normalization["units_to_tiles"]
+    if normalization["scale_policy"] != "units_to_tiles" or normalization["anchor"] != "footprint_center_base":
+        raise AssetError("invalid_normalization", "Stage 4B requires units_to_tiles and footprint_center_base")
+    if isinstance(scale, bool) or not isinstance(scale, (int, float)) or not math.isfinite(scale) or not 0 < scale <= 16:
+        raise AssetError("invalid_scale", "units_to_tiles must be finite and in (0, 16]")
+    material = data.get("material_policy")
+    if not isinstance(material, dict) or set(material) != {"mode", "mappings"} or material["mode"] != "existing_template_alias":
+        raise AssetError("unsupported_material", "Stage 4B requires explicit existing-template material mappings")
+    mappings = material["mappings"]
+    if not isinstance(mappings, dict) or not mappings or len(mappings) > STAGE4B_BUDGET["max_materials"]:
+        raise AssetError("unsupported_material", "Stage 4B permits exactly one mapped source material")
+    if any(not SAFE_ID.fullmatch(key) or value not in ASSET_MATERIAL_BINDINGS for key, value in mappings.items()):
+        raise AssetError("unsupported_material", "asset material mapping names an unsupported source or template alias")
+    collision = data.get("collision")
+    if not isinstance(collision, dict) or set(collision) != {"policy", "rectangle"} or collision["policy"] != "footprint_rect":
+        raise AssetError("invalid_collision_proxy", "Stage 4B requires one footprint_rect collision proxy")
+    rectangle = collision["rectangle"]
+    if not isinstance(rectangle, dict) or set(rectangle) != {"min_x", "max_x", "min_z", "max_z"}:
+        raise AssetError("invalid_collision_proxy", "collision rectangle is incomplete")
+    values = []
+    for field in ("min_x", "max_x", "min_z", "max_z"):
+        value = rectangle[field]
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+            raise AssetError("invalid_collision_proxy", f"collision.{field} must be finite")
+        values.append(float(value))
+    if not values[0] < values[1] or not values[2] < values[3]:
+        raise AssetError("invalid_collision_proxy", "collision rectangle must have nonzero dimensions")
+    if data.get("budget") != "stage4b_proof":
+        raise AssetError("unsupported_budget", "Stage 4B requires the conservative stage4b_proof budget")
+    return json.loads(json.dumps(data, sort_keys=True))
+
+
+def load_manifest(path: Path, root: Path) -> tuple[dict[str, Any], bytes]:
+    try:
+        raw = path.read_bytes()
+        data = json.loads(raw.decode("utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise AssetError("manifest_read_failed", f"cannot read asset manifest {path}: {error}") from error
+    return _validate_manifest(data, root), raw
+
+
+def _normalized_ir(manifest: dict[str, Any], mesh: OBJMesh) -> dict[str, Any]:
+    counts = {
+        "vertices": len(mesh.vertices), "uvs": len(mesh.uvs),
+        "normals": len(mesh.normals), "faces": len(mesh.faces),
+    }
+    for key, maximum in (
+        ("vertices", STAGE4B_BUDGET["max_vertices"]),
+        ("uvs", STAGE4B_BUDGET["max_uvs"]),
+        ("normals", STAGE4B_BUDGET["max_normals"]),
+        ("faces", STAGE4B_BUDGET["max_faces"]),
+    ):
+        if counts[key] > maximum:
+            raise AssetError(f"{key}_over_budget", f"asset {key} count {counts[key]} exceeds {maximum}")
+    coordinates = manifest["coordinate_system"]
+    up = _axis(coordinates["up_axis"], "up_axis")
+    forward = _axis(coordinates["forward_axis"], "forward_axis")
+    right = _cross(up, forward)
+    scale = float(manifest["normalization"]["units_to_tiles"])
+
+    oriented = tuple(
+        (_dot(vertex, right) * scale, _dot(vertex, up) * scale, _dot(vertex, forward) * scale)
+        for vertex in mesh.vertices
+    )
+    source_bounds = _bounds(oriented)
+    center_x = (source_bounds["min"][0] + source_bounds["max"][0]) / 2
+    center_z = (source_bounds["min"][2] + source_bounds["max"][2]) / 2
+    base_y = source_bounds["min"][1]
+    vertices = tuple((x - center_x, y - base_y, z - center_z) for x, y, z in oriented)
+    bounds = _bounds(vertices)
+    dimensions = [bounds["max"][i] - bounds["min"][i] for i in range(3)]
+    if any(dimension <= 1e-9 for dimension in dimensions):
+        raise AssetError("zero_dimension", "normalized asset must have nonzero X, Y, and Z dimensions")
+    if dimensions[1] > STAGE4B_BUDGET["max_height_tiles"] or any(
+        dimension > STAGE4B_BUDGET["max_dimension_tiles"] for dimension in (dimensions[0], dimensions[2])
+    ):
+        raise AssetError("bounds_over_budget", "normalized asset exceeds the conservative Stage 4B bounds")
+
+    material_mappings = manifest["material_policy"]["mappings"]
+    faces: list[dict[str, Any]] = []
+    for face in mesh.faces:
+        if face.material not in material_mappings:
+            raise AssetError("unsupported_material", f"OBJ material {face.material!r} is not mapped by the manifest")
+        points = tuple(vertices[corner.vertex] for corner in face.corners)
+        if len(set(points)) != 4:
+            raise AssetError("degenerate_face", f"{face.id} repeats one or more positions")
+        edge_a, edge_b = _subtract(points[1], points[0]), _subtract(points[2], points[0])
+        cross = _cross(edge_a, edge_b)
+        normal = _normalize(cross, "degenerate_face")
+        if abs(_dot(_subtract(points[3], points[0]), normal)) > 1e-5:
+            raise AssetError("nonplanar_face", f"{face.id} is not planar")
+        for corner in face.corners:
+            source_normal = mesh.normals[corner.normal]
+            oriented_normal = _normalize(
+                (_dot(source_normal, right), _dot(source_normal, up), _dot(source_normal, forward)),
+                "invalid_normal",
+            )
+            if _dot(oriented_normal, normal) < 0.5:
+                raise AssetError("normal_winding_mismatch", f"{face.id} normal disagrees with face winding")
+        faces.append({
+            "id": face.id,
+            "vertices": [corner.vertex for corner in face.corners],
+            "uvs": [corner.uv for corner in face.corners],
+            "normal": list(normal),
+            "source_material": face.material,
+            "material_alias": material_mappings[face.material],
+        })
+
+    source_materials = sorted({face.material for face in mesh.faces})
+    if len(source_materials) > STAGE4B_BUDGET["max_materials"]:
+        raise AssetError("material_over_budget", "asset uses too many source materials")
+    return {
+        "schema_version": 1,
+        "asset_id": manifest["id"],
+        "coordinate_convention": {
+            "units": "map_tiles", "up_axis": "+y", "forward_axis": "+z",
+            "handedness": "right", "anchor": "footprint_center_base",
+        },
+        "vertices": [list(vertex) for vertex in vertices],
+        "uvs": [list(uv) for uv in mesh.uvs],
+        "faces": faces,
+        "bounds": bounds,
+        "source_bounds_after_axis_scale": source_bounds,
+        "dimensions": dimensions,
+        "materials": source_materials,
+    }
+
+
+def _ir_quads(ir: dict[str, Any], placement: dict[str, Any] | None = None) -> list[Quad]:
+    rotation = int((placement or {}).get("rotation", 0))
+    anchor_x = float((placement or {}).get("x", 16))
+    anchor_z = float((placement or {}).get("z", 16))
+
+    def transform(position: list[float]) -> tuple[float, float, float]:
+        x, y, z = position
+        if rotation == 0:
+            rx, rz = x, z
+        elif rotation == 90:
+            rx, rz = z, -x
+        elif rotation == 180:
+            rx, rz = -x, -z
+        else:
+            rx, rz = -z, x
+        return (
+            (anchor_x + rx - 16) * MODEL_TILE_SCALE,
+            MODEL_BASE_Y + y * MODEL_TILE_SCALE,
+            (anchor_z + rz - 16) * MODEL_TILE_SCALE,
+        )
+
+    quads = []
+    for face in ir["faces"]:
+        points = [transform(ir["vertices"][index]) for index in face["vertices"]]
+        normal = _normalize(_cross(_subtract(points[1], points[0]), _subtract(points[2], points[0])), "degenerate_face")
+        vertices = tuple(
+            (*point, *ir["uvs"][uv_index])
+            for point, uv_index in zip(points, face["uvs"], strict=True)
+        )
+        prefix = (placement or {}).get("id", ir["asset_id"])
+        quads.append(Quad(f"{prefix}:{face['id']}", face["material_alias"], vertices, normal))
+    return quads
+
+
+def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
+    manifest, manifest_bytes = load_manifest(manifest_path, root)
+    source_path = (root / manifest["source"]).resolve()
+    source_bytes = source_path.read_bytes()
+    mesh = parse_obj(source_bytes)
+    ir = _normalized_ir(manifest, mesh)
+    quads = _ir_quads(ir)
+    aliases = sorted({quad.material for quad in quads})
+    if len(aliases) != 1:
+        raise AssetError("unsupported_material", "Stage 4B asset must resolve to one template alias")
+    binding = ASSET_MATERIAL_BINDINGS[aliases[0]]
+    display_list = encode_quads(quads)
+    if len(display_list) > binding["capacity_bytes"]:
+        raise AssetError(
+            "display_list_overflow", "asset display list exceeds its verified template shape",
+            required_bytes=len(display_list), capacity_bytes=binding["capacity_bytes"], shape=binding["shape"],
+        )
+    rectangle = {key: float(value) for key, value in manifest["collision"]["rectangle"].items()}
+    bounds = ir["bounds"]
+    if not (
+        bounds["min"][0] <= rectangle["min_x"] < rectangle["max_x"] <= bounds["max"][0]
+        and bounds["min"][2] <= rectangle["min_z"] < rectangle["max_z"] <= bounds["max"][2]
+    ):
+        raise AssetError("collision_bounds_mismatch", "collision footprint must remain within normalized X/Z bounds")
+    report = {
+        "schema_version": 1,
+        "success": True,
+        "asset_id": manifest["id"],
+        "source": manifest["source"],
+        "source_format": "obj",
+        "source_sha256": _hash(source_bytes),
+        "manifest_sha256": _hash(manifest_bytes),
+        "source_counts": {
+            "vertices": len(mesh.vertices), "uvs": len(mesh.uvs),
+            "normals": len(mesh.normals), "faces": len(mesh.faces),
+        },
+        "normalized_counts": {
+            "vertices": len(ir["vertices"]), "faces": len(ir["faces"]),
+            "quads": len(ir["faces"]), "triangles": 0,
+        },
+        "source_bounds_after_axis_scale": ir["source_bounds_after_axis_scale"],
+        "normalized_bounds": ir["bounds"],
+        "dimensions_tiles": ir["dimensions"],
+        "material_mappings": manifest["material_policy"]["mappings"],
+        "shape": binding["shape"],
+        "material_index": binding["material_index"],
+        "material_name": binding["material_name"],
+        "display_list_bytes": len(display_list),
+        "display_list_capacity_bytes": binding["capacity_bytes"],
+        "shape_utilization_percent": round(len(display_list) * 100 / binding["capacity_bytes"], 3),
+        "collision": {"policy": "footprint_rect", "rectangle": rectangle},
+        "budget": dict(STAGE4B_BUDGET),
+        "hashes": {
+            "normalized_mesh_sha256": _hash((json.dumps(ir, sort_keys=True, separators=(",", ":")) + "\n").encode()),
+            "display_list_sha256": _hash(display_list),
+            "collision_sha256": _hash((json.dumps(rectangle, sort_keys=True, separators=(",", ":")) + "\n").encode()),
+        },
+    }
+    return {
+        "manifest": manifest, "mesh": mesh, "ir": ir, "quads": quads,
+        "display_list": display_list, "collision": rectangle, "report": report,
+    }
+
+
+def compile_asset_outputs(manifest_path: Path, output: Path, root: Path) -> dict[str, Any]:
+    compiled = compile_asset(manifest_path, root)
+    output.mkdir(parents=True, exist_ok=True)
+    ir_bytes = (json.dumps(compiled["ir"], indent=2, sort_keys=True) + "\n").encode()
+    collision_bytes = (json.dumps({
+        "schema_version": 1, "asset_id": compiled["manifest"]["id"],
+        "policy": "footprint_rect", "rectangle": compiled["collision"],
+    }, indent=2, sort_keys=True) + "\n").encode()
+    (output / "normalized-mesh.json").write_bytes(ir_bytes)
+    (output / "display-list.bin").write_bytes(compiled["display_list"])
+    (output / "collision.json").write_bytes(collision_bytes)
+    report = dict(compiled["report"])
+    report["outputs"] = {
+        "normalized_mesh": "normalized-mesh.json",
+        "display_list": "display-list.bin",
+        "collision": "collision.json",
+        "report": "asset-report.json",
+    }
+    (output / "asset-report.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return report
+
+
+def load_catalog(path: Path, root: Path) -> dict[str, Path]:
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise AssetError("catalog_read_failed", f"cannot read asset catalog {path}: {error}") from error
+    if not isinstance(data, dict) or set(data) != {"schema_version", "assets"} or data["schema_version"] != 1:
+        raise AssetError("invalid_catalog", "asset catalog must use schema_version 1 and an assets list")
+    if not isinstance(data["assets"], list) or not data["assets"]:
+        raise AssetError("invalid_catalog", "asset catalog must contain at least one asset")
+    catalog: dict[str, Path] = {}
+    for entry in data["assets"]:
+        if not isinstance(entry, dict) or set(entry) != {"id", "manifest"}:
+            raise AssetError("invalid_catalog", "catalog entry requires id and manifest")
+        asset_id = entry["id"]
+        if not isinstance(asset_id, str) or not SAFE_ID.fullmatch(asset_id) or asset_id in catalog:
+            raise AssetError("duplicate_asset_id", f"invalid or duplicate catalog asset id {asset_id!r}")
+        manifest_path = _safe_relative(root, entry["manifest"], Path("assets/manifests"), "invalid_manifest")
+        manifest, _raw = load_manifest(manifest_path, root)
+        if manifest["id"] != asset_id:
+            raise AssetError("catalog_manifest_mismatch", f"catalog id {asset_id!r} disagrees with its manifest")
+        catalog[asset_id] = manifest_path
+    return catalog
+
+
+def _rotated_rectangle(rectangle: dict[str, float], placement: dict[str, Any]) -> tuple[float, float, float, float]:
+    corners = (
+        (rectangle["min_x"], rectangle["min_z"]),
+        (rectangle["min_x"], rectangle["max_z"]),
+        (rectangle["max_x"], rectangle["min_z"]),
+        (rectangle["max_x"], rectangle["max_z"]),
+    )
+    rotated = []
+    for x, z in corners:
+        rotation = placement["rotation"]
+        if rotation == 0:
+            rx, rz = x, z
+        elif rotation == 90:
+            rx, rz = z, -x
+        elif rotation == 180:
+            rx, rz = -x, -z
+        else:
+            rx, rz = -z, x
+        rotated.append((placement["x"] + rx, placement["z"] + rz))
+    return (
+        min(value[0] for value in rotated), max(value[0] for value in rotated),
+        min(value[1] for value in rotated), max(value[1] for value in rotated),
+    )
+
+
+def compile_placements(catalog_path: Path, placements: object, root: Path) -> dict[str, Any]:
+    catalog = load_catalog(catalog_path, root)
+    if not isinstance(placements, list) or not placements:
+        raise AssetError("invalid_placement", "asset placements must be a non-empty list")
+    seen: set[str] = set()
+    all_quads: list[Quad] = []
+    blocked: set[tuple[int, int]] = set()
+    placement_ir: list[dict[str, Any]] = []
+    asset_reports: dict[str, dict[str, Any]] = {}
+    shape: int | None = None
+    capacity: int | None = None
+    for placement in placements:
+        if not isinstance(placement, dict) or set(placement) != {"id", "asset", "x", "z", "rotation"}:
+            raise AssetError("invalid_placement", "placement requires id, asset, x, z, and rotation")
+        placement_id = placement["id"]
+        if not isinstance(placement_id, str) or not SAFE_ID.fullmatch(placement_id) or placement_id in seen:
+            raise AssetError("duplicate_placement_id", f"invalid or duplicate placement id {placement_id!r}")
+        seen.add(placement_id)
+        asset_id = placement["asset"]
+        if asset_id not in catalog:
+            raise AssetError("unknown_asset", f"placement references unknown asset {asset_id!r}")
+        if any(isinstance(placement[key], bool) or not isinstance(placement[key], int) for key in ("x", "z")):
+            raise AssetError("invalid_placement", "placement X/Z anchors must be integer tile coordinates")
+        if placement["rotation"] not in (0, 90, 180, 270):
+            raise AssetError("invalid_rotation", "placement rotation must be 0, 90, 180, or 270")
+        compiled = compile_asset(catalog[asset_id], root)
+        asset_reports[asset_id] = compiled["report"]
+        binding = ASSET_MATERIAL_BINDINGS[next(iter(set(compiled["manifest"]["material_policy"]["mappings"].values())))]
+        if shape is None:
+            shape, capacity = binding["shape"], binding["capacity_bytes"]
+        elif shape != binding["shape"]:
+            raise AssetError("unsupported_material", "Stage 4B placements must share one verified template shape")
+        all_quads.extend(_ir_quads(compiled["ir"], placement))
+        rectangle = compiled["collision"]
+        min_x, max_x, min_z, max_z = _rotated_rectangle(rectangle, placement)
+        visual_bounds = compiled["ir"]["bounds"]
+        visual_width = visual_bounds["max"][0] - visual_bounds["min"][0]
+        visual_depth = visual_bounds["max"][2] - visual_bounds["min"][2]
+        if placement["rotation"] in (90, 270):
+            visual_width, visual_depth = visual_depth, visual_width
+        visual_min_x = placement["x"] - visual_width / 2
+        visual_max_x = placement["x"] + visual_width / 2
+        visual_min_z = placement["z"] - visual_depth / 2
+        visual_max_z = placement["z"] + visual_depth / 2
+        if not (0 <= visual_min_x < visual_max_x <= 32 and 0 <= visual_min_z < visual_max_z <= 32):
+            raise AssetError("placement_out_of_bounds", f"placement {placement_id!r} visual bounds leave the map")
+        if not (1 <= min_x < max_x <= 31 and 1 <= min_z < max_z <= 31):
+            raise AssetError("collision_out_of_bounds", f"placement {placement_id!r} collision reaches the external border")
+        placement_blocked = {
+            (x, z) for z in range(32) for x in range(32)
+            if min_x <= x + 0.5 < max_x and min_z <= z + 0.5 < max_z
+        }
+        if not placement_blocked:
+            raise AssetError("empty_collision_proxy", f"placement {placement_id!r} blocks no tile centers")
+        if blocked & placement_blocked:
+            raise AssetError("overlapping_asset_collision", f"placement {placement_id!r} overlaps another collision proxy")
+        blocked.update(placement_blocked)
+        placement_ir.append({
+            "id": placement_id, "asset": asset_id, "x": placement["x"], "z": placement["z"],
+            "rotation": placement["rotation"],
+            "visual_bounds": {"min_x": visual_min_x, "max_x": visual_max_x, "min_z": visual_min_z, "max_z": visual_max_z},
+            "collision_bounds": {"min_x": min_x, "max_x": max_x, "min_z": min_z, "max_z": max_z},
+            "blocked_tiles": [list(tile) for tile in sorted(placement_blocked, key=lambda item: (item[1], item[0]))],
+        })
+    if len(blocked) > STAGE4B_BUDGET["max_collision_tiles"]:
+        raise AssetError("collision_over_budget", "placed asset collision exceeds the Stage 4B tile budget")
+    display_list = encode_quads(all_quads)
+    assert shape is not None and capacity is not None
+    if len(display_list) > capacity:
+        raise AssetError(
+            "display_list_overflow", "placed asset display list exceeds its verified template shape",
+            required_bytes=len(display_list), capacity_bytes=capacity, shape=shape,
+        )
+    ir = {"schema_version": 1, "placements": placement_ir}
+    report = {
+        "schema_version": 1,
+        "asset_count": len(asset_reports),
+        "placement_count": len(placement_ir),
+        "quad_count": len(all_quads),
+        "vertex_count": len(all_quads) * 4,
+        "shape": shape,
+        "display_list_bytes": len(display_list),
+        "capacity_bytes": capacity,
+        "utilization_percent": round(len(display_list) * 100 / capacity, 3),
+        "blocked_tile_count": len(blocked),
+        "assets": {key: asset_reports[key] for key in sorted(asset_reports)},
+        "hashes": {
+            "placement_ir_sha256": _hash((json.dumps(ir, sort_keys=True, separators=(",", ":")) + "\n").encode()),
+            "display_list_sha256": _hash(display_list),
+            "collision_sha256": _hash((json.dumps(sorted(blocked), separators=(",", ":")) + "\n").encode()),
+        },
+    }
+    return {
+        "ir": ir, "quads": all_quads, "display_lists": {shape: display_list},
+        "quad_counts": {shape: len(all_quads)}, "blocked_tiles": blocked, "report": report,
+    }
