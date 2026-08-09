@@ -347,3 +347,21 @@ resources. The immutable Stage 4H input is structurally preprocessable but
 remains rejected for its independent missing-attribute/material and geometry
 budget blockers. See `docs/STAGE_4K_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4k-static-glb-preprocess.md`.
+
+## Stage 4L decision: explicit crease-aware normal canonicalization
+
+Keep missing normals outside the strict Stage 4F parser. Manifest schema 10 may
+explicitly route one otherwise-valid identity-node GLB through a bounded
+preprocessor that derives geometric normals from existing triangle winding,
+classifies shared edges at 60 degrees, preserves UV seams and open boundaries,
+builds connected smoothing fans, and writes area-weighted float32 normals into
+a deterministic canonical GLB. Hard creases are represented by deterministic
+attribute-vertex splits; positions, UV values, triangle surfaces, material,
+texture, collision, and world identity remain unchanged.
+
+Reject non-manifold/inconsistently wound/degenerate geometry, missing UV or
+material, authored-normal replacement, unsupported modes, and out-of-envelope
+input. This is not topology repair, normal inference for invalid geometry, UV
+generation, material synthesis, or approval of the Stage 4H candidate. See
+`docs/STAGE_4L_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4l-normal-generation.md`.

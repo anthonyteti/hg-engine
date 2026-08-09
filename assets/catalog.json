@@ -40,6 +40,10 @@
     {
       "id": "stage4k_hierarchical_tower",
       "manifest": "assets/manifests/stage4k_hierarchical_tower.json"
+    },
+    {
+      "id": "stage4l_missing_normals_turret",
+      "manifest": "assets/manifests/stage4l_missing_normals_turret.json"
     }
   ]
 }

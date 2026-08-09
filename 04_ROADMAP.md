@@ -277,6 +277,21 @@ Stage 4H candidate; or begin production assets. See
 `docs/STAGE_4K_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4k-static-glb-preprocess.md`.
 
+### Completed infrastructure checkpoint: Stage 4L
+
+An otherwise-valid identity-node GLB lacking `NORMAL` may now opt into bounded,
+deterministic crease-aware normal generation. The canonical proof derives
+area-weighted smoothing fans at a predeclared 60-degree threshold, preserves UV
+seams and open boundaries, splits only attribute vertices, and produces bytes
+identical to an independently authored-normal reference accepted unchanged by
+Stage 4F.
+
+This checkpoint does not generate UVs/materials, repair topology/winding,
+simplify geometry, process or approve the Stage 4H candidate, expand model or
+texture capacity, or begin production art. See
+`docs/STAGE_4L_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4l-normal-generation.md`.
+
 ## Completed infrastructure checkpoint: Stage 3E2
 
 The revision-locked hybrid map-header layer has been proven for project IDs

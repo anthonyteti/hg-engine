@@ -175,6 +175,9 @@ endif
 ifeq ($(STAGE4K_STATIC_HIERARCHY),Y)
     WORLD_INSTALL_ARGS := --fixture fixtures/stage4k_static_hierarchy_world.json --output build/stage4k/generated
 endif
+ifeq ($(STAGE4L_NORMAL_GENERATION),Y)
+    WORLD_INSTALL_ARGS := --fixture fixtures/stage4l_normal_generation_world.json --output build/stage4l/generated
+endif
 
 ####################### Output #######################
 C_SUBDIR = src
@@ -480,6 +483,11 @@ stage4j-approx-decimation-proof:
 stage4k-static-hierarchy-proof:
 	$(MAKE) clean
 	$(MAKE) STAGE2_MAP=Y STAGE4K_STATIC_HIERARCHY=Y
+
+.PHONY: stage4l-normal-generation-proof
+stage4l-normal-generation-proof:
+	$(MAKE) clean
+	$(MAKE) STAGE2_MAP=Y STAGE4L_NORMAL_GENERATION=Y
 
 ALL_CODE_OBJS := $(patsubst $(C_SUBDIR)/%.c,$(BUILD)/%.o,$(ALL_C_SRCS)) \
  $(patsubst $(ASM_SUBDIR)/%.s,$(BUILD)/%.o,$(ALL_ASM_SRCS)) \

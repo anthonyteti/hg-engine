@@ -16,6 +16,7 @@ from typing import Any
 
 from .glb import BIN_CHUNK, GLB_MAGIC, GLB_VERSION, JSON_CHUNK, GLB_LIMITS, GLBError, parse_glb
 from .glb_preprocess import inspect_static_hierarchy
+from .glb_normals import NORMAL_LIMITS, inspect_normal_applicability
 
 
 INTAKE_SCHEMA_VERSION = 1
@@ -409,6 +410,20 @@ def inspect_generated_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
     target = manifest["target"]
     problems = _compatibility(document, metrics, strict_error, target["capacity_bytes"])
     structure_projection = inspect_static_hierarchy(data)
+    normal_projection = inspect_normal_applicability(data)
+    topology_projection_reasons = []
+    if metrics["triangle_count"] > NORMAL_LIMITS["max_faces"]:
+        topology_projection_reasons.append({
+            "code": "normal_generation_face_budget",
+            "observed": metrics["triangle_count"],
+            "supported": NORMAL_LIMITS["max_faces"],
+        })
+    if metrics["position_count"] > NORMAL_LIMITS["max_accessor_elements"]:
+        topology_projection_reasons.append({
+            "code": "normal_generation_accessor_budget",
+            "observed": metrics["position_count"],
+            "supported": NORMAL_LIMITS["max_accessor_elements"],
+        })
     projected = TRIANGLE_DISPLAY_LIST_HEADER_BYTES + metrics["triangle_count"] * TRIANGLE_DISPLAY_LIST_BYTES
     stage4f_compliant = not problems and strict_error is None
     simplification_reasons = []
@@ -506,6 +521,17 @@ def inspect_generated_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
                     "hierarchy_unsupported", "node_transform_unsupported",
                 }
             ],
+            "retroactive_approval": False,
+        },
+        "stage4l": {
+            "normal_generation": normal_projection,
+            "topology_subset": {
+                "applicable": not topology_projection_reasons,
+                "fully_evaluated": not topology_projection_reasons and normal_projection.get("applicable", False),
+                "reasons": topology_projection_reasons,
+            },
+            "remaining_blockers": [problem["code"] for problem in problems],
+            "raw_source_unchanged": True,
             "retroactive_approval": False,
         },
         "target": target,

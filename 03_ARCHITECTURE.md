@@ -559,3 +559,22 @@ attributes/materials, repair geometry, parse world data, or change DS model
 capacity. The source hierarchy is part of the asset; normal symbolic world
 placement remains a separate downstream transform. See
 `docs/knowledge/hgss-stage4k-static-glb-preprocess.md`.
+
+Stage 4L adds a second explicit attribute adapter while retaining that strict
+boundary:
+
+```text
+bounded identity GLB without NORMAL
+  -> explicit schema-10 crease-aware normal preprocessing
+  -> canonical identity GLB with float32 NORMAL
+  -> unchanged Stage 4F parser and shared typed IR
+  -> existing geometry/texture/collision/world pipeline
+```
+
+`tools.pokeagent.glb_normals` owns geometric face normals, manifold edge
+adjacency, 60-degree crease classification, UV-aware smoothing fans,
+area-weighted averaging, deterministic attribute-vertex splitting, and bounded
+canonical GLB writing. It does not create UVs or materials, repair topology or
+winding, simplify geometry, or change DS storage. Stage 4K may run before this
+adapter; Stage 4F remains the acceptance gate after all preprocessing. See
+`docs/knowledge/hgss-stage4l-normal-generation.md`.
