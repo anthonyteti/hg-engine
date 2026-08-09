@@ -218,6 +218,20 @@ expansion, image-to-3D, generated services, production kits, and content. See
 `docs/STAGE_4G_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4g-mesh-simplification.md`.
 
+### Stage 4H generated-input finding
+
+A genuine anonymous TripoSR image-to-3D run now has an immutable project-owned
+concept/provenance/raw-GLB chain and a reusable read-only intake analyzer. The
+first candidate was correctly rejected before compilation: it lacks normals,
+UV0, and a source material; contains a hierarchy and 6,664 triangles; and would
+project to 453,164 Nitro bytes against a 1,068-byte shape capacity. The exact
+Stage 4G simplifier cannot apply.
+
+This is not a completed generated-asset runtime checkpoint. It establishes the
+honest rejection boundary and identifies future preprocessing gaps without
+weakening GLB, geometry, or budget validation. See
+`docs/STAGE_4H_TECHNICAL_REPORT.md`.
+
 ## Completed infrastructure checkpoint: Stage 3E2
 
 The revision-locked hybrid map-header layer has been proven for project IDs

@@ -10,6 +10,7 @@ import sys
 
 from .assets import compile_asset, compile_asset_outputs
 from .emulator import run_smoke
+from .generated_intake import inspect_generated_asset, write_intake_report
 from .registry import (
     DEFAULT_INVENTORY,
     DEFAULT_REGISTRY,
@@ -137,6 +138,12 @@ def build_parser() -> argparse.ArgumentParser:
         if command == "compile":
             child.add_argument("--output", type=Path)
         _add_output_argument(child)
+    intake_parser = asset_subparsers.add_parser(
+        "intake", help="inspect an immutable generated GLB without repair or compilation",
+    )
+    intake_parser.add_argument("manifest", type=Path)
+    intake_parser.add_argument("--output", type=Path)
+    _add_output_argument(intake_parser)
 
     texture_parser = subparsers.add_parser("texture", help="validate and compile bounded project PNG textures")
     texture_subparsers = texture_parser.add_subparsers(dest="texture_command", required=True)
@@ -292,6 +299,28 @@ def _print_asset(payload: dict[str, object]) -> None:
         print(f"  Report: {_relative_or_absolute(payload['outputs'].get('report'))}")
 
 
+def _print_intake(payload: dict[str, object]) -> None:
+    status = "ACCEPT" if payload.get("accepted") else "REJECT"
+    print(f"generated asset intake: {status}")
+    print(f"  Asset: {payload.get('asset_id')}")
+    print(f"  Quality: {payload.get('quality_classification')}")
+    geometry = payload.get("geometry") or {}
+    print(
+        f"  Raw geometry: {geometry.get('triangle_count')} triangles, "
+        f"{geometry.get('position_count')} positions"
+    )
+    budget = payload.get("budget") or {}
+    print(
+        f"  Projected display list: {budget.get('projected_nitro_bytes_if_attributes_existed')}/"
+        f"{budget.get('capacity_bytes')} bytes"
+    )
+    problems = (payload.get("stage4f") or {}).get("problems") or []
+    for problem in problems:
+        print(f"  REJECT [{problem.get('code')}] {problem.get('message')}")
+    if "outputs" in payload:
+        print(f"  Report: {_relative_or_absolute(payload['outputs'].get('report'))}")
+
+
 def _print_texture(payload: dict[str, object]) -> None:
     print(f"texture: {'PASS' if payload.get('success') else 'FAIL'}")
     if "allocations" in payload:
@@ -391,6 +420,12 @@ def main(argv: list[str] | None = None) -> int:
             output = args.output or PROJECT_ROOT / "build" / "assets" / compiled["manifest"]["id"]
             payload = compile_asset_outputs(args.manifest, output, PROJECT_ROOT)
             _print_json(payload) if args.json else _print_asset(payload)
+        elif args.command == "asset" and args.asset_command == "intake":
+            if args.output:
+                payload = write_intake_report(args.manifest, args.output, PROJECT_ROOT)
+            else:
+                payload = inspect_generated_asset(args.manifest, PROJECT_ROOT)
+            _print_json(payload) if args.json else _print_intake(payload)
         elif args.command == "texture" and args.texture_command == "catalog":
             if args.compile_catalog:
                 output = args.output or PROJECT_ROOT / "build/assets/texture-catalog"

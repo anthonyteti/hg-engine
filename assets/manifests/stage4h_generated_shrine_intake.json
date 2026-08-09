@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "stage4h_generated_shrine",
+  "source": "assets/source/generated/stage4h_generated_shrine_raw.glb",
+  "source_format": "glb",
+  "source_sha256": "7327a0a619bdcd1bc401587f2ee7a4748978a153628374be6fb94176627eef60",
+  "concept_image": "assets/concepts/stage4h_generated_shrine_concept.png",
+  "concept_sha256": "06ef9543876681bd63d066b65f254dbe983a5f5bec112ba5dc128ce517e5644f",
+  "provenance": "assets/provenance/stage4h_generated_shrine.json",
+  "target": {
+    "shape": 6,
+    "capacity_bytes": 1068,
+    "material_alias": "prop_secondary",
+    "texture_symbol": "stage4d_stone",
+    "intended_size_tiles": [4.0, 6.0, 4.0],
+    "collision_footprint": [4.0, 1.0, 4.0]
+  }
+}

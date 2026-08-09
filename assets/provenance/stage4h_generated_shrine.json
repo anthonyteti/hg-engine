@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "asset_id": "stage4h_generated_shrine",
+  "source_type": "image_to_3d",
+  "concept_image": "assets/concepts/stage4h_generated_shrine_concept.png",
+  "concept_sha256": "06ef9543876681bd63d066b65f254dbe983a5f5bec112ba5dc128ce517e5644f",
+  "concept_provenance": {
+    "creator": "OpenAI image generation tool",
+    "model": "not exposed by the tool",
+    "date": "2026-08-09",
+    "prompt": "Use case: stylized-concept\nAsset type: single-object source image for image-to-3D reconstruction and Nintendo DS environment asset proof\nPrimary request: create one small stylized stone shrine/watchtower, designed as a simple boxy low-poly hard-surface object\nScene/backdrop: perfectly clean plain light gray studio background with no horizon line, no floor texture, no scenery\nSubject: isolated compact stone shrine/watchtower with a rectangular base and body, one clear dark recessed doorway centered on the front, a broad faceted pyramidal roof with four large planes, and only a few large silhouette details\nStyle/medium: clean 3D concept render, intentionally low-poly, chunky Nintendo DS-era proportions without referencing any existing game asset\nComposition/framing: centered three-quarter front view, entire object visible with generous padding, camera slightly above eye level, object occupies about 70 percent of the square frame\nLighting/mood: soft neutral studio illumination that reveals geometry and roof planes without dramatic shadows\nColor palette: cool gray stone, muted blue slate roof accents, dark doorway\nMaterials/textures: simple matte stone blocks and broad roof panels; no fine surface noise\nConstraints: one object only; upright; clear roof/body separation; rectangular footprint; symmetrical major structure; no people, creatures, Pokemon, text, logos, symbols, vegetation, railings, cables, thin pieces, transparent parts, or floating geometry; no watermark\nAvoid: organic sculptural forms, round towers, ornate tiny detail, complex background, cast shadow extending away from object, cropped edges, multiple views or turnaround sheet"
+  },
+  "generator": "Stability AI / Tripo AI TripoSR official Hugging Face Space",
+  "generator_model": "stabilityai/TripoSR",
+  "generator_revision": "f84354eb350eb07a108faf33a6bc564d455f9764",
+  "generator_access": "anonymous public Gradio API",
+  "generator_license": "MIT",
+  "generation_date": "2026-08-09",
+  "generation_parameters": {
+    "remove_background": true,
+    "foreground_ratio": 0.85,
+    "marching_cubes_resolution": 64,
+    "output_format": "glb"
+  },
+  "raw_output_format": "glb",
+  "raw_output_size_bytes": 134740,
+  "raw_output_sha256": "7327a0a619bdcd1bc401587f2ee7a4748978a153628374be6fb94176627eef60",
+  "rights_notes": "The input concept is project-authored and contains no retail Pokemon or Nintendo asset. TripoSR code/model materials identify the model license as MIT. This generated proof output is tracked as immutable source evidence without warranty; it is not an approved production asset.",
+  "canonical_processing": "pokeagent generated-asset intake; no manual mesh edit",
+  "candidate_history": [
+    {
+      "generator": "stabilityai/stable-fast-3d",
+      "result": "rejected_no_output",
+      "reason": "official anonymous Space returned an upstream application error for bounded default attempts"
+    },
+    {
+      "generator": "stabilityai/TripoSR",
+      "marching_cubes_resolution": 128,
+      "result": "rejected",
+      "raw_output_size_bytes": 571492,
+      "raw_output_sha256": "62223647001388e7a4503f09a566da10660b8f782292f62328368726a5b33021",
+      "reason": "source_too_large for the strict Stage 4F boundary"
+    },
+    {
+      "generator": "stabilityai/TripoSR",
+      "marching_cubes_resolution": 64,
+      "result": "canonical_rejected_input",
+      "raw_output_size_bytes": 134740,
+      "raw_output_sha256": "7327a0a619bdcd1bc401587f2ee7a4748978a153628374be6fb94176627eef60",
+      "reason": "preserved for deterministic intake analysis"
+    }
+  ]
+}

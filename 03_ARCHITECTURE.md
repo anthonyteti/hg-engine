@@ -482,3 +482,25 @@ OBJ, GLB, HGSS registry, texture container, placement, or collision format.
 Materials, UV seams, and authored hard normals are protected adjacency
 boundaries. Legacy schemas still fail on overflow. See
 `docs/knowledge/hgss-stage4g-mesh-simplification.md`.
+
+Stage 4H adds a gate in front of that approved path:
+
+```text
+project concept -> external generator -> immutable raw GLB + provenance
+                                           |
+                                           v
+                               read-only intake analyzer
+                                | structure | budget |
+                                           v
+                                  accept or reject
+                                           |
+                               accepted only: Stage 4F+
+```
+
+`tools.pokeagent.generated_intake` may inspect a larger untrusted GLB envelope
+than the compiler, but it never repairs, normalizes, simplifies, or compiles it.
+It centrally reports strict Stage 4F compliance and exact Stage 4G applicability.
+Rejected candidates remain outside `assets/catalog.json`, world fixtures, and
+numeric resource registries. The immutable raw hash is the downstream
+determinism boundary; external generator reruns are not assumed deterministic.
+See `docs/knowledge/hgss-stage4h-generated-asset-intake.md`.

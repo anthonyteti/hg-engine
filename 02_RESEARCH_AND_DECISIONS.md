@@ -278,3 +278,24 @@ meshes.
 
 See `docs/STAGE_4G_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4g-mesh-simplification.md`.
+
+## Stage 4H decision: immutable generated-input intake before approval
+
+Treat externally generated 3D as untrusted source, not as an approved asset.
+Track a project-owned concept, an unedited generated GLB where redistribution
+is permitted, exact generator provenance, and immutable hashes. Run a bounded
+read-only intake analyzer before the Stage 4F parser; only candidates that meet
+the existing source contract may acquire catalog/world identity or reach
+normalization and compilation.
+
+The first real TripoSR output is recognizable but rejected: it contains a
+two-node hierarchy, vertex colors without normals/UV0/material, 6,664 triangles,
+and a conditional 453,164-byte Nitro projection against the unchanged 1,068-byte
+shape capacity. Stage 4G exact coplanar simplification is not applicable. Do not
+flatten, synthesize attributes, approximately decimate, or weaken limits inside
+the intake layer merely to pass generated output.
+
+This result validates the intake architecture while rejecting this asset. It
+does not invalidate the hand-authored OBJ/GLB factory and does not authorize
+production generation. See `docs/STAGE_4H_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4h-generated-asset-intake.md`.

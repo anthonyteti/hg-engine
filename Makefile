@@ -386,7 +386,7 @@ restore_build: | restore all
 ####################### Clean #######################
 clean:
 	rm -rf $(BUILD) $(BASE) $(BUILD)/rom_gen.ld $(BUILD)/rom_gen_battle.ld
-	rm -rf $(shell find . -type d -name "generated")
+	rm -rf armips/include/generated include/constants/generated data/generated
 	@echo "Build artifacts removed."
 
 clean_tools:
