@@ -7,7 +7,13 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from tools.pokeagent.qa import QAError, deterministic_plan, load_scenario, validate_scenario_data
+from tools.pokeagent.qa import (
+    QAError,
+    _prepare_battery_config,
+    deterministic_plan,
+    load_scenario,
+    validate_scenario_data,
+)
 from tools.pokeagent.qa_emulator import QAEmulatorAdapter, execute_scenario
 
 
@@ -16,6 +22,8 @@ SCENARIOS = (
     ROOT / "qa/scenarios/stage4a_basic_world.json",
     ROOT / "qa/scenarios/stage4a_elevation.json",
     ROOT / "qa/scenarios/stage4a_world_persistence.json",
+    ROOT / "qa/scenarios/stage4b_asset_ingestion.json",
+    ROOT / "qa/scenarios/stage4c_project_texture.json",
 )
 
 
@@ -151,6 +159,19 @@ class QASchemaTests(unittest.TestCase):
         scenario["steps"] = [{"action": "reset"}, {"action": "continue", "expected_map_id": 541}]
         validated = validate_scenario_data(scenario, ROOT)
         self.assertEqual(validated["steps"], scenario["steps"])
+
+    def test_battery_config_is_cleared_for_new_game_and_preserved_for_continue(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            config = Path(directory) / "private-config"
+            config.mkdir()
+            marker = config / "desmume" / "test.dsv"
+            marker.parent.mkdir()
+            marker.write_bytes(b"old-save")
+            _prepare_battery_config(config, "continue_existing_save")
+            self.assertEqual(marker.read_bytes(), b"old-save")
+            _prepare_battery_config(config, "new_game_controlled")
+            self.assertTrue(config.is_dir())
+            self.assertFalse(marker.exists())
 
 
 class QAExecutionTests(unittest.TestCase):

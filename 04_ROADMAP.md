@@ -143,6 +143,22 @@ the prop into an existing map-model shape. It does not add triangles, new
 textures/materials, BLD, independent prop resources, asset kits, image-to-3D,
 or production content. See `docs/STAGE_4B_TECHNICAL_REPORT.md`.
 
+### Completed infrastructure checkpoint: Stage 4C
+
+One tracked project-authored 32 x 32 opaque PNG now compiles deterministically
+to Nitro PLTT16 texels and a BGR555 palette, replaces one hash-verified
+texture/palette payload pair in the HGSS area texture resource, and binds to
+the Stage 4B imported shed. Binary parsing proves dictionary and unrelated-NARC
+preservation; a clean HG-Engine ROM build plus declarative collision/stability
+QA and Codex visual inspection prove the atlas in game.
+
+This checkpoint does not add triangle/N-gon support, other texture formats or
+dimensions, transparency, lossy quantization, multiple/new materials,
+dictionary expansion, general NSBTX generation, GLB, simplification,
+image-to-3D, environment kits, or production content. See
+`docs/STAGE_4C_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4c-texture-palette.md`.
+
 ## Completed infrastructure checkpoint: Stage 3E2
 
 The revision-locked hybrid map-header layer has been proven for project IDs

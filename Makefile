@@ -151,6 +151,9 @@ endif
 ifeq ($(STAGE4B_ASSET),Y)
     WORLD_INSTALL_ARGS := --fixture fixtures/stage4b_asset_world.json --output build/stage4b/generated
 endif
+ifeq ($(STAGE4C_TEXTURE),Y)
+    WORLD_INSTALL_ARGS := --fixture fixtures/stage4c_texture_world.json --output build/stage4c/generated
+endif
 
 ####################### Output #######################
 C_SUBDIR = src
@@ -416,6 +419,11 @@ stage3e2-header-expansion-proof:
 stage4b-asset-proof:
 	$(MAKE) clean
 	$(MAKE) STAGE2_MAP=Y STAGE4B_ASSET=Y
+
+.PHONY: stage4c-texture-proof
+stage4c-texture-proof:
+	$(MAKE) clean
+	$(MAKE) STAGE2_MAP=Y STAGE4C_TEXTURE=Y
 
 ALL_CODE_OBJS := $(patsubst $(C_SUBDIR)/%.c,$(BUILD)/%.o,$(ALL_C_SRCS)) \
  $(patsubst $(ASM_SUBDIR)/%.s,$(BUILD)/%.o,$(ALL_ASM_SRCS)) \

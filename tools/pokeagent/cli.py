@@ -21,6 +21,7 @@ from .registry import (
 )
 from .rom import PROJECT_ROOT, build_rom, run_preflight
 from .qa import inspect_scenario, load_scenario, run_scenario
+from .textures import compile_texture_outputs
 from .world import (
     DEFAULT_FIXTURE, DEFAULT_OUTPUT, generate_world, inspect_geometry, load_fixture,
     verify_determinism, write_project_header_include,
@@ -131,6 +132,19 @@ def build_parser() -> argparse.ArgumentParser:
         ("compile", "write deterministic ignored asset artifacts"),
     ):
         child = asset_subparsers.add_parser(command, help=help_text)
+        child.add_argument("manifest", type=Path)
+        if command == "compile":
+            child.add_argument("--output", type=Path)
+        _add_output_argument(child)
+
+    texture_parser = subparsers.add_parser("texture", help="validate and compile bounded project PNG textures")
+    texture_subparsers = texture_parser.add_subparsers(dest="texture_command", required=True)
+    for command, help_text in (
+        ("validate", "validate one asset manifest's Stage 4C PNG declaration"),
+        ("inspect", "report image, palette, texel, and bounded container metadata"),
+        ("compile", "write deterministic ignored texture artifacts"),
+    ):
+        child = texture_subparsers.add_parser(command, help=help_text)
         child.add_argument("manifest", type=Path)
         if command == "compile":
             child.add_argument("--output", type=Path)
@@ -270,6 +284,14 @@ def _print_asset(payload: dict[str, object]) -> None:
         print(f"  Report: {_relative_or_absolute(payload['outputs'].get('report'))}")
 
 
+def _print_texture(payload: dict[str, object]) -> None:
+    print(f"texture: {'PASS' if payload.get('success') else 'FAIL'}")
+    print(
+        f"  {payload.get('texture_id')}: {payload.get('dimensions')} {payload.get('format')} "
+        f"colors={payload.get('encoded_color_count')} texels={payload.get('texture_bytes')} bytes"
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -345,6 +367,21 @@ def main(argv: list[str] | None = None) -> int:
             output = args.output or PROJECT_ROOT / "build" / "assets" / compiled["manifest"]["id"]
             payload = compile_asset_outputs(args.manifest, output, PROJECT_ROOT)
             _print_json(payload) if args.json else _print_asset(payload)
+        elif args.command == "texture":
+            asset = compile_asset(args.manifest, PROJECT_ROOT)
+            if len(asset["textures"]) != 1:
+                raise ValueError("texture command requires exactly one Stage 4C texture declaration")
+            texture = next(iter(asset["textures"].values()))
+            if args.texture_command in ("validate", "inspect"):
+                payload = texture["report"]
+            else:
+                output = (
+                    args.output
+                    or PROJECT_ROOT / "build" / "assets" / asset["manifest"]["id"]
+                    / "textures" / texture["spec"]["id"]
+                )
+                payload = compile_texture_outputs(texture["spec"], output, PROJECT_ROOT)
+            _print_json(payload) if args.json else _print_texture(payload)
         else:
             parser.error("unsupported command")
             return 2

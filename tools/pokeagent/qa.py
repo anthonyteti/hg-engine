@@ -6,6 +6,7 @@ import hashlib
 import json
 from pathlib import Path
 import re
+import shutil
 import sys
 from typing import Any
 
@@ -269,6 +270,13 @@ def inspect_scenario(path: Path, root: Path = PROJECT_ROOT) -> dict[str, object]
     }
 
 
+def _prepare_battery_config(path: Path, entry_mode: str) -> None:
+    """Create a private DeSmuME config root, clearing it only for fresh entry."""
+    if entry_mode == "new_game_controlled":
+        shutil.rmtree(path, ignore_errors=True)
+    path.mkdir(parents=True, exist_ok=True)
+
+
 def run_scenario(path: Path, root: Path = PROJECT_ROOT, timeout_seconds: float = 300) -> dict[str, object]:
     root = root.resolve()
     scenario = load_scenario(path, root)
@@ -279,6 +287,7 @@ def run_scenario(path: Path, root: Path = PROJECT_ROOT, timeout_seconds: float =
     worker_path = artifact_dir / ".worker.json"
     log_path = artifact_dir / "emulator.log"
     screenshots = artifact_dir / "screenshots"
+    battery_config = artifact_dir / "desmume-config"
     rom_path = root / GENERATED_ROM_NAME
     errors: list[object] = []
     report: dict[str, object] = {
@@ -294,10 +303,11 @@ def run_scenario(path: Path, root: Path = PROJECT_ROOT, timeout_seconds: float =
         "artifacts": {
             "directory": str(artifact_dir), "report": str(report_path), "trace": str(trace_path),
             "log": str(log_path), "screenshots": str(screenshots),
+            "battery_config": str(battery_config),
         },
         "errors": errors,
     }
-    targets = (artifact_dir, report_path, trace_path, worker_path, log_path, screenshots)
+    targets = (artifact_dir, report_path, trace_path, worker_path, log_path, screenshots, battery_config)
     if any(path_is_git_ignored(root, target) is not True for target in targets):
         errors.append(QAError("unsafe_output_path", "QA artifacts must be Git-ignored").as_dict())
         return report
@@ -306,6 +316,7 @@ def run_scenario(path: Path, root: Path = PROJECT_ROOT, timeout_seconds: float =
         return report
     artifact_dir.mkdir(parents=True, exist_ok=True)
     screenshots.mkdir(parents=True, exist_ok=True)
+    _prepare_battery_config(battery_config, scenario["entry"]["mode"])
     worker_path.unlink(missing_ok=True)
     command = [
         sys.executable, "-m", "tools.pokeagent.qa_emulator", "--worker",
@@ -315,7 +326,10 @@ def run_scenario(path: Path, root: Path = PROJECT_ROOT, timeout_seconds: float =
     ]
     command_result = run_command(
         command, cwd=root, timeout_seconds=timeout_seconds, log_path=log_path,
-        env_overrides={"SDL_VIDEODRIVER": "dummy"},
+        env_overrides={
+            "SDL_VIDEODRIVER": "dummy",
+            "XDG_CONFIG_HOME": str(battery_config),
+        },
     )
     worker: dict[str, object] | None = None
     if worker_path.is_file():

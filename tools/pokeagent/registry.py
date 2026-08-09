@@ -686,6 +686,23 @@ def resolve_stage4b_source(
     }
 
 
+def resolve_stage4c_source(
+    source: dict[str, Any],
+    registry_path: Path = DEFAULT_REGISTRY,
+) -> dict[str, Any]:
+    """Resolve Stage 4C through the unchanged Stage 4B symbolic world graph."""
+    if source.get("schema_version") != 9 or source.get("artifact_namespace") != "stage4c":
+        raise RegistryError("unsupported_world_schema", "Stage 4C symbolic texture source must use schema 9")
+    stage4b_view = copy.deepcopy(source)
+    stage4b_view["schema_version"] = 8
+    stage4b_view["artifact_namespace"] = "stage4b"
+    resolved = resolve_stage4b_source(stage4b_view, registry_path)
+    resolved["schema_version"] = 9
+    resolved["canonical_schema_version"] = 9
+    resolved["artifact_namespace"] = "stage4c"
+    return resolved
+
+
 def resolve_stage3e1_source(
     source: dict[str, Any],
     registry_path: Path = DEFAULT_REGISTRY,

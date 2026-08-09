@@ -393,3 +393,20 @@ The accepted path reuses verified template material/texture slots and fails on
 unknown topology, mappings, transforms, or shape overflow. It does not imply
 triangle, BLD, new texture/material, or arbitrary model support. See
 `docs/knowledge/hgss-stage4b-asset-ingestion.md`.
+
+Stage 4C extends that same asset boundary with one bounded image path:
+
+```text
+opaque project PNG + schema-2 manifest texture symbol
+  -> deterministic 32x32 PLTT16 image IR (BGR555, 16 palette slots)
+  -> hash-locked replacement of one dedicated TEX0 payload pair
+  -> rebuilt area texture NARC
+  -> existing name-bound prop material + Stage 4B placement/collision
+```
+
+The map model remains MDL0-only; HGSS loads TEX0 separately through
+`areaDataBank` and binds by Nitro resource name. The compiler preserves every
+dictionary and unrelated payload and is limited to the verified `road01_r`
+slot in US HeartGold area texture member 2. This is not general
+NSBTX/material authoring. See `docs/STAGE_4C_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4c-texture-palette.md`.

@@ -1,0 +1,61 @@
+{
+  "schema_version": 9,
+  "id": "stage4c_project_texture_world_32x32",
+  "artifact_namespace": "stage4c",
+  "registry": "world/registry.json",
+  "dimensions": {"width": 32, "height": 32},
+  "world": {
+    "matrix": {
+      "id": "stage3c_proof_matrix",
+      "width": 1,
+      "height": 1,
+      "name": "stage4c-texture",
+      "cells": ["stage4c_texture_map"],
+      "altitudes": [0]
+    }
+  },
+  "map": {
+    "id": "stage4c_texture_map",
+    "matrix": "stage3c_proof_matrix",
+    "map_header": "stage3c_proof_northwest_header",
+    "map_member": "stage3c_proof_northwest_member",
+    "event_bank": "stage3c_empty_events",
+    "script_bank": "stage3c_noop_scripts",
+    "script_header": "stage3c_script_header",
+    "text_bank": "stage3c_proof_text"
+  },
+  "resources": {
+    "event_bank": "stage3c_empty_events",
+    "local_script_bank": "stage3c_noop_scripts",
+    "start_script": "stage3c_controlled_start_script",
+    "script_header": "stage3c_script_header",
+    "text_bank": "stage3c_proof_text"
+  },
+  "model": {
+    "template_map_member": "verified_stage2_model_template",
+    "template_member_sha256": "f9fbf0196f416739019288f24be604fd6c096a2ec4ebf7e820e116e7ecc329cc",
+    "area_data": "verified_outdoor_area_data",
+    "half_extent": 16
+  },
+  "terrain": {
+    "height": 0,
+    "block_border": true,
+    "permission_type": 0,
+    "walkable_collision": 0,
+    "blocked_collision": 128
+  },
+  "asset_catalog": "assets/catalog.json",
+  "assets": [
+    {
+      "id": "proof_textured_shed_center",
+      "asset": "stage4c_textured_shed",
+      "x": 16,
+      "z": 16,
+      "rotation": 0
+    }
+  ],
+  "player_start": {"map": "stage4c_texture_map", "x": 16, "z": 20, "direction": 0},
+  "warps": [],
+  "text": "STAGE 4C PROJECT TEXTURE PROOF",
+  "header_template": "verified_normal_overworld_header_template"
+}

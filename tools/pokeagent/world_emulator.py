@@ -7,6 +7,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import shutil
 import struct
 import subprocess
 import sys
@@ -1236,6 +1237,7 @@ def run_world_test(
     report_path = artifact_dir / "report.json"
     worker_path = artifact_dir / ".worker.json"
     log_path = artifact_dir / "worker.log"
+    battery_config = artifact_dir / "desmume-config"
     rom_path = root / GENERATED_ROM_NAME
     errors: list[str] = []
     report: dict[str, object] = {
@@ -1250,10 +1252,13 @@ def run_world_test(
         }[fixture["schema_version"]],
         "success": False,
         "rom_sha256": sha256_file(rom_path) if rom_path.is_file() else None,
-        "artifacts": {"directory": str(artifact_dir), "report": str(report_path), "log": str(log_path)},
+        "artifacts": {
+            "directory": str(artifact_dir), "report": str(report_path), "log": str(log_path),
+            "battery_config": str(battery_config),
+        },
         "errors": errors,
     }
-    targets = (artifact_dir, report_path, worker_path, log_path)
+    targets = (artifact_dir, report_path, worker_path, log_path, battery_config)
     if any(path_is_git_ignored(root, path) is not True for path in targets):
         errors.append("refusing to write world emulator evidence outside ignored paths")
         return report
@@ -1261,6 +1266,8 @@ def run_world_test(
         errors.append(f"generated ROM is missing: {rom_path}")
         return report
     artifact_dir.mkdir(parents=True, exist_ok=True)
+    shutil.rmtree(battery_config, ignore_errors=True)
+    battery_config.mkdir(parents=True, exist_ok=True)
     worker_path.unlink(missing_ok=True)
     command = [
         sys.executable, "-m", "tools.pokeagent.world_emulator", "--worker",
@@ -1273,7 +1280,10 @@ def run_world_test(
         cwd=root,
         timeout_seconds=timeout_seconds,
         log_path=log_path,
-        env_overrides={"SDL_VIDEODRIVER": "dummy"},
+        env_overrides={
+            "SDL_VIDEODRIVER": "dummy",
+            "XDG_CONFIG_HOME": str(battery_config),
+        },
     )
     worker: dict[str, object] | None = None
     if worker_path.is_file():

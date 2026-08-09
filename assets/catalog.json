@@ -4,6 +4,10 @@
     {
       "id": "stage4b_test_shed",
       "manifest": "assets/manifests/stage4b_test_shed.json"
+    },
+    {
+      "id": "stage4c_textured_shed",
+      "manifest": "assets/manifests/stage4c_textured_shed.json"
     }
   ]
 }

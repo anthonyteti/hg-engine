@@ -181,3 +181,22 @@ without overstating the supported asset envelope.
 
 See `docs/STAGE_4B_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4b-asset-ingestion.md`.
+
+## Stage 4C decision: fixed-slot project texture ingestion
+
+Keep the Stage 4B OBJ/manifest/placement boundary and add one exact,
+revision-locked image compiler: an opaque 32 x 32 PNG becomes a deterministic
+Nitro PLTT16 texel stream and 16-entry BGR555 palette. HGSS loads map textures
+from the area-data BTX0/TEX0 resource separately from the MDL0-only map model,
+then binds resources by name. For the proof, replace only the exact-size
+`road01_r` texture/palette payload pair used by the dedicated prop shape;
+preserve dictionaries, offsets, every unrelated payload/member, and the
+Stage 4B geometry/collision path.
+
+Do not infer support for other texture modes, dimensions, transparency,
+quantization, multiple materials/textures, dictionary extension, payload
+relocation, or a general NSBTX writer. The bounded result is sufficient to
+continue the asset factory without Nintendo converters or GUI tooling.
+
+See `docs/STAGE_4C_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4c-texture-palette.md`.
