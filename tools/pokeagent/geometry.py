@@ -73,6 +73,14 @@ class Quad:
     normal: tuple[float, float, float]
 
 
+@dataclass(frozen=True)
+class Triangle:
+    id: str
+    material: str
+    vertices: tuple[tuple[float, float, float, float, float], ...]
+    normal: tuple[float, float, float]
+
+
 def _require_number(value: object, field: str) -> float:
     if not isinstance(value, (int, float)) or isinstance(value, bool) or not math.isfinite(value):
         raise GeometryError("invalid_coordinate", f"{field} must be a finite number")
@@ -283,6 +291,98 @@ def encode_quads(quads: list[Quad]) -> bytes:
             output += _command(0x23, *_vtx16(x, y, z))
     output += _command(0x41)
     return bytes(output)
+
+
+def encode_mesh_primitives(primitives: list[Triangle | Quad]) -> bytes:
+    """Encode independent triangles/quads, grouping only consecutive source types."""
+    if not primitives:
+        raise GeometryError("empty_shape", "each selected asset shape must receive at least one primitive")
+    output = bytearray()
+    active_type: type[Triangle] | type[Quad] | None = None
+    for primitive in primitives:
+        primitive_type = type(primitive)
+        if primitive_type not in (Triangle, Quad):
+            raise GeometryError("unsupported_primitive", "asset display list accepts triangles and quads only")
+        expected_vertices = 3 if primitive_type is Triangle else 4
+        if len(primitive.vertices) != expected_vertices:
+            raise GeometryError(
+                "unsupported_primitive",
+                f"{primitive.id!r} requires exactly {expected_vertices} vertices",
+            )
+        if active_type is not primitive_type:
+            if active_type is not None:
+                output += _command(0x41)
+            output += _command(0x40, 0 if primitive_type is Triangle else 1)
+            active_type = primitive_type
+        output += _command(0x21, _normal(primitive.normal))
+        for x, y, z, s, t in primitive.vertices:
+            output += _command(0x22, _texcoord(s, t))
+            output += _command(0x23, *_vtx16(x, y, z))
+    output += _command(0x41)
+    return bytes(output)
+
+
+def inspect_mesh_display_list(data: bytes) -> dict[str, object]:
+    """Validate and summarize the exact padded command subset emitted above."""
+    offset = 0
+    active: dict[str, int] | None = None
+    blocks: list[dict[str, int | str]] = []
+    total_vertices = 0
+    while offset < len(data):
+        start = offset
+        if offset + 4 > len(data) or data[offset + 1:offset + 4] != b"\0\0\0":
+            raise GeometryError("corrupt_display_list", "asset command is truncated or not canonically padded")
+        opcode = data[offset]
+        offset += 4
+        parameter_words = {0x21: 1, 0x22: 1, 0x23: 2, 0x40: 1, 0x41: 0}.get(opcode)
+        if parameter_words is None or offset + parameter_words * 4 > len(data):
+            raise GeometryError("corrupt_display_list", f"unsupported or truncated asset opcode {opcode:#x}")
+        params = data[offset:offset + parameter_words * 4]
+        offset += parameter_words * 4
+        if opcode == 0x40:
+            if active is not None:
+                raise GeometryError("corrupt_display_list", "nested BEGIN in asset display list")
+            primitive_value = int.from_bytes(params, "little")
+            if primitive_value not in (0, 1):
+                raise GeometryError("unsupported_primitive", "asset BEGIN must select independent triangles or quads")
+            active = {
+                "type": primitive_value, "start": start, "vertices": 0,
+                "normals": 0, "texcoords": 0,
+            }
+        elif opcode == 0x41:
+            if active is None:
+                raise GeometryError("corrupt_display_list", "END without BEGIN in asset display list")
+            arity = 3 if active["type"] == 0 else 4
+            if (
+                active["vertices"] == 0
+                or active["vertices"] % arity
+                or active["texcoords"] != active["vertices"]
+                or active["normals"] != active["vertices"] // arity
+            ):
+                raise GeometryError("corrupt_display_list", "asset primitive block has inconsistent commands")
+            primitive_count = active["vertices"] // arity
+            blocks.append({
+                "primitive": "triangle" if active["type"] == 0 else "quad",
+                "primitive_count": primitive_count,
+                "vertex_count": active["vertices"],
+                "bytes": offset - active["start"],
+            })
+            total_vertices += active["vertices"]
+            active = None
+        else:
+            if active is None:
+                raise GeometryError("corrupt_display_list", "vertex-state command occurs outside BEGIN/END")
+            field = {0x21: "normals", 0x22: "texcoords", 0x23: "vertices"}[opcode]
+            active[field] += 1
+    if active is not None or not blocks:
+        raise GeometryError("corrupt_display_list", "asset display list has an unterminated or empty primitive plan")
+    return {
+        "triangle_count": sum(block["primitive_count"] for block in blocks if block["primitive"] == "triangle"),
+        "quad_count": sum(block["primitive_count"] for block in blocks if block["primitive"] == "quad"),
+        "vertex_count": total_vertices,
+        "primitive_blocks": blocks,
+        "display_list_bytes": len(data),
+    }
 
 
 def _build_per(grid: list[list[Feature]], collision: dict[str, Any]) -> tuple[bytes, set[tuple[int, int]]]:

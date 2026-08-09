@@ -16,6 +16,10 @@
     {
       "id": "stage4d_stone_monument",
       "manifest": "assets/manifests/stage4d_stone_monument.json"
+    },
+    {
+      "id": "stage4e_faceted_tower",
+      "manifest": "assets/manifests/stage4e_faceted_tower.json"
     }
   ]
 }

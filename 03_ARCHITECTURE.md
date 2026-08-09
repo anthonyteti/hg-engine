@@ -433,3 +433,20 @@ Field camera scale remains orthogonal to assets. A map header may select a
 fixed wider/higher retail preset, but native matrix connections require equal
 camera types on both sides in the current runtime. See
 `docs/knowledge/hgss-stage4d-camera-scale.md`.
+
+Stage 4E adds typed independent primitives without changing source/catalog or
+texture ownership boundaries:
+
+```text
+explicit OBJ triangle/quad faces
+  -> normalized mesh IR with per-face primitive type
+  -> winding, normal, UV, range, and exact-capacity validation
+  -> stable consecutive triangle/quad BEGIN/END blocks
+  -> existing map-model shapes/materials and project textures
+  -> existing symbolic placement and footprint collision
+```
+
+Terrain continues using its proven quad compiler. Asset schemas 1--3 remain
+quad-only; schema 4 is the explicit triangle capability boundary. Nitro strips,
+fans, N-gons, auto-triangulation, and relocation remain outside the compiler.
+See `docs/knowledge/hgss-stage4e-triangle-assets.md`.

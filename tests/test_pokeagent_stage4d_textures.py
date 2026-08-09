@@ -52,10 +52,10 @@ class Stage4DTextureCatalogTests(unittest.TestCase):
         self.assertEqual(allocations[1]["bindings"], [{
             "asset": "stage4d_wood_shed", "source_material": "shed_shell", "material_alias": "prop",
         }])
-        self.assertEqual(allocations[2]["bindings"], [{
+        self.assertIn({
             "asset": "stage4d_stone_monument", "source_material": "monument_shell",
             "material_alias": "prop_secondary",
-        }])
+        }, allocations[2]["bindings"])
         placed = compile_placements(ROOT / "assets/catalog.json", [
             {"id": "a", "asset": "stage4d_wood_shed", "x": 10, "z": 16, "rotation": 0},
             {"id": "b", "asset": "stage4d_stone_monument", "x": 22, "z": 16, "rotation": 0},

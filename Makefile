@@ -157,6 +157,9 @@ endif
 ifeq ($(STAGE4D_TEXTURES),Y)
     WORLD_INSTALL_ARGS := --fixture fixtures/stage4d_scalable_textures_world.json --output build/stage4d/generated
 endif
+ifeq ($(STAGE4E_TRIANGLES),Y)
+    WORLD_INSTALL_ARGS := --fixture fixtures/stage4e_triangle_world.json --output build/stage4e/generated
+endif
 
 ####################### Output #######################
 C_SUBDIR = src
@@ -432,6 +435,11 @@ stage4c-texture-proof:
 stage4d-texture-scaling-proof:
 	$(MAKE) clean
 	$(MAKE) STAGE2_MAP=Y STAGE4D_TEXTURES=Y
+
+.PHONY: stage4e-triangle-proof
+stage4e-triangle-proof:
+	$(MAKE) clean
+	$(MAKE) STAGE2_MAP=Y STAGE4E_TRIANGLES=Y
 
 ALL_CODE_OBJS := $(patsubst $(C_SUBDIR)/%.c,$(BUILD)/%.o,$(ALL_C_SRCS)) \
  $(patsubst $(ASM_SUBDIR)/%.s,$(BUILD)/%.o,$(ALL_ASM_SRCS)) \

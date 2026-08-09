@@ -1,10 +1,10 @@
-"""Deterministic, bounded OBJ ingestion for Stage 4B static environment assets.
+"""Deterministic, bounded OBJ ingestion for static environment assets.
 
 The importer intentionally accepts one conservative subset: finite Y-up
-right-handed OBJ meshes made from planar quads with explicit UVs, normals, and
-one manifest-mapped material.  It produces the neutral normalized mesh IR,
-budget report, collision proxy, and the same Nitro quad command stream already
-proven by the Stage 3D terrain compiler.
+right-handed OBJ meshes made from planar quads and, for Stage 4E schema 4,
+independent triangles with explicit UVs, normals, and one manifest-mapped
+material. It produces the neutral normalized mesh IR, budget report, collision
+proxy, and bounded Nitro primitive command stream.
 """
 
 from __future__ import annotations
@@ -17,7 +17,15 @@ from pathlib import Path
 import re
 from typing import Any
 
-from .geometry import MODEL_BASE_Y, MODEL_TILE_SCALE, Quad, encode_quads
+from .geometry import (
+    MODEL_BASE_Y,
+    MODEL_TILE_SCALE,
+    GeometryError,
+    Quad,
+    Triangle,
+    encode_mesh_primitives,
+    inspect_mesh_display_list,
+)
 from .textures import (
     compile_png,
     compile_texture_catalog,
@@ -26,7 +34,7 @@ from .textures import (
 )
 
 
-ASSET_SCHEMA_VERSIONS = {1, 2, 3}
+ASSET_SCHEMA_VERSIONS = {1, 2, 3, 4}
 CATALOG_SCHEMA_VERSION = 1
 SAFE_ID = re.compile(r"^[a-z][a-z0-9_]{0,63}$")
 STAGE4B_BUDGET = {
@@ -79,7 +87,11 @@ class OBJCorner:
 class OBJFace:
     id: str
     material: str
-    corners: tuple[OBJCorner, OBJCorner, OBJCorner, OBJCorner]
+    corners: tuple[OBJCorner, ...]
+
+    @property
+    def primitive(self) -> str:
+        return "triangle" if len(self.corners) == 3 else "quad"
 
 
 @dataclass(frozen=True)
@@ -119,7 +131,7 @@ def _safe_relative(root: Path, value: object, required_parent: Path, code: str) 
 
 
 def parse_obj(data: bytes) -> OBJMesh:
-    """Parse the exact deterministic quad-only Stage 4B OBJ subset."""
+    """Parse the deterministic explicit triangle/quad OBJ subset."""
     if len(data) > STAGE4B_BUDGET["max_source_bytes"]:
         raise AssetError("source_too_large", "OBJ exceeds the Stage 4B source byte budget")
     try:
@@ -161,9 +173,9 @@ def parse_obj(data: bytes) -> OBJMesh:
                 raise AssetError("unsupported_material", f"line {line_number}: material name is unsupported")
             material = fields[1]
         elif keyword == "f":
-            if len(fields) != 5:
+            if len(fields) not in (4, 5):
                 raise AssetError(
-                    "unsupported_polygon", f"line {line_number}: Stage 4B accepts exactly four-corner faces",
+                    "unsupported_polygon", f"line {line_number}: only triangle and quad faces are supported",
                 )
             if material is None:
                 raise AssetError("unsupported_material", f"line {line_number}: face has no usemtl assignment")
@@ -240,9 +252,9 @@ def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
         "coordinate_system", "normalization", "material_policy", "collision", "budget", "status",
     }
     if not isinstance(data, dict) or data.get("schema_version") not in ASSET_SCHEMA_VERSIONS:
-        raise AssetError("unsupported_manifest_schema", "asset manifest schema_version must be 1, 2, or 3")
+        raise AssetError("unsupported_manifest_schema", "asset manifest schema_version must be 1, 2, 3, or 4")
     expected = common | ({"textures"} if data["schema_version"] == 2 else set())
-    if data["schema_version"] == 3:
+    if data["schema_version"] in (3, 4):
         expected |= {"texture_catalog"}
     if set(data) != expected:
         raise AssetError("invalid_manifest", "asset manifest has unsupported or missing fields")
@@ -284,6 +296,7 @@ def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
         1: "existing_template_alias",
         2: "existing_template_alias_with_project_texture",
         3: "project_texture_catalog_binding",
+        4: "project_texture_catalog_binding",
     }
     expected_mode = expected_modes[data["schema_version"]]
     if not isinstance(material, dict) or set(material) != {"mode", "mappings"} or material["mode"] != expected_mode:
@@ -415,7 +428,7 @@ def _normalized_ir(manifest: dict[str, Any], mesh: OBJMesh, root: Path | None = 
     texture_dimensions = {
         texture["id"]: texture["dimensions"] for texture in manifest.get("textures", [])
     }
-    if manifest["schema_version"] == 3:
+    if manifest["schema_version"] in (3, 4):
         if root is None:
             raise AssetError("invalid_texture_catalog", "Stage 4D normalization requires its repository root")
         catalog = compile_texture_catalog(root / manifest["texture_catalog"], root)
@@ -424,15 +437,17 @@ def _normalized_ir(manifest: dict[str, Any], mesh: OBJMesh, root: Path | None = 
         }
     faces: list[dict[str, Any]] = []
     for face in mesh.faces:
+        if manifest["schema_version"] < 4 and face.primitive != "quad":
+            raise AssetError("unsupported_polygon", "legacy asset manifests remain quad-only")
         if face.material not in material_mappings:
             raise AssetError("unsupported_material", f"OBJ material {face.material!r} is not mapped by the manifest")
         points = tuple(vertices[corner.vertex] for corner in face.corners)
-        if len(set(points)) != 4:
+        if len(set(points)) != len(points):
             raise AssetError("degenerate_face", f"{face.id} repeats one or more positions")
         edge_a, edge_b = _subtract(points[1], points[0]), _subtract(points[2], points[0])
         cross = _cross(edge_a, edge_b)
         normal = _normalize(cross, "degenerate_face")
-        if abs(_dot(_subtract(points[3], points[0]), normal)) > 1e-5:
+        if face.primitive == "quad" and abs(_dot(_subtract(points[3], points[0]), normal)) > 1e-5:
             raise AssetError("nonplanar_face", f"{face.id} is not planar")
         for corner in face.corners:
             source_normal = mesh.normals[corner.normal]
@@ -453,6 +468,8 @@ def _normalized_ir(manifest: dict[str, Any], mesh: OBJMesh, root: Path | None = 
             "source_material": face.material,
             "material_alias": alias,
         }
+        if manifest["schema_version"] >= 4:
+            face_ir["primitive"] = face.primitive
         if texture_id is not None:
             face_ir["texture"] = texture_id
         faces.append(face_ir)
@@ -461,7 +478,7 @@ def _normalized_ir(manifest: dict[str, Any], mesh: OBJMesh, root: Path | None = 
     if len(source_materials) > STAGE4B_BUDGET["max_materials"]:
         raise AssetError("material_over_budget", "asset uses too many source materials")
     ir = {
-        "schema_version": 1,
+        "schema_version": 2 if manifest["schema_version"] >= 4 else 1,
         "asset_id": manifest["id"],
         "coordinate_convention": {
             "units": "map_tiles", "up_axis": "+y", "forward_axis": "+z",
@@ -480,7 +497,7 @@ def _normalized_ir(manifest: dict[str, Any], mesh: OBJMesh, root: Path | None = 
     return ir
 
 
-def _ir_quads(ir: dict[str, Any], placement: dict[str, Any] | None = None) -> list[Quad]:
+def _ir_primitives(ir: dict[str, Any], placement: dict[str, Any] | None = None) -> list[Triangle | Quad]:
     rotation = int((placement or {}).get("rotation", 0))
     anchor_x = float((placement or {}).get("x", 16))
     anchor_z = float((placement or {}).get("z", 16))
@@ -501,7 +518,7 @@ def _ir_quads(ir: dict[str, Any], placement: dict[str, Any] | None = None) -> li
             (anchor_z + rz - 16) * MODEL_TILE_SCALE,
         )
 
-    quads = []
+    primitives: list[Triangle | Quad] = []
     for face in ir["faces"]:
         points = [transform(ir["vertices"][index]) for index in face["vertices"]]
         normal = _normalize(_cross(_subtract(points[1], points[0]), _subtract(points[2], points[0])), "degenerate_face")
@@ -518,8 +535,19 @@ def _ir_quads(ir: dict[str, Any], placement: dict[str, Any] | None = None) -> li
             ]
         vertices = tuple((*point, *uv) for point, uv in zip(points, uvs, strict=True))
         prefix = (placement or {}).get("id", ir["asset_id"])
-        quads.append(Quad(f"{prefix}:{face['id']}", face["material_alias"], vertices, normal))
-    return quads
+        primitive_class = Triangle if face.get("primitive", "quad") == "triangle" else Quad
+        primitives.append(primitive_class(
+            f"{prefix}:{face['id']}", face["material_alias"], vertices, normal,
+        ))
+    return primitives
+
+
+def _encode_asset_primitives(primitives: list[Triangle | Quad]) -> tuple[bytes, dict[str, object]]:
+    try:
+        display_list = encode_mesh_primitives(primitives)
+        return display_list, inspect_mesh_display_list(display_list)
+    except GeometryError as error:
+        raise AssetError(error.code, str(error), **error.details) from error
 
 
 def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
@@ -528,12 +556,12 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
     source_bytes = source_path.read_bytes()
     mesh = parse_obj(source_bytes)
     ir = _normalized_ir(manifest, mesh, root)
-    quads = _ir_quads(ir)
-    aliases = sorted({quad.material for quad in quads})
+    primitives = _ir_primitives(ir)
+    aliases = sorted({primitive.material for primitive in primitives})
     if len(aliases) != 1:
-        raise AssetError("unsupported_material", "Stage 4B asset must resolve to one template alias")
+        raise AssetError("unsupported_material", "asset must resolve to one verified template alias")
     binding = ASSET_MATERIAL_BINDINGS[aliases[0]]
-    display_list = encode_quads(quads)
+    display_list, primitive_plan = _encode_asset_primitives(primitives)
     if len(display_list) > binding["capacity_bytes"]:
         raise AssetError(
             "display_list_overflow", "asset display list exceeds its verified template shape",
@@ -560,7 +588,16 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
         },
         "normalized_counts": {
             "vertices": len(ir["vertices"]), "faces": len(ir["faces"]),
-            "quads": len(ir["faces"]), "triangles": 0,
+            "quads": primitive_plan["quad_count"], "triangles": primitive_plan["triangle_count"],
+        },
+        "emitted_vertex_count": primitive_plan["vertex_count"],
+        "primitive_blocks": primitive_plan["primitive_blocks"],
+        "primitive_bytes": {
+            kind: sum(
+                int(block["bytes"]) for block in primitive_plan["primitive_blocks"]
+                if block["primitive"] == kind
+            )
+            for kind in ("triangle", "quad")
         },
         "source_bounds_after_axis_scale": ir["source_bounds_after_axis_scale"],
         "normalized_bounds": ir["bounds"],
@@ -583,14 +620,16 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
     compiled_textures = {
         texture["id"]: compile_png(texture, root) for texture in manifest.get("textures", [])
     }
-    if manifest["schema_version"] == 3:
+    if manifest["schema_version"] in (3, 4):
         compiled_textures = compile_texture_catalog(root / manifest["texture_catalog"], root)["textures"]
     if compiled_textures:
         report["textures"] = {
             texture_id: compiled_textures[texture_id]["report"] for texture_id in sorted(compiled_textures)
         }
     return {
-        "manifest": manifest, "mesh": mesh, "ir": ir, "quads": quads,
+        "manifest": manifest, "mesh": mesh, "ir": ir, "primitives": primitives,
+        "triangles": [primitive for primitive in primitives if isinstance(primitive, Triangle)],
+        "quads": [primitive for primitive in primitives if isinstance(primitive, Quad)],
         "display_list": display_list, "collision": rectangle, "textures": compiled_textures, "report": report,
     }
 
@@ -676,7 +715,7 @@ def compile_placements(catalog_path: Path, placements: object, root: Path) -> di
     if not isinstance(placements, list) or not placements:
         raise AssetError("invalid_placement", "asset placements must be a non-empty list")
     seen: set[str] = set()
-    quads_by_shape: dict[int, list[Quad]] = {}
+    primitives_by_shape: dict[int, list[Triangle | Quad]] = {}
     blocked: set[tuple[int, int]] = set()
     placement_ir: list[dict[str, Any]] = []
     asset_reports: dict[str, dict[str, Any]] = {}
@@ -701,7 +740,7 @@ def compile_placements(catalog_path: Path, placements: object, root: Path) -> di
             value if isinstance(value, str) else value["alias"] for value in mapping_values
         }
         binding = ASSET_MATERIAL_BINDINGS[next(iter(aliases))]
-        quads_by_shape.setdefault(binding["shape"], []).extend(_ir_quads(compiled["ir"], placement))
+        primitives_by_shape.setdefault(binding["shape"], []).extend(_ir_primitives(compiled["ir"], placement))
         rectangle = compiled["collision"]
         min_x, max_x, min_z, max_z = _rotated_rectangle(rectangle, placement)
         visual_bounds = compiled["ir"]["bounds"]
@@ -737,14 +776,14 @@ def compile_placements(catalog_path: Path, placements: object, root: Path) -> di
         raise AssetError("collision_over_budget", "placed asset collision exceeds the Stage 4B tile budget")
     display_lists: dict[int, bytes] = {}
     shape_reports: list[dict[str, Any]] = []
-    for shape in sorted(quads_by_shape):
-        quads = quads_by_shape[shape]
-        aliases = sorted({quad.material for quad in quads})
+    for shape in sorted(primitives_by_shape):
+        primitives = primitives_by_shape[shape]
+        aliases = sorted({primitive.material for primitive in primitives})
         bindings = {ASSET_MATERIAL_BINDINGS[alias]["shape"]: ASSET_MATERIAL_BINDINGS[alias] for alias in aliases}
         if set(bindings) != {shape}:
             raise AssetError("material_slot_conflict", "one shape received incompatible material aliases")
         capacity = min(ASSET_MATERIAL_BINDINGS[alias]["capacity_bytes"] for alias in aliases)
-        display_list = encode_quads(quads)
+        display_list, primitive_plan = _encode_asset_primitives(primitives)
         if len(display_list) > capacity:
             raise AssetError(
                 "display_list_overflow", "placed asset display list exceeds its verified template shape",
@@ -752,7 +791,11 @@ def compile_placements(catalog_path: Path, placements: object, root: Path) -> di
             )
         display_lists[shape] = display_list
         shape_reports.append({
-            "shape": shape, "aliases": aliases, "quad_count": len(quads),
+            "shape": shape, "aliases": aliases,
+            "triangle_count": primitive_plan["triangle_count"],
+            "quad_count": primitive_plan["quad_count"],
+            "vertex_count": primitive_plan["vertex_count"],
+            "primitive_blocks": primitive_plan["primitive_blocks"],
             "display_list_bytes": len(display_list), "capacity_bytes": capacity,
             "utilization_percent": round(len(display_list) * 100 / capacity, 3),
             "sha256": _hash(display_list),
@@ -762,8 +805,18 @@ def compile_placements(catalog_path: Path, placements: object, root: Path) -> di
         "schema_version": 1,
         "asset_count": len(asset_reports),
         "placement_count": len(placement_ir),
-        "quad_count": sum(len(quads) for quads in quads_by_shape.values()),
-        "vertex_count": sum(len(quads) for quads in quads_by_shape.values()) * 4,
+        "triangle_count": sum(
+            isinstance(primitive, Triangle)
+            for primitives in primitives_by_shape.values() for primitive in primitives
+        ),
+        "quad_count": sum(
+            isinstance(primitive, Quad)
+            for primitives in primitives_by_shape.values() for primitive in primitives
+        ),
+        "vertex_count": sum(
+            len(primitive.vertices)
+            for primitives in primitives_by_shape.values() for primitive in primitives
+        ),
         "shapes": shape_reports,
         "blocked_tile_count": len(blocked),
         "assets": {key: asset_reports[key] for key in sorted(asset_reports)},
@@ -775,9 +828,26 @@ def compile_placements(catalog_path: Path, placements: object, root: Path) -> di
     }
     return {
         "ir": ir,
-        "quads": [quad for shape in sorted(quads_by_shape) for quad in quads_by_shape[shape]],
+        "primitives": [
+            primitive for shape in sorted(primitives_by_shape) for primitive in primitives_by_shape[shape]
+        ],
+        "triangles": [
+            primitive for shape in sorted(primitives_by_shape)
+            for primitive in primitives_by_shape[shape] if isinstance(primitive, Triangle)
+        ],
+        "quads": [
+            primitive for shape in sorted(primitives_by_shape)
+            for primitive in primitives_by_shape[shape] if isinstance(primitive, Quad)
+        ],
         "display_lists": display_lists,
-        "quad_counts": {shape: len(quads) for shape, quads in sorted(quads_by_shape.items())},
+        "triangle_counts": {
+            shape: sum(isinstance(primitive, Triangle) for primitive in primitives)
+            for shape, primitives in sorted(primitives_by_shape.items())
+        },
+        "quad_counts": {
+            shape: sum(isinstance(primitive, Quad) for primitive in primitives)
+            for shape, primitives in sorted(primitives_by_shape.items())
+        },
         "blocked_tiles": blocked,
         "report": report,
     }

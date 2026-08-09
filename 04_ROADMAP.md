@@ -173,6 +173,20 @@ pairs, inherited material state/dictionary metadata, the supported US revision,
 and quad assets. It does not start triangle/GLB/simplification/image-to-3D,
 production kits, or content. See `docs/STAGE_4D_TECHNICAL_REPORT.md`.
 
+### Completed infrastructure checkpoint: Stage 4E
+
+Explicit triangle and quad OBJ faces now flow through a typed deterministic
+mesh IR and independent Nitro primitive encoder. One project-authored faceted
+tower combines a four-quad shell with a four-triangle roof, retains the Stage
+4D project texture and manifest collision, builds through HG-Engine, and passes
+binary parsing, declarative walk-around QA, and front/rear visual inspection.
+
+The checkpoint deliberately excludes N-gons, strips/fans, automatic
+triangulation/repair, negative indices, display-list relocation, GLB,
+simplification, image-to-3D, production landmarks/kits, and content. See
+`docs/STAGE_4E_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4e-triangle-assets.md`.
+
 ## Completed infrastructure checkpoint: Stage 3E2
 
 The revision-locked hybrid map-header layer has been proven for project IDs

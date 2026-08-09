@@ -219,3 +219,20 @@ until a separate connection-camera patch is designed.
 See `docs/STAGE_4D_TECHNICAL_REPORT.md`,
 `docs/knowledge/hgss-stage4d-texture-container.md`, and
 `docs/knowledge/hgss-stage4d-camera-scale.md`.
+
+## Stage 4E decision: independent triangles in the existing asset IR
+
+Extend only asset manifest schema 4 and normalized mesh IR schema 2 with
+explicit `triangle` and `quad` faces. Preserve authored face order, group only
+consecutive equal primitive types, and encode independent Nitro primitives
+with separate `BEGIN`/`END` runs. Winding must agree with explicit source
+normals before encoding, and all four cardinal placements preserve handedness.
+
+Keep strips, fans, N-gons, automatic triangulation, missing UV/normal repair,
+negative OBJ indices, arbitrary transforms/materials, and display-list
+relocation unsupported. The bounded mixed tower proves four triangles plus
+four quads through bytes, ROM, collision, declarative QA, and front/rear visual
+inspection without changing the Stage 4D texture container.
+
+See `docs/STAGE_4E_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4e-triangle-assets.md`.
