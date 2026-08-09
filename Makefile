@@ -519,6 +519,11 @@ stage4p-attribute-bootstrap-proof:
 	$(MAKE) clean
 	$(MAKE) STAGE2_MAP=Y STAGE4P_ATTRIBUTE_BOOTSTRAP=Y
 
+.PHONY: stage4q-generated-topology-proof
+stage4q-generated-topology-proof:
+	. .venv/bin/activate; python3 -m tools.pokeagent asset topology-sanitize assets/manifests/stage4q_generated_topology.json --output build/stage4q --json
+	. .venv/bin/activate; python3 -m unittest -v tests.test_pokeagent_stage4q_topology
+
 ALL_CODE_OBJS := $(patsubst $(C_SUBDIR)/%.c,$(BUILD)/%.o,$(ALL_C_SRCS)) \
  $(patsubst $(ASM_SUBDIR)/%.s,$(BUILD)/%.o,$(ALL_ASM_SRCS)) \
  $(patsubst $(C_SUBDIR)/%.c,$(BUILD)/%.d,$(ALL_C_SRCS))

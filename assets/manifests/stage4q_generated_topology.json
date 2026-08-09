@@ -1,0 +1,45 @@
+{
+  "schema_version": 14,
+  "id": "stage4q_generated_topology",
+  "source": "assets/source/stage4q_generated_multicomponent.glb",
+  "source_format": "glb",
+  "source_sha256": "629529520af2246825a25cfd6f779990005198d13e0adae061e910f3cb6afcec",
+  "provenance": {"kind": "project_authored", "license": "CC0-1.0"},
+  "preprocessing": {
+    "topology": {
+      "policy": "generated_static_exact_sanitize_v1",
+      "remove_exact_zero_area_faces": true,
+      "preserve_components": true,
+      "preserve_boundary_loops": true,
+      "max_components": 4,
+      "color0_policy": "explicit_discard"
+    },
+    "geometry_reduction": {
+      "policy": "constrained_geometry_qem",
+      "target_faces": 56,
+      "target_positions": 96,
+      "preserve_boundaries": true,
+      "preserve_ground_contact": true,
+      "require_one_component": true,
+      "crease_angle_degrees": 60,
+      "ground_tolerance_ratio": 0.0001,
+      "max_face_rotation_degrees": 75,
+      "crease_penalty": 0.02,
+      "max_bounds_delta_ratio": 0.04,
+      "max_geometric_error_ratio": 0.08,
+      "max_surface_area_delta_percent": 22.0,
+      "min_silhouette_iou": 0.84
+    },
+    "bootstrap": {
+      "policy": "hard_surface_static_v1",
+      "material_name": "generated_surface",
+      "color0_policy": "reject",
+      "patch_normal_degrees": 0.1,
+      "plane_epsilon": 0.00001,
+      "texture_size": 32,
+      "padding_texels": 1,
+      "crease_angle_degrees": 60,
+      "normal_weighting": "area"
+    }
+  }
+}

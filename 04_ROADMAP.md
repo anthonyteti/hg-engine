@@ -352,6 +352,24 @@ separately scoped generated-topology intake policy, not production art. See
 `docs/STAGE_4P_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4p-attribute-bootstrap.md`.
 
+### Completed infrastructure checkpoint: Stage 4Q
+
+One generated-style 1,073-face project fixture with `COLOR_0`, one exact
+collinear face, two meaningful components, and an open boundary is now
+deterministically sanitized, independently reduced to the Stage 4P envelope,
+bootstrapped, and accepted by unchanged Stage 4F. Exact-zero provenance,
+near-zero preservation, stable component budgets, boundary-loop invariants,
+and order/mutation determinism are machine-tested. No face is welded, filled,
+flipped, joined, heuristically discarded, or repaired.
+
+The real Stage 4H candidate remains rejected and is not ready for a derived
+attempt. Its smallest triangle is nonzero under the exact Stage 4Q definition,
+so removing it would require a separately justified tiny-face policy rather
+than exact sanitation. Stage 4R, if authorized, should decide that narrow
+numeric-validity boundary; it must not start production art or general repair.
+See `docs/STAGE_4Q_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4q-generated-topology.md`.
+
 ## Completed infrastructure checkpoint: Stage 3E2
 
 The revision-locked hybrid map-header layer has been proven for project IDs

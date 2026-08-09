@@ -580,3 +580,168 @@ def reduce_geometry(mesh: dict[str, Any], policy: dict[str, Any]) -> tuple[dict[
     }
     report["semantic_sha256"] = _semantic_hash(report)
     return final, report
+
+
+def _component_meshes(mesh: dict[str, Any]) -> list[dict[str, Any]]:
+    """Split canonical geometry into stable, source-order-independent components."""
+    source = canonical_geometry(mesh["positions"], mesh["faces"])
+    positions = [tuple(point) for point in source["positions"]]
+    faces = [tuple(face) for face in source["faces"]]
+    edges = _edge_data(faces)
+    adjacency = [set() for _ in faces]
+    for owners in edges.values():
+        if len(owners) == 2:
+            left, right = owners[0][0], owners[1][0]
+            adjacency[left].add(right); adjacency[right].add(left)
+    unseen = set(range(len(faces))); result = []
+    while unseen:
+        seed = min(unseen); unseen.remove(seed); stack = [seed]; face_ids = []
+        while stack:
+            current = stack.pop(); face_ids.append(current)
+            for neighbor in sorted(adjacency[current], reverse=True):
+                if neighbor in unseen:
+                    unseen.remove(neighbor); stack.append(neighbor)
+        selected = [faces[index] for index in sorted(face_ids)]
+        used = sorted({index for face in selected for index in face}, key=lambda index: positions[index])
+        remap = {old: new for new, old in enumerate(used)}
+        component = canonical_geometry(
+            [positions[index] for index in used],
+            [tuple(remap[index] for index in face) for face in selected],
+        )
+        component["component_id"] = _semantic_hash(component)[:16]
+        component["surface_area"] = _surface(component["positions"], component["faces"])
+        result.append(component)
+    return sorted(result, key=lambda item: item["component_id"])
+
+
+def _allocate_component_budget(
+    components: list[dict[str, Any]], total: int, source_key: str, *, minimum: int,
+) -> list[int]:
+    if total < minimum * len(components):
+        raise GeometryReductionError(
+            "geometry_predecimation_target_unreachable",
+            "target cannot preserve the minimum allowance for every component",
+            target=total, components=len(components), minimum_per_component=minimum,
+        )
+    capacities = [len(component[source_key]) for component in components]
+    allocations = [min(minimum, capacity) for capacity in capacities]
+    remaining = total - sum(allocations)
+    weights = [float(component["surface_area"]) for component in components]
+    while remaining > 0 and any(allocations[index] < capacities[index] for index in range(len(components))):
+        eligible = [index for index in range(len(components)) if allocations[index] < capacities[index]]
+        total_weight = sum(weights[index] for index in eligible) or float(len(eligible))
+        ranked = sorted(
+            eligible,
+            key=lambda index: (
+                -((weights[index] / total_weight * remaining) - math.floor(weights[index] / total_weight * remaining)),
+                components[index]["component_id"],
+            ),
+        )
+        progress = False
+        for index in ranked:
+            if remaining == 0:
+                break
+            share = max(1, math.floor(weights[index] / total_weight * remaining))
+            granted = min(share, capacities[index] - allocations[index], remaining)
+            if granted:
+                allocations[index] += granted; remaining -= granted; progress = True
+        if not progress:
+            break
+    return allocations
+
+
+def reduce_geometry_components(
+    mesh: dict[str, Any], policy: dict[str, Any], *, max_components: int = 4,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Reduce bounded disconnected components independently and preserve all."""
+    source = canonical_geometry(mesh["positions"], mesh["faces"])
+    source_topology = validate_geometry(source)
+    components = _component_meshes(source)
+    if not 1 <= len(components) <= max_components:
+        raise GeometryReductionError(
+            "geometry_predecimation_component_count",
+            "component count exceeds the bounded multi-component policy",
+            observed=len(components), maximum=max_components,
+        )
+    if len(components) == 1:
+        # The legacy path is intentionally exact and remains byte-identical.
+        return reduce_geometry(source, policy)
+    face_budgets = _allocate_component_budget(
+        components, int(policy["target_faces"]), "faces", minimum=16,
+    )
+    position_budgets = _allocate_component_budget(
+        components, int(policy["target_positions"]), "positions", minimum=10,
+    )
+    outputs = []
+    component_reports = []
+    for component, face_target, position_target in zip(components, face_budgets, position_budgets, strict=True):
+        child_policy = dict(policy)
+        child_policy.update({
+            "target_faces": face_target,
+            "target_positions": position_target,
+            "require_one_component": True,
+        })
+        reduced, report = reduce_geometry(component, child_policy)
+        outputs.append(reduced)
+        component_reports.append({
+            "component_id": component["component_id"],
+            "source_faces": len(component["faces"]),
+            "source_positions": len(component["positions"]),
+            "source_area": component["surface_area"],
+            "target_faces": face_target,
+            "target_positions": position_target,
+            "final_faces": len(reduced["faces"]),
+            "final_positions": len(reduced["positions"]),
+            "final_area": _surface(reduced["positions"], reduced["faces"]),
+            "boundary_loops": report["final"]["boundary_loops"],
+            "accepted_collapses": report["accepted_collapses"],
+            "rejected_collapse_evaluations": report["rejected_collapse_evaluations"],
+            "rejected_collapse_reasons": report["rejected_collapse_reasons"],
+            "metrics": report["metrics"],
+            "semantic_sha256": report["semantic_sha256"],
+        })
+    combined_positions: list[tuple[float, float, float]] = []
+    combined_faces: list[tuple[int, int, int]] = []
+    for reduced in outputs:
+        offset = len(combined_positions)
+        combined_positions.extend(tuple(point) for point in reduced["positions"])
+        combined_faces.extend(tuple(index + offset for index in face) for face in reduced["faces"])
+    final = canonical_geometry(combined_positions, combined_faces)
+    final_topology = validate_geometry(final)
+    if final_topology["connected_components"] != source_topology["connected_components"]:
+        raise GeometryReductionError(
+            "geometry_predecimation_topology_changed", "component split/merge occurred during independent reduction",
+        )
+    if final_topology["boundary_loops"] != source_topology["boundary_loops"]:
+        raise GeometryReductionError(
+            "geometry_predecimation_topology_changed", "boundary-loop count changed during independent reduction",
+        )
+    metrics = fidelity_metrics(source, final)
+    violations = _violations(metrics, policy)
+    if violations:
+        raise GeometryReductionError(
+            "geometry_predecimation_target_unreachable",
+            "multi-component aggregate exceeds declared fidelity limits",
+            violations=violations, metrics=metrics,
+        )
+    report = {
+        "schema_version": 2,
+        "success": True,
+        "algorithm": ALGORITHM,
+        "algorithm_version": ALGORITHM_VERSION,
+        "component_policy": "stable_id_area_weighted_minimum_allowance",
+        "component_count": len(components),
+        "component_survival": True,
+        "component_merge_or_split": False,
+        "source": source_topology,
+        "final": final_topology,
+        "component_reports": component_reports,
+        "accepted_collapses": sum(item["accepted_collapses"] for item in component_reports),
+        "rejected_collapse_evaluations": sum(item["rejected_collapse_evaluations"] for item in component_reports),
+        "face_reduction_percent": round((len(source["faces"]) - len(final["faces"])) * 100 / len(source["faces"]), 3),
+        "position_reduction_percent": round((len(source["positions"]) - len(final["positions"])) * 100 / len(source["positions"]), 3),
+        "metrics": metrics,
+        "policy": policy,
+    }
+    report["semantic_sha256"] = _semantic_hash(report)
+    return final, report

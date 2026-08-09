@@ -431,3 +431,21 @@ resource exists. Record and remove only the color accessor; preserve geometry
 semantics exactly. This does not approve Stage 4H or repair its zero-area face,
 two components, or boundary topology. See `docs/STAGE_4P_TECHNICAL_REPORT.md`
 and `docs/knowledge/hgss-stage4p-attribute-bootstrap.md`.
+
+## Stage 4Q decision: exact sanitation, preserved components
+
+Generated-topology sanitation is limited to float32-decoded triangles whose
+cross-product squared magnitude is exactly zero. Near-zero nonzero triangles
+remain geometry and must not be erased by a cleanup tolerance. Preserve up to
+four valid disconnected components and every non-branching boundary loop;
+reduce components independently with stable semantic IDs, a sixteen-face minimum,
+and deterministic surface-area allocation. Never weld, fill, join, flip,
+retriangulate, or select a largest component.
+
+The controlled two-component Q -> O -> P proof passes. The immutable Stage 4H
+candidate is not ready for a derived attempt: its smallest face was previously
+reported as zero by Stage 4O's normal-length tolerance, but exact float32
+inspection proves cross-product squared `2.6948343349697145e-19`, not zero.
+The exact sanitation policy therefore correctly preserves it, after which the
+Stage 4O validity gate still rejects it. See `docs/STAGE_4Q_TECHNICAL_REPORT.md`
+and `docs/knowledge/hgss-stage4q-generated-topology.md`.

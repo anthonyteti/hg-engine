@@ -111,7 +111,7 @@ def _color0_payload(document: dict[str, Any], binary: bytes, *, maximum: int) ->
     }
 
 
-def _source_geometry(data: bytes, color0_policy: str) -> dict[str, Any]:
+def _source_geometry(data: bytes, color0_policy: str, *, max_components: int = 1) -> dict[str, Any]:
     if color0_policy not in {COLOR0_REJECT, COLOR0_DISCARD}:
         raise BootstrapError("invalid_bootstrap_color0_policy", "COLOR_0 policy is invalid", phase="source")
     if len(data) > BOOTSTRAP_LIMITS["max_source_bytes"]:
@@ -193,8 +193,12 @@ def _source_geometry(data: bytes, color0_policy: str) -> dict[str, Any]:
         or topology["triangles"] * 3 > BOOTSTRAP_LIMITS["max_indices"]
     ):
         raise BootstrapError("bootstrap_source_budget", "source exceeds the bounded Stage 4P envelope", phase="source")
-    if topology["connected_components"] != 1:
-        raise BootstrapError("bootstrap_source_component_count", "Stage 4P requires one connected component", phase="source")
+    if not 1 <= max_components <= 4 or topology["connected_components"] > max_components:
+        raise BootstrapError(
+            "bootstrap_source_component_count",
+            "source component count exceeds the transaction's explicit bound",
+            phase="source", observed=topology["connected_components"], maximum=max_components,
+        )
     return {**parsed, "color0": color_evidence, "source_document": document}
 
 
@@ -258,7 +262,9 @@ def discard_color0_to_geometry(data: bytes) -> dict[str, Any]:
     return {"canonical_glb": canonical, "geometry": reopened["geometry"], "report": report}
 
 
-def bootstrap_geometry_glb(data: bytes, policy: dict[str, Any]) -> dict[str, Any]:
+def bootstrap_geometry_glb(
+    data: bytes, policy: dict[str, Any], *, max_components: int = 1,
+) -> dict[str, Any]:
     """Atomically bootstrap material, planar UV0, then UV-aware normals."""
     if not isinstance(policy, dict) or policy.get("policy") != BOOTSTRAP_POLICY:
         raise BootstrapError("invalid_bootstrap_policy", "Stage 4P policy is incomplete", phase="policy")
@@ -266,7 +272,7 @@ def bootstrap_geometry_glb(data: bytes, policy: dict[str, Any]) -> dict[str, Any
         material = validate_source_material_name(policy.get("material_name"))
     except MaterialSynthesisError as error:
         raise BootstrapError("bootstrap_material_failed", str(error), phase="material", source_code=error.code) from error
-    source = _source_geometry(data, policy.get("color0_policy"))
+    source = _source_geometry(data, policy.get("color0_policy"), max_components=max_components)
     geometry = source["geometry"]
     try:
         uv = generate_planar_uvs_from_geometry(
@@ -316,6 +322,8 @@ def bootstrap_geometry_glb(data: bytes, policy: dict[str, Any]) -> dict[str, Any
         },
         "stage4f_accepted": True,
     }
+    if max_components != 1:
+        report["max_components"] = max_components
     semantic = json.dumps(report, sort_keys=True, separators=(",", ":")).encode()
     report["report_sha256"] = _sha256(semantic)
     return {"canonical_glb": canonical, "canonical_mesh": accepted, "uv_intermediate_glb": uv_intermediate, "report": report}

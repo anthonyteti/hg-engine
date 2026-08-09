@@ -650,3 +650,21 @@ atomic validation, and reporting—not the geometry algorithms. Optional
 `COLOR_0` discard is a separate explicit, hash-reported pre-geometry policy;
 it is never a default or a color conversion. See
 `docs/knowledge/hgss-stage4p-attribute-bootstrap.md`.
+
+Stage 4Q adds two layers without turning preprocessing into mesh repair:
+
+```text
+embedded POSITION/index GLB (+ explicitly discardable COLOR_0)
+  -> glb_topology / mesh_sanitize exact-zero filter
+  -> stable bounded connected components and boundary-loop validation
+  -> mesh_predecimate independent per-component Stage 4O cores
+  -> Stage 4P atomic attribute bootstrap
+  -> unchanged strict Stage 4F
+```
+
+Single-component Stage 4O continues through its original byte-identical path.
+The multi-component wrapper assigns order-independent semantic component IDs,
+reserves sixteen faces per component, distributes remaining capacity by surface
+area with stable remainders, forbids cross-component collapse, and validates
+one-to-one survival plus loop-count preservation. See
+`docs/knowledge/hgss-stage4q-generated-topology.md`.
