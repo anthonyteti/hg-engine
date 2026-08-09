@@ -24,6 +24,7 @@ SCENARIOS = (
     ROOT / "qa/scenarios/stage4a_world_persistence.json",
     ROOT / "qa/scenarios/stage4b_asset_ingestion.json",
     ROOT / "qa/scenarios/stage4c_project_texture.json",
+    ROOT / "qa/scenarios/stage4d_scalable_textures.json",
 )
 
 

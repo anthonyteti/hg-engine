@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "target": {
+    "game_code": "IPKE",
+    "region": "US",
+    "rom_sha256": "65f02a56842b75aa92d775d56d657a56fe3fa993550b04dc20704ab82d760105",
+    "area_texture_archive": "a/0/4/4",
+    "area_texture_archive_sha256": "6385837c11139c543884434a54768e7279b485214b7ca309cf8a670d8f98d647",
+    "pristine_member_count": 106,
+    "project_member": 106
+  },
+  "template": {
+    "member": 2,
+    "member_sha256": "bfecfce0640b92a69c32fe4339cafc5a77a088a668a66f67b12e6be8cf727de1",
+    "policy": "metadata_only_zero_payload_project_member"
+  },
+  "textures": [
+    {
+      "allocation": 0,
+      "nitro_texture": "grass01gs",
+      "nitro_palette": "grass01",
+      "texture_slot": 21,
+      "palette_slot": 21,
+      "texture": {
+        "schema_version": 2,
+        "id": "stage4d_ground",
+        "source": "assets/textures/stage4d_ground.png",
+        "source_format": "png",
+        "format": "nitro_pltt16_4bpp",
+        "dimensions": [32, 32],
+        "alpha_policy": "opaque",
+        "quantization": "exact_bgr555_palette_16"
+      }
+    },
+    {
+      "allocation": 1,
+      "nitro_texture": "road01_r",
+      "nitro_palette": "road01_r",
+      "texture_slot": 26,
+      "palette_slot": 26,
+      "texture": {
+        "schema_version": 2,
+        "id": "stage4d_wood",
+        "source": "assets/textures/stage4d_wood.png",
+        "source_format": "png",
+        "format": "nitro_pltt16_4bpp",
+        "dimensions": [32, 32],
+        "alpha_policy": "opaque",
+        "quantization": "exact_bgr555_palette_16"
+      }
+    },
+    {
+      "allocation": 2,
+      "nitro_texture": "road01",
+      "nitro_palette": "road01",
+      "texture_slot": 25,
+      "palette_slot": 25,
+      "texture": {
+        "schema_version": 2,
+        "id": "stage4d_stone",
+        "source": "assets/textures/stage4d_stone.png",
+        "source_format": "png",
+        "format": "nitro_pltt16_4bpp",
+        "dimensions": [32, 32],
+        "alpha_policy": "opaque",
+        "quantization": "exact_bgr555_palette_16"
+      }
+    }
+  ]
+}

@@ -703,6 +703,53 @@ def resolve_stage4c_source(
     return resolved
 
 
+def resolve_stage4d_source(
+    source: dict[str, Any],
+    registry_path: Path = DEFAULT_REGISTRY,
+) -> dict[str, Any]:
+    """Resolve Stage 4D world IDs while leaving physical texture slots catalog-owned."""
+    if source.get("schema_version") != 10 or source.get("artifact_namespace") != "stage4d":
+        raise RegistryError("unsupported_world_schema", "Stage 4D scalable-texture source must use schema 10")
+    container = source.get("texture_container")
+    if not isinstance(container, dict) or set(container) != {
+        "catalog", "area_data_bank", "area_texture_member",
+    }:
+        raise RegistryError("invalid_texture_container", "Stage 4D texture container references are incomplete")
+    stage4b_view = copy.deepcopy(source)
+    stage4b_view["schema_version"] = 8
+    stage4b_view["artifact_namespace"] = "stage4b"
+    del stage4b_view["texture_container"]
+    # Stage 4B only accepts its read-only area-data dependency. Resolve that
+    # graph first, then replace it with the explicitly appended Stage 4D bank.
+    stage4b_view["model"]["area_data"] = "verified_outdoor_area_data"
+    resolved = resolve_stage4b_source(stage4b_view, registry_path)
+    registry = load_registry(registry_path)
+    declared_registry = source["registry"]
+    extra: dict[str, dict[str, Any]] = {}
+    for key, namespace in (
+        ("area_data_bank", "area_data_banks"),
+        ("area_texture_member", "area_texture_members"),
+    ):
+        reference = container[key]
+        if not isinstance(reference, str):
+            raise RegistryError("numeric_reference", f"Stage 4D {namespace} references must be symbolic strings")
+        extra[reference] = resolve_symbol(registry, reference, namespace, require_writable=True)
+    resolved["schema_version"] = 10
+    resolved["canonical_schema_version"] = 10
+    resolved["artifact_namespace"] = "stage4d"
+    resolved["model"]["area_data"] = int(extra[container["area_data_bank"]]["id"])
+    resolved["texture_container"] = {
+        "catalog": container["catalog"],
+        "area_data_bank": int(extra[container["area_data_bank"]]["id"]),
+        "area_texture_member": int(extra[container["area_texture_member"]]["id"]),
+    }
+    symbols = resolved["registry_resolution"]["symbols"]
+    symbols.pop("verified_outdoor_area_data", None)
+    symbols.update(extra)
+    resolved["registry_resolution"]["registry"] = declared_registry
+    return resolved
+
+
 def resolve_stage3e1_source(
     source: dict[str, Any],
     registry_path: Path = DEFAULT_REGISTRY,

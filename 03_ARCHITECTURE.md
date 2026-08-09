@@ -410,3 +410,26 @@ dictionary and unrelated payload and is limited to the verified `road01_r`
 slot in US HeartGold area texture member 2. This is not general
 NSBTX/material authoring. See `docs/STAGE_4C_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4c-texture-palette.md`.
+
+Stage 4D adds a separate persistent project texture allocation layer:
+
+```text
+project texture symbols + PNGs
+  -> stable texture catalog allocation
+  -> PLTT16/BGR555 payloads
+  -> hash-locked, zero-payload project BTX0 member
+  -> appended area texture member + appended area-data record
+  -> symbolic world header selection
+  -> existing named materials and asset placements
+```
+
+The project member preserves verified dictionaries only as local binding
+metadata; it contains no inherited texture/palette pixels. Authors never choose
+TEX0 indices or Nitro names. The current physical pool is intentionally three
+verified slot pairs and does not imply arbitrary dictionary/material creation.
+See `docs/knowledge/hgss-stage4d-texture-container.md`.
+
+Field camera scale remains orthogonal to assets. A map header may select a
+fixed wider/higher retail preset, but native matrix connections require equal
+camera types on both sides in the current runtime. See
+`docs/knowledge/hgss-stage4d-camera-scale.md`.

@@ -136,7 +136,14 @@ class TextureCanonicalTests(unittest.TestCase):
         self.assertEqual(report["palette_entry"]["name"], "road01_r")
         self.assertTrue(report["dictionary_layout_unchanged"])
         self.assertTrue(report["unrelated_bytes_unchanged"])
-        self.assertEqual(len(rom_archive.files), len(pristine.files))
+        # Later project stages may append new area-texture members. The Stage
+        # 4C invariant is that the retail prefix is never truncated and only
+        # its explicitly controlled member 2 may differ in that prefix.
+        self.assertGreaterEqual(len(rom_archive.files), len(pristine.files))
+        self.assertTrue(all(
+            rom_archive.files[index] == pristine.files[index]
+            for index in range(len(pristine.files)) if index != 2
+        ))
         malformed = dict(texture)
         malformed["texture"] = texture["texture"][:-1]
         with self.assertRaises(TextureError) as error:

@@ -8,6 +8,14 @@
     {
       "id": "stage4c_textured_shed",
       "manifest": "assets/manifests/stage4c_textured_shed.json"
+    },
+    {
+      "id": "stage4d_wood_shed",
+      "manifest": "assets/manifests/stage4d_wood_shed.json"
+    },
+    {
+      "id": "stage4d_stone_monument",
+      "manifest": "assets/manifests/stage4d_stone_monument.json"
     }
   ]
 }

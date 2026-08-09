@@ -18,10 +18,15 @@ import re
 from typing import Any
 
 from .geometry import MODEL_BASE_Y, MODEL_TILE_SCALE, Quad, encode_quads
-from .textures import compile_png, compile_texture_outputs, validate_texture_spec
+from .textures import (
+    compile_png,
+    compile_texture_catalog,
+    compile_texture_outputs,
+    validate_texture_spec,
+)
 
 
-ASSET_SCHEMA_VERSIONS = {1, 2}
+ASSET_SCHEMA_VERSIONS = {1, 2, 3}
 CATALOG_SCHEMA_VERSION = 1
 SAFE_ID = re.compile(r"^[a-z][a-z0-9_]{0,63}$")
 STAGE4B_BUDGET = {
@@ -41,6 +46,12 @@ ASSET_MATERIAL_BINDINGS = {
         "material_index": 18,
         "material_name": "road01_r",
         "capacity_bytes": 2496,
+    },
+    "prop_secondary": {
+        "shape": 6,
+        "material_index": 17,
+        "material_name": "road01",
+        "capacity_bytes": 1068,
     },
 }
 
@@ -229,8 +240,10 @@ def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
         "coordinate_system", "normalization", "material_policy", "collision", "budget", "status",
     }
     if not isinstance(data, dict) or data.get("schema_version") not in ASSET_SCHEMA_VERSIONS:
-        raise AssetError("unsupported_manifest_schema", "asset manifest schema_version must be 1 or 2")
+        raise AssetError("unsupported_manifest_schema", "asset manifest schema_version must be 1, 2, or 3")
     expected = common | ({"textures"} if data["schema_version"] == 2 else set())
+    if data["schema_version"] == 3:
+        expected |= {"texture_catalog"}
     if set(data) != expected:
         raise AssetError("invalid_manifest", "asset manifest has unsupported or missing fields")
     if not isinstance(data.get("id"), str) or not SAFE_ID.fullmatch(data["id"]):
@@ -267,7 +280,12 @@ def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
     if isinstance(scale, bool) or not isinstance(scale, (int, float)) or not math.isfinite(scale) or not 0 < scale <= 16:
         raise AssetError("invalid_scale", "units_to_tiles must be finite and in (0, 16]")
     material = data.get("material_policy")
-    expected_mode = "existing_template_alias" if data["schema_version"] == 1 else "existing_template_alias_with_project_texture"
+    expected_modes = {
+        1: "existing_template_alias",
+        2: "existing_template_alias_with_project_texture",
+        3: "project_texture_catalog_binding",
+    }
+    expected_mode = expected_modes[data["schema_version"]]
     if not isinstance(material, dict) or set(material) != {"mode", "mappings"} or material["mode"] != expected_mode:
         raise AssetError("unsupported_material", "asset requires an explicit bounded template material policy")
     mappings = material["mappings"]
@@ -279,7 +297,7 @@ def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
     if data["schema_version"] == 1:
         if any(not SAFE_ID.fullmatch(key) or value not in ASSET_MATERIAL_BINDINGS for key, value in mappings.items()):
             raise AssetError("unsupported_material", "asset material mapping names an unsupported source or template alias")
-    else:
+    elif data["schema_version"] == 2:
         textures = data.get("textures")
         if not isinstance(textures, list) or not textures:
             raise AssetError("invalid_texture_spec", "Stage 4C requires exactly one project texture")
@@ -302,6 +320,32 @@ def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
                 raise AssetError("invalid_material_texture_mapping", "Stage 4C material mapping requires alias and texture")
             if mapping["alias"] not in ASSET_MATERIAL_BINDINGS or mapping["texture"] not in texture_ids:
                 raise AssetError("invalid_material_texture_mapping", "material mapping references an unsupported alias or texture")
+    else:
+        catalog_path = _safe_relative(
+            root, data.get("texture_catalog"), Path("assets"), "invalid_texture_catalog",
+        )
+        if not catalog_path.is_file():
+            raise AssetError("invalid_texture_catalog", "Stage 4D texture catalog does not exist")
+        try:
+            catalog = compile_texture_catalog(catalog_path, root)
+        except ValueError as error:
+            raise AssetError(getattr(error, "code", "invalid_texture_catalog"), str(error)) from error
+        texture_ids = set(catalog["textures"])
+        for source_material, mapping in mappings.items():
+            if (
+                not SAFE_ID.fullmatch(source_material)
+                or not isinstance(mapping, dict)
+                or set(mapping) != {"alias", "texture"}
+            ):
+                raise AssetError(
+                    "invalid_material_texture_mapping",
+                    "Stage 4D material mapping requires alias and catalog texture symbol",
+                )
+            if mapping["alias"] not in ASSET_MATERIAL_BINDINGS or mapping["texture"] not in texture_ids:
+                raise AssetError(
+                    "invalid_material_texture_mapping",
+                    "material mapping references an unsupported alias or catalog texture",
+                )
     collision = data.get("collision")
     if not isinstance(collision, dict) or set(collision) != {"policy", "rectangle"} or collision["policy"] != "footprint_rect":
         raise AssetError("invalid_collision_proxy", "Stage 4B requires one footprint_rect collision proxy")
@@ -330,7 +374,7 @@ def load_manifest(path: Path, root: Path) -> tuple[dict[str, Any], bytes]:
     return _validate_manifest(data, root), raw
 
 
-def _normalized_ir(manifest: dict[str, Any], mesh: OBJMesh) -> dict[str, Any]:
+def _normalized_ir(manifest: dict[str, Any], mesh: OBJMesh, root: Path | None = None) -> dict[str, Any]:
     counts = {
         "vertices": len(mesh.vertices), "uvs": len(mesh.uvs),
         "normals": len(mesh.normals), "faces": len(mesh.faces),
@@ -371,6 +415,13 @@ def _normalized_ir(manifest: dict[str, Any], mesh: OBJMesh) -> dict[str, Any]:
     texture_dimensions = {
         texture["id"]: texture["dimensions"] for texture in manifest.get("textures", [])
     }
+    if manifest["schema_version"] == 3:
+        if root is None:
+            raise AssetError("invalid_texture_catalog", "Stage 4D normalization requires its repository root")
+        catalog = compile_texture_catalog(root / manifest["texture_catalog"], root)
+        texture_dimensions = {
+            symbol: texture["spec"]["dimensions"] for symbol, texture in catalog["textures"].items()
+        }
     faces: list[dict[str, Any]] = []
     for face in mesh.faces:
         if face.material not in material_mappings:
@@ -476,7 +527,7 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
     source_path = (root / manifest["source"]).resolve()
     source_bytes = source_path.read_bytes()
     mesh = parse_obj(source_bytes)
-    ir = _normalized_ir(manifest, mesh)
+    ir = _normalized_ir(manifest, mesh, root)
     quads = _ir_quads(ir)
     aliases = sorted({quad.material for quad in quads})
     if len(aliases) != 1:
@@ -532,6 +583,8 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
     compiled_textures = {
         texture["id"]: compile_png(texture, root) for texture in manifest.get("textures", [])
     }
+    if manifest["schema_version"] == 3:
+        compiled_textures = compile_texture_catalog(root / manifest["texture_catalog"], root)["textures"]
     if compiled_textures:
         report["textures"] = {
             texture_id: compiled_textures[texture_id]["report"] for texture_id in sorted(compiled_textures)
@@ -623,12 +676,10 @@ def compile_placements(catalog_path: Path, placements: object, root: Path) -> di
     if not isinstance(placements, list) or not placements:
         raise AssetError("invalid_placement", "asset placements must be a non-empty list")
     seen: set[str] = set()
-    all_quads: list[Quad] = []
+    quads_by_shape: dict[int, list[Quad]] = {}
     blocked: set[tuple[int, int]] = set()
     placement_ir: list[dict[str, Any]] = []
     asset_reports: dict[str, dict[str, Any]] = {}
-    shape: int | None = None
-    capacity: int | None = None
     for placement in placements:
         if not isinstance(placement, dict) or set(placement) != {"id", "asset", "x", "z", "rotation"}:
             raise AssetError("invalid_placement", "placement requires id, asset, x, z, and rotation")
@@ -650,11 +701,7 @@ def compile_placements(catalog_path: Path, placements: object, root: Path) -> di
             value if isinstance(value, str) else value["alias"] for value in mapping_values
         }
         binding = ASSET_MATERIAL_BINDINGS[next(iter(aliases))]
-        if shape is None:
-            shape, capacity = binding["shape"], binding["capacity_bytes"]
-        elif shape != binding["shape"]:
-            raise AssetError("unsupported_material", "Stage 4B placements must share one verified template shape")
-        all_quads.extend(_ir_quads(compiled["ir"], placement))
+        quads_by_shape.setdefault(binding["shape"], []).extend(_ir_quads(compiled["ir"], placement))
         rectangle = compiled["collision"]
         min_x, max_x, min_z, max_z = _rotated_rectangle(rectangle, placement)
         visual_bounds = compiled["ir"]["bounds"]
@@ -688,33 +735,49 @@ def compile_placements(catalog_path: Path, placements: object, root: Path) -> di
         })
     if len(blocked) > STAGE4B_BUDGET["max_collision_tiles"]:
         raise AssetError("collision_over_budget", "placed asset collision exceeds the Stage 4B tile budget")
-    display_list = encode_quads(all_quads)
-    assert shape is not None and capacity is not None
-    if len(display_list) > capacity:
-        raise AssetError(
-            "display_list_overflow", "placed asset display list exceeds its verified template shape",
-            required_bytes=len(display_list), capacity_bytes=capacity, shape=shape,
-        )
+    display_lists: dict[int, bytes] = {}
+    shape_reports: list[dict[str, Any]] = []
+    for shape in sorted(quads_by_shape):
+        quads = quads_by_shape[shape]
+        aliases = sorted({quad.material for quad in quads})
+        bindings = {ASSET_MATERIAL_BINDINGS[alias]["shape"]: ASSET_MATERIAL_BINDINGS[alias] for alias in aliases}
+        if set(bindings) != {shape}:
+            raise AssetError("material_slot_conflict", "one shape received incompatible material aliases")
+        capacity = min(ASSET_MATERIAL_BINDINGS[alias]["capacity_bytes"] for alias in aliases)
+        display_list = encode_quads(quads)
+        if len(display_list) > capacity:
+            raise AssetError(
+                "display_list_overflow", "placed asset display list exceeds its verified template shape",
+                required_bytes=len(display_list), capacity_bytes=capacity, shape=shape,
+            )
+        display_lists[shape] = display_list
+        shape_reports.append({
+            "shape": shape, "aliases": aliases, "quad_count": len(quads),
+            "display_list_bytes": len(display_list), "capacity_bytes": capacity,
+            "utilization_percent": round(len(display_list) * 100 / capacity, 3),
+            "sha256": _hash(display_list),
+        })
     ir = {"schema_version": 1, "placements": placement_ir}
     report = {
         "schema_version": 1,
         "asset_count": len(asset_reports),
         "placement_count": len(placement_ir),
-        "quad_count": len(all_quads),
-        "vertex_count": len(all_quads) * 4,
-        "shape": shape,
-        "display_list_bytes": len(display_list),
-        "capacity_bytes": capacity,
-        "utilization_percent": round(len(display_list) * 100 / capacity, 3),
+        "quad_count": sum(len(quads) for quads in quads_by_shape.values()),
+        "vertex_count": sum(len(quads) for quads in quads_by_shape.values()) * 4,
+        "shapes": shape_reports,
         "blocked_tile_count": len(blocked),
         "assets": {key: asset_reports[key] for key in sorted(asset_reports)},
         "hashes": {
             "placement_ir_sha256": _hash((json.dumps(ir, sort_keys=True, separators=(",", ":")) + "\n").encode()),
-            "display_list_sha256": _hash(display_list),
+            "display_lists_sha256": _hash(b"".join(display_lists[shape] for shape in sorted(display_lists))),
             "collision_sha256": _hash((json.dumps(sorted(blocked), separators=(",", ":")) + "\n").encode()),
         },
     }
     return {
-        "ir": ir, "quads": all_quads, "display_lists": {shape: display_list},
-        "quad_counts": {shape: len(all_quads)}, "blocked_tiles": blocked, "report": report,
+        "ir": ir,
+        "quads": [quad for shape in sorted(quads_by_shape) for quad in quads_by_shape[shape]],
+        "display_lists": display_lists,
+        "quad_counts": {shape: len(quads) for shape, quads in sorted(quads_by_shape.items())},
+        "blocked_tiles": blocked,
+        "report": report,
     }

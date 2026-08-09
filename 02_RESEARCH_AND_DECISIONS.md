@@ -200,3 +200,22 @@ continue the asset factory without Nintendo converters or GUI tooling.
 
 See `docs/STAGE_4C_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4c-texture-palette.md`.
+
+## Stage 4D decision: appended project area-texture member
+
+Allocate scalable project textures in a new revision-locked area-texture NARC
+member and select it through a new appended area-data record. Preserve the
+hash-verified TEX0 dictionary/layout metadata, zero every inherited payload,
+and centrally allocate only verified 32 x 32 PLTT16 texture/palette slot pairs.
+Project manifests use persistent symbols; physical Nitro names/indices remain
+catalog-owned binding details. Retail members remain byte-identical.
+
+This establishes multiple simultaneous project textures without pretending to
+be a general TEX0/material writer. Capacity remains limited to explicitly
+verified compatible dictionary slots. The camera side proof permits a fixed
+wider preset, but native adjacent-map transitions retain equal camera types
+until a separate connection-camera patch is designed.
+
+See `docs/STAGE_4D_TECHNICAL_REPORT.md`,
+`docs/knowledge/hgss-stage4d-texture-container.md`, and
+`docs/knowledge/hgss-stage4d-camera-scale.md`.

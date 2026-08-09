@@ -159,6 +159,20 @@ image-to-3D, environment kits, or production content. See
 `docs/STAGE_4C_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4c-texture-palette.md`.
 
+### Completed infrastructure checkpoint: Stage 4D
+
+Multiple persistent project texture identities now compile into one newly
+appended, project-owned area texture member selected by an appended area-data
+record. Two differently textured quad assets render together with independent
+symbolic bindings and collision while the retail NARC prefixes remain
+byte-identical. The fixed wider camera preset is proven; native camera-type
+changes across matrix connections and smooth pullback remain deferred.
+
+The checkpoint remains bounded to three verified 32 x 32 opaque PLTT16 slot
+pairs, inherited material state/dictionary metadata, the supported US revision,
+and quad assets. It does not start triangle/GLB/simplification/image-to-3D,
+production kits, or content. See `docs/STAGE_4D_TECHNICAL_REPORT.md`.
+
 ## Completed infrastructure checkpoint: Stage 3E2
 
 The revision-locked hybrid map-header layer has been proven for project IDs

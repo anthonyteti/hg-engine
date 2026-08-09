@@ -10,6 +10,16 @@
       "dspre": "d86737c3c94a3a698fcb2c6be2d2fdff5e880411"
     },
     "archives": {
+      "area_data_banks": {
+        "path": "a/0/4/2",
+        "members": 106,
+        "sha256": "991506d5626fee587e4bf27042ae7b2945e167b89d6ec9f2d834d29e7476d58f"
+      },
+      "area_textures": {
+        "path": "a/0/4/4",
+        "members": 106,
+        "sha256": "6385837c11139c543884434a54768e7279b485214b7ca309cf8a670d8f98d647"
+      },
       "event_banks": {
         "path": "a/0/3/2",
         "members": 491,
@@ -41,24 +51,100 @@
     "area_data_banks": {
       "storage": "map_header_u8_reference",
       "collision_domain": "area_data_banks",
-      "allocation_policy": "read_only_until_a_separate_area_data_audit",
+      "allocation_policy": "persistent_contiguous_append_after_stage4d",
       "numeric_min": 0,
       "numeric_max": 255,
       "ranges": [
         {
           "start": 0,
-          "end": 255,
+          "end": 105,
           "classification": "VANILLA_OWNED",
-          "evidence": "MapHeader.areaDataBank is u8; Stage 2-3B only source-backed bank 2 was runtime-proven."
+          "evidence": "Supported ROM a/0/4/2 has 106 members; retail records remain protected."
+        },
+        {
+          "start": 106,
+          "end": 106,
+          "classification": "APPEND_PROVEN",
+          "evidence": "Stage 4D project area-data record selects appended area-texture member 106."
+        },
+        {
+          "start": 107,
+          "end": 255,
+          "classification": "UNKNOWN",
+          "evidence": "Beyond the bounded Stage 4D runtime-tested append window."
         }
       ],
-      "slot_overrides": {},
+      "append": {
+        "archive": "area_data_banks",
+        "pristine_count": 106,
+        "allocation_start": 106,
+        "proven_max_id": 106,
+        "policy": "contiguous_from_pristine_count"
+      },
+      "slot_overrides": {
+        "106": {
+          "classification": "PROJECT_APPENDED",
+          "evidence": "Stage 4D persistent first appended project area-data allocation."
+        }
+      },
       "resources": [
+        {
+          "symbol": "stage4d_project_area_data",
+          "id": 106,
+          "access": "write"
+        },
         {
           "symbol": "verified_outdoor_area_data",
           "id": 2,
           "access": "read_only",
           "note": "Verified source dependency, never a generated replacement in Stage 3C."
+        }
+      ]
+    },
+    "area_texture_members": {
+      "storage": "area_texture_narc_member_u16",
+      "collision_domain": "area_texture_narc",
+      "allocation_policy": "persistent_contiguous_append_after_stage4d",
+      "numeric_min": 0,
+      "numeric_max": 65535,
+      "ranges": [
+        {
+          "start": 0,
+          "end": 105,
+          "classification": "VANILLA_OWNED",
+          "evidence": "Supported ROM a/0/4/4 has 106 area-texture members; no retail member is presumed free."
+        },
+        {
+          "start": 106,
+          "end": 106,
+          "classification": "APPEND_PROVEN",
+          "evidence": "Stage 4D appends and runtime-loads the first project-owned area-texture member."
+        },
+        {
+          "start": 107,
+          "end": 65535,
+          "classification": "UNKNOWN",
+          "evidence": "Beyond the bounded Stage 4D runtime-tested append window."
+        }
+      ],
+      "append": {
+        "archive": "area_textures",
+        "pristine_count": 106,
+        "allocation_start": 106,
+        "proven_max_id": 106,
+        "policy": "contiguous_from_pristine_count"
+      },
+      "slot_overrides": {
+        "106": {
+          "classification": "PROJECT_APPENDED",
+          "evidence": "Stage 4D persistent first appended project area-texture allocation."
+        }
+      },
+      "resources": [
+        {
+          "symbol": "stage4d_project_area_texture",
+          "id": 106,
+          "access": "write"
         }
       ]
     },

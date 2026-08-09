@@ -21,7 +21,7 @@ from .registry import (
 )
 from .rom import PROJECT_ROOT, build_rom, run_preflight
 from .qa import inspect_scenario, load_scenario, run_scenario
-from .textures import compile_texture_outputs
+from .textures import compile_texture_catalog, compile_texture_catalog_outputs, compile_texture_outputs
 from .world import (
     DEFAULT_FIXTURE, DEFAULT_OUTPUT, generate_world, inspect_geometry, load_fixture,
     verify_determinism, write_project_header_include,
@@ -149,6 +149,13 @@ def build_parser() -> argparse.ArgumentParser:
         if command == "compile":
             child.add_argument("--output", type=Path)
         _add_output_argument(child)
+    texture_catalog = texture_subparsers.add_parser(
+        "catalog", help="inspect or compile the persistent Stage 4D project texture catalog",
+    )
+    texture_catalog.add_argument("--catalog", type=Path, default=PROJECT_ROOT / "assets/texture_catalog.json")
+    texture_catalog.add_argument("--output", type=Path)
+    texture_catalog.add_argument("--compile", action="store_true", dest="compile_catalog")
+    _add_output_argument(texture_catalog)
     return parser
 
 
@@ -286,6 +293,14 @@ def _print_asset(payload: dict[str, object]) -> None:
 
 def _print_texture(payload: dict[str, object]) -> None:
     print(f"texture: {'PASS' if payload.get('success') else 'FAIL'}")
+    if "allocations" in payload:
+        print(f"  Project catalog: {payload.get('texture_count')} textures")
+        for allocation in payload["allocations"]:
+            print(
+                f"  {allocation['symbol']} -> {allocation['nitro_texture']}/"
+                f"{allocation['nitro_palette']} allocation={allocation['allocation']}"
+            )
+        return
     print(
         f"  {payload.get('texture_id')}: {payload.get('dimensions')} {payload.get('format')} "
         f"colors={payload.get('encoded_color_count')} texels={payload.get('texture_bytes')} bytes"
@@ -367,6 +382,13 @@ def main(argv: list[str] | None = None) -> int:
             output = args.output or PROJECT_ROOT / "build" / "assets" / compiled["manifest"]["id"]
             payload = compile_asset_outputs(args.manifest, output, PROJECT_ROOT)
             _print_json(payload) if args.json else _print_asset(payload)
+        elif args.command == "texture" and args.texture_command == "catalog":
+            if args.compile_catalog:
+                output = args.output or PROJECT_ROOT / "build/assets/texture-catalog"
+                payload = compile_texture_catalog_outputs(args.catalog, output, PROJECT_ROOT)
+            else:
+                payload = compile_texture_catalog(args.catalog, PROJECT_ROOT)["report"]
+            _print_json(payload) if args.json else _print_texture(payload)
         elif args.command == "texture":
             asset = compile_asset(args.manifest, PROJECT_ROOT)
             if len(asset["textures"]) != 1:
