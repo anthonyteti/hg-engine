@@ -382,3 +382,20 @@ modes, and out-of-envelope input. This decision does not approve the Stage 4H
 candidate or add organic unwrapping, material synthesis, topology repair, or
 production content. See `docs/STAGE_4M_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4m-uv-generation.md`.
+
+## Stage 4N decision: missing-only source-material identity synthesis
+
+Keep missing material identity outside the strict Stage 4F parser. Manifest
+schema 12 may explicitly assign one bounded static triangle primitive a single
+lower-snake-case source identity. Emit only one minimal glTF material name and
+`primitive.material = 0`; preserve the source BIN, geometry attributes,
+indices, hierarchy, transforms, and all other semantics exactly.
+
+Reject authored-material replacement, multiple material/mesh/primitive cases,
+missing required geometry attributes, `COLOR_0`, PBR/image processing,
+extensions, and out-of-envelope input. The source name maps through the
+existing project alias/texture path and creates no DS material resource. The
+Stage 4H hierarchy is structurally inspectable, but the immutable candidate
+remains rejected for independent attribute, vertex-color, and geometry-budget
+blockers. See `docs/STAGE_4N_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4n-material-synthesis.md`.

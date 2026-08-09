@@ -48,6 +48,10 @@
     {
       "id": "stage4m_missing_uv_turret",
       "manifest": "assets/manifests/stage4m_missing_uv_turret.json"
+    },
+    {
+      "id": "stage4n_missing_material_turret",
+      "manifest": "assets/manifests/stage4n_missing_material_turret.json"
     }
   ]
 }

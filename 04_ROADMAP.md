@@ -306,6 +306,21 @@ perform organic unwrap or atlas packing, process/approve Stage 4H, expand
 budgets, or begin production art. See `docs/STAGE_4M_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4m-uv-generation.md`.
 
+### Completed infrastructure checkpoint: Stage 4N
+
+An otherwise-valid bounded GLB with one material-less triangle primitive may
+now explicitly acquire one manifest-declared source material identity. The
+adapter preserves every geometry/attribute/index BIN byte, matches an
+independently authored reference, passes the unchanged Stage 4F parser, binds
+through the existing project stone texture, and passes deterministic ROM and
+visual gameplay QA.
+
+This checkpoint does not create DS material state, textures, PBR mappings,
+vertex-color conversion, topology repair, generated-mesh processing, or
+production content. The Stage 4H candidate remains rejected. See
+`docs/STAGE_4N_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4n-material-synthesis.md`.
+
 ## Completed infrastructure checkpoint: Stage 3E2
 
 The revision-locked hybrid map-header layer has been proven for project IDs

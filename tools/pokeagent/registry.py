@@ -886,6 +886,23 @@ def resolve_stage4m_source(
     return resolved
 
 
+def resolve_stage4n_source(
+    source: dict[str, Any],
+    registry_path: Path = DEFAULT_REGISTRY,
+) -> dict[str, Any]:
+    """Resolve Stage 4N through the unchanged Stage 4D resource graph."""
+    if source.get("schema_version") != 19 or source.get("artifact_namespace") != "stage4n":
+        raise RegistryError("unsupported_world_schema", "Stage 4N material source must use schema 19")
+    stage4d_view = copy.deepcopy(source)
+    stage4d_view["schema_version"] = 10
+    stage4d_view["artifact_namespace"] = "stage4d"
+    resolved = resolve_stage4d_source(stage4d_view, registry_path)
+    resolved["schema_version"] = 19
+    resolved["canonical_schema_version"] = 19
+    resolved["artifact_namespace"] = "stage4n"
+    return resolved
+
+
 def resolve_stage3e1_source(
     source: dict[str, Any],
     registry_path: Path = DEFAULT_REGISTRY,

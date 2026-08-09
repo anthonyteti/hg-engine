@@ -134,11 +134,12 @@ def build_parser() -> argparse.ArgumentParser:
         ("preprocess", "flatten a manifest-declared bounded static GLB hierarchy"),
         ("normals", "generate manifest-declared bounded crease-aware normals"),
         ("uvs", "generate manifest-declared bounded planar-patch UV0"),
+        ("materials", "assign one manifest-declared bounded source-material identity"),
         ("compile", "write deterministic ignored asset artifacts"),
     ):
         child = asset_subparsers.add_parser(command, help=help_text)
         child.add_argument("manifest", type=Path)
-        if command in ("compile", "preprocess", "normals", "uvs"):
+        if command in ("compile", "preprocess", "normals", "uvs", "materials"):
             child.add_argument("--output", type=Path)
         _add_output_argument(child)
     intake_parser = asset_subparsers.add_parser(
@@ -445,6 +446,15 @@ def main(argv: list[str] | None = None) -> int:
             compiled = compile_asset(args.manifest, PROJECT_ROOT)
             if compiled["uv_generated_glb"] is None:
                 raise ValueError("asset uvs requires an opt-in Stage 4M manifest")
+            output = args.output or PROJECT_ROOT / "build" / "assets" / compiled["manifest"]["id"]
+            report = compile_asset_outputs(args.manifest, output, PROJECT_ROOT)
+            payload = dict(compiled["report"])
+            payload["outputs"] = report["outputs"]
+            _print_json(payload) if args.json else _print_asset(payload)
+        elif args.command == "asset" and args.asset_command == "materials":
+            compiled = compile_asset(args.manifest, PROJECT_ROOT)
+            if compiled["material_generated_glb"] is None:
+                raise ValueError("asset materials requires an opt-in Stage 4N manifest")
             output = args.output or PROJECT_ROOT / "build" / "assets" / compiled["manifest"]["id"]
             report = compile_asset_outputs(args.manifest, output, PROJECT_ROOT)
             payload = dict(compiled["report"])

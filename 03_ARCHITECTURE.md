@@ -595,3 +595,21 @@ projection, deterministic UV splits, and bounded canonical GLB writing. It
 does not synthesize materials/textures, pack a unique atlas, repair topology,
 or change DS storage. See
 `docs/knowledge/hgss-stage4m-uv-generation.md`.
+
+Stage 4N adds a fourth orthogonal pre-Stage-4F adapter:
+
+```text
+bounded GLB with complete geometry attributes but no material identity
+  -> explicit schema-12 missing-only material assignment
+  -> same GLB semantics/BIN plus one named material and primitive index
+  -> unchanged Stage 4F parser and shared typed IR
+  -> existing source alias / project texture / world pipeline
+```
+
+`tools.pokeagent.glb_materials` owns only material presence validation,
+manifest name validation, minimal glTF material creation, primitive assignment,
+and preservation reporting. It does not create Nitro materials or textures,
+interpret PBR, convert vertex colors, mutate geometry, flatten hierarchy, or
+change DS storage. Its bounded Stage 4K-compatible hierarchy acceptance is
+neutral: nodes, scenes, transforms, mesh ownership, and BIN bytes are copied
+unchanged. See `docs/knowledge/hgss-stage4n-material-synthesis.md`.
