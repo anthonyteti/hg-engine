@@ -365,3 +365,20 @@ input. This is not topology repair, normal inference for invalid geometry, UV
 generation, material synthesis, or approval of the Stage 4H candidate. See
 `docs/STAGE_4L_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4l-normal-generation.md`.
+
+## Stage 4M decision: repeat-per-planar-patch UV canonicalization
+
+Keep missing UV0 outside the strict Stage 4F parser. Manifest schema 11 may
+explicitly route one otherwise-valid identity-node hard-surface GLB through a
+bounded adapter that groups connected coplanar faces, constructs deterministic
+world-oriented bases, uniformly fits each patch into a one-texel-padded unit
+square, and intentionally reuses that square across patches. This avoids a
+general atlas packer while producing useful UVs for repeatable 32x32
+environment textures.
+
+Reject non-manifold/inconsistently wound/degenerate geometry, missing normals
+or material, authored-UV replacement, non-planar patch merging, unsupported
+modes, and out-of-envelope input. This decision does not approve the Stage 4H
+candidate or add organic unwrapping, material synthesis, topology repair, or
+production content. See `docs/STAGE_4M_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4m-uv-generation.md`.

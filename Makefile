@@ -178,6 +178,9 @@ endif
 ifeq ($(STAGE4L_NORMAL_GENERATION),Y)
     WORLD_INSTALL_ARGS := --fixture fixtures/stage4l_normal_generation_world.json --output build/stage4l/generated
 endif
+ifeq ($(STAGE4M_UV_GENERATION),Y)
+    WORLD_INSTALL_ARGS := --fixture fixtures/stage4m_uv_generation_world.json --output build/stage4m/generated
+endif
 
 ####################### Output #######################
 C_SUBDIR = src
@@ -488,6 +491,11 @@ stage4k-static-hierarchy-proof:
 stage4l-normal-generation-proof:
 	$(MAKE) clean
 	$(MAKE) STAGE2_MAP=Y STAGE4L_NORMAL_GENERATION=Y
+
+.PHONY: stage4m-uv-generation-proof
+stage4m-uv-generation-proof:
+	$(MAKE) clean
+	$(MAKE) STAGE2_MAP=Y STAGE4M_UV_GENERATION=Y
 
 ALL_CODE_OBJS := $(patsubst $(C_SUBDIR)/%.c,$(BUILD)/%.o,$(ALL_C_SRCS)) \
  $(patsubst $(ASM_SUBDIR)/%.s,$(BUILD)/%.o,$(ALL_ASM_SRCS)) \

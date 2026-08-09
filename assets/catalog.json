@@ -44,6 +44,10 @@
     {
       "id": "stage4l_missing_normals_turret",
       "manifest": "assets/manifests/stage4l_missing_normals_turret.json"
+    },
+    {
+      "id": "stage4m_missing_uv_turret",
+      "manifest": "assets/manifests/stage4m_missing_uv_turret.json"
     }
   ]
 }

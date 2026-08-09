@@ -1,0 +1,29 @@
+{
+  "schema_version": 11,
+  "id": "stage4m_missing_uv_turret",
+  "source": "assets/source/stage4m_missing_uv_turret.glb",
+  "source_format": "glb",
+  "category": "outdoor_prop",
+  "provenance": {"kind": "project_authored", "license": "CC0-1.0"},
+  "coordinate_system": {"units": "meters", "up_axis": "+y", "forward_axis": "+z", "handedness": "right"},
+  "normalization": {"scale_policy": "units_to_tiles", "units_to_tiles": 1.0, "anchor": "footprint_center_base"},
+  "material_policy": {
+    "mode": "project_texture_catalog_binding",
+    "mappings": {"turret_stone": {"alias": "prop", "texture": "stage4d_stone"}}
+  },
+  "texture_catalog": "assets/texture_catalog.json",
+  "preprocessing": {
+    "uvs": {
+      "policy": "repeat_per_planar_patch",
+      "patch_normal_degrees": 0.1,
+      "plane_epsilon": 0.00001,
+      "texture_size": 32,
+      "padding_texels": 1,
+      "preserve_aspect_ratio": true,
+      "allow_overlapping_patches": true
+    }
+  },
+  "collision": {"policy": "footprint_rect", "rectangle": {"min_x": -1.9, "max_x": 1.9, "min_z": -1.7, "max_z": 1.7}},
+  "budget": "stage4m_uv_source",
+  "status": "proof"
+}

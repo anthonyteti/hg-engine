@@ -578,3 +578,20 @@ canonical GLB writing. It does not create UVs or materials, repair topology or
 winding, simplify geometry, or change DS storage. Stage 4K may run before this
 adapter; Stage 4F remains the acceptance gate after all preprocessing. See
 `docs/knowledge/hgss-stage4l-normal-generation.md`.
+
+Stage 4M adds a third explicit pre-Stage-4F adapter:
+
+```text
+bounded identity GLB with POSITION/NORMAL but no TEXCOORD_0
+  -> explicit schema-11 connected planar-patch projection
+  -> canonical identity GLB with padded repeat-per-patch UV0
+  -> unchanged Stage 4F parser and shared typed IR
+  -> existing geometry/texture/collision/world pipeline
+```
+
+`tools.pokeagent.glb_uvs` owns manifold adjacency, strict coplanar patch
+construction, stable world-oriented bases, patch-local aspect-preserving
+projection, deterministic UV splits, and bounded canonical GLB writing. It
+does not synthesize materials/textures, pack a unique atlas, repair topology,
+or change DS storage. See
+`docs/knowledge/hgss-stage4m-uv-generation.md`.

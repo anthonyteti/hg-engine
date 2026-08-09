@@ -292,6 +292,20 @@ texture capacity, or begin production art. See
 `docs/STAGE_4L_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4l-normal-generation.md`.
 
+### Completed infrastructure checkpoint: Stage 4M
+
+An otherwise-valid bounded identity-node hard-surface GLB lacking
+`TEXCOORD_0` may now opt into deterministic connected planar-patch UV
+generation. The canonical proof preserves aspect ratio, uses stable
+world-oriented bases and one texel of 32x32 padding, permits intentional island
+overlap, exactly matches an authored reference, and renders coherently through
+the unchanged Stage 4F and HeartGold pipeline.
+
+This checkpoint does not synthesize materials/textures, repair topology,
+perform organic unwrap or atlas packing, process/approve Stage 4H, expand
+budgets, or begin production art. See `docs/STAGE_4M_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4m-uv-generation.md`.
+
 ## Completed infrastructure checkpoint: Stage 3E2
 
 The revision-locked hybrid map-header layer has been proven for project IDs
