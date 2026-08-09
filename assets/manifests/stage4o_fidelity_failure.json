@@ -1,0 +1,26 @@
+{
+  "schema_version": 13,
+  "id": "stage4o_fidelity_failure",
+  "source": "assets/source/stage4o_dense_geometry_shrine.glb",
+  "source_format": "glb",
+  "source_sha256": "c37fac771cff1f5c77fd71bab27ea02631442f9260176ac0a0ef12aedcd6bcfc",
+  "provenance": {"kind": "project_authored", "license": "CC0-1.0"},
+  "preprocessing": {
+    "geometry_reduction": {
+      "policy": "constrained_geometry_qem",
+      "target_faces": 12,
+      "target_positions": 16,
+      "preserve_boundaries": true,
+      "preserve_ground_contact": true,
+      "require_one_component": true,
+      "crease_angle_degrees": 60.0,
+      "ground_tolerance_ratio": 0.000001,
+      "max_face_rotation_degrees": 80.0,
+      "crease_penalty": 0.0001,
+      "max_bounds_delta_ratio": 0.04,
+      "max_geometric_error_ratio": 0.08,
+      "max_surface_area_delta_percent": 22.0,
+      "min_silhouette_iou": 0.84
+    }
+  }
+}

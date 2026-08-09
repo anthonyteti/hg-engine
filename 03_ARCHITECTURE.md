@@ -613,3 +613,22 @@ interpret PBR, convert vertex colors, mutate geometry, flatten hierarchy, or
 change DS storage. Its bounded Stage 4K-compatible hierarchy acceptance is
 neutral: nodes, scenes, transforms, mesh ownership, and BIN bytes are copied
 unchanged. See `docs/knowledge/hgss-stage4n-material-synthesis.md`.
+
+Stage 4O adds a geometry-only reduction boundary before attribute adapters:
+
+```text
+bounded embedded GLB with POSITION + indices
+  -> tools.pokeagent.glb_geometry_reduce (format/safety/schema 13)
+  -> tools.pokeagent.mesh_predecimate (minimal IR/QEM/fidelity)
+  -> canonical small POSITION + indices GLB
+  -> future explicit attribute-bootstrap composition
+  -> unchanged Stage 4F and later Stage 4J/4I path
+```
+
+The GLB adapter owns container bounds, identity-only node-chain validation,
+manifest policy, and deterministic geometry-only serialization. The mesh core
+owns topology, connectivity, stable edge identities, collapse constraints, and
+fidelity metrics. Neither module knows about Nitro commands, NSBMD, textures,
+collision, registry, or world layout. Stage 4O output is intentionally not a
+strict Stage 4F asset. See
+`docs/knowledge/hgss-stage4o-geometry-predecimation.md`.

@@ -399,3 +399,20 @@ Stage 4H hierarchy is structurally inspectable, but the immutable candidate
 remains rejected for independent attribute, vertex-color, and geometry-budget
 blockers. See `docs/STAGE_4N_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4n-material-synthesis.md`.
+
+## Stage 4O decision: bounded geometry-only predecimation
+
+Add an explicit schema-13 pre-attribute adapter for one valid embedded GLB
+triangle surface containing `POSITION` and indices only. Canonicalize a
+minimal geometry IR, validate manifold/open-boundary topology, then use
+deterministic QEM edge collapse to reach a conservative face/position bootstrap
+envelope while enforcing bounds, surface, geometric-error, silhouette,
+boundary, ground-contact, and crease constraints.
+
+This is not the final DS decimator. It writes no normals, UVs, or material,
+rejects auxiliary attributes such as `COLOR_0`, and leaves Stage 4J unchanged
+as the complete-attribute, 4,096-byte final reducer. Invalid geometry is not
+repaired. The Stage 4H candidate fits the numeric envelope but remains
+ineligible due to `COLOR_0`, a zero-area face, and multiple components. See
+`docs/STAGE_4O_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4o-geometry-predecimation.md`.

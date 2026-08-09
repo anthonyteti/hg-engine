@@ -16,6 +16,7 @@ from typing import Any
 
 from .glb import BIN_CHUNK, GLB_MAGIC, GLB_VERSION, JSON_CHUNK, GLB_LIMITS, GLBError, parse_glb
 from .glb_preprocess import inspect_static_hierarchy
+from .glb_geometry_reduce import inspect_geometry_applicability
 from .glb_materials import inspect_material_applicability
 from .glb_normals import NORMAL_LIMITS, inspect_normal_applicability
 from .glb_uvs import UV_LIMITS, inspect_uv_applicability
@@ -415,6 +416,7 @@ def inspect_generated_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
     normal_projection = inspect_normal_applicability(data)
     uv_projection = inspect_uv_applicability(data)
     material_projection = inspect_material_applicability(data)
+    geometry_projection = inspect_geometry_applicability(data)
     topology_projection_reasons = []
     if metrics["triangle_count"] > NORMAL_LIMITS["max_faces"]:
         topology_projection_reasons.append({
@@ -565,6 +567,11 @@ def inspect_generated_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
         "stage4n": {
             "material_synthesis": material_projection,
             "remaining_blockers": [problem["code"] for problem in problems],
+            "raw_source_unchanged": True,
+            "retroactive_approval": False,
+        },
+        "stage4o": {
+            "geometry_predecimation": geometry_projection,
             "raw_source_unchanged": True,
             "retroactive_approval": False,
         },

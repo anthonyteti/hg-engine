@@ -11,6 +11,7 @@ import sys
 from .assets import compile_asset, compile_asset_outputs
 from .emulator import run_smoke
 from .generated_intake import inspect_generated_asset, write_intake_report
+from .glb_geometry_reduce import reduce_geometry_manifest, write_geometry_outputs
 from .registry import (
     DEFAULT_INVENTORY,
     DEFAULT_REGISTRY,
@@ -135,11 +136,12 @@ def build_parser() -> argparse.ArgumentParser:
         ("normals", "generate manifest-declared bounded crease-aware normals"),
         ("uvs", "generate manifest-declared bounded planar-patch UV0"),
         ("materials", "assign one manifest-declared bounded source-material identity"),
+        ("geometry-reduce", "coarsely reduce bounded POSITION/index-only geometry"),
         ("compile", "write deterministic ignored asset artifacts"),
     ):
         child = asset_subparsers.add_parser(command, help=help_text)
         child.add_argument("manifest", type=Path)
-        if command in ("compile", "preprocess", "normals", "uvs", "materials"):
+        if command in ("compile", "preprocess", "normals", "uvs", "materials", "geometry-reduce"):
             child.add_argument("--output", type=Path)
         _add_output_argument(child)
     intake_parser = asset_subparsers.add_parser(
@@ -325,6 +327,18 @@ def _print_intake(payload: dict[str, object]) -> None:
         print(f"  Report: {_relative_or_absolute(payload['outputs'].get('report'))}")
 
 
+def _print_geometry_reduction(payload: dict[str, object]) -> None:
+    print(f"geometry predecimation: {'PASS' if payload.get('success') else 'FAIL'}")
+    print(f"  Asset: {payload.get('asset_id')}")
+    reduction = payload.get("reduction") or {}
+    source, final = reduction.get("source") or {}, reduction.get("final") or {}
+    print(f"  Source: {source.get('positions')} positions, {source.get('triangles')} triangles")
+    print(f"  Final: {final.get('positions')} positions, {final.get('triangles')} triangles")
+    print(f"  Silhouette IoU: {(reduction.get('metrics') or {}).get('minimum_silhouette_iou')}")
+    if "outputs" in payload:
+        print(f"  Report: {_relative_or_absolute(payload['outputs'].get('report'))}")
+
+
 def _print_texture(payload: dict[str, object]) -> None:
     print(f"texture: {'PASS' if payload.get('success') else 'FAIL'}")
     if "allocations" in payload:
@@ -460,6 +474,12 @@ def main(argv: list[str] | None = None) -> int:
             payload = dict(compiled["report"])
             payload["outputs"] = report["outputs"]
             _print_json(payload) if args.json else _print_asset(payload)
+        elif args.command == "asset" and args.asset_command == "geometry-reduce":
+            if args.output:
+                payload = write_geometry_outputs(args.manifest, args.output, PROJECT_ROOT)
+            else:
+                payload = reduce_geometry_manifest(args.manifest, PROJECT_ROOT)["report"]
+            _print_json(payload) if args.json else _print_geometry_reduction(payload)
         elif args.command == "asset" and args.asset_command == "intake":
             if args.output:
                 payload = write_intake_report(args.manifest, args.output, PROJECT_ROOT)

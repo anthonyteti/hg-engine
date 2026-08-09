@@ -505,6 +505,12 @@ stage4n-material-synthesis-proof:
 	$(MAKE) clean
 	$(MAKE) STAGE2_MAP=Y STAGE4N_MATERIAL_SYNTHESIS=Y
 
+.PHONY: stage4o-geometry-predecimation-proof
+stage4o-geometry-predecimation-proof:
+	rm -rf build/stage4o
+	. .venv/bin/activate; python3 -m tools.pokeagent asset geometry-reduce assets/manifests/stage4o_dense_geometry_shrine.json --output build/stage4o --json
+	. .venv/bin/activate; python3 -m unittest -v tests.test_pokeagent_stage4o_geometry_reduce
+
 ALL_CODE_OBJS := $(patsubst $(C_SUBDIR)/%.c,$(BUILD)/%.o,$(ALL_C_SRCS)) \
  $(patsubst $(ASM_SUBDIR)/%.s,$(BUILD)/%.o,$(ALL_ASM_SRCS)) \
  $(patsubst $(C_SUBDIR)/%.c,$(BUILD)/%.d,$(ALL_C_SRCS))

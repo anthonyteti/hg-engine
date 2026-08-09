@@ -321,6 +321,21 @@ production content. The Stage 4H candidate remains rejected. See
 `docs/STAGE_4N_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4n-material-synthesis.md`.
 
+### Completed infrastructure checkpoint: Stage 4O
+
+A project-authored 1,056-triangle geometry-only reconstruction fixture now
+deterministically reduces to 64 triangles and 35 positions under a schema-13
+opt-in policy. The result stays within predeclared geometric and five-view
+silhouette fidelity limits, retains valid one-component open-manifold topology,
+and lies safely inside the later attribute-bootstrap envelope.
+
+This checkpoint does not emit normals, UVs, material, textures, or a runtime
+asset; Stage 4J remains the final 4 KiB decimator. Stage 4H is unchanged and
+rejected. The next stage should prove a bounded explicit attribute-bootstrap
+composition and decide `COLOR_0` policy rather than add another isolated
+adapter. See `docs/STAGE_4O_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4o-geometry-predecimation.md`.
+
 ## Completed infrastructure checkpoint: Stage 3E2
 
 The revision-locked hybrid map-header layer has been proven for project IDs
