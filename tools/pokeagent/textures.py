@@ -437,7 +437,7 @@ def compile_texture_catalog(path: Path, root: Path) -> dict[str, Any]:
             for asset_entry in asset_catalog.get("assets", []):
                 manifest_path = (root / asset_entry["manifest"]).resolve()
                 manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-                if manifest.get("schema_version") not in (3, 4, 5):
+                if manifest.get("schema_version") not in (3, 4, 5, 6):
                     continue
                 declared_catalog = (root / manifest.get("texture_catalog", "")).resolve()
                 if declared_catalog != path.resolve():

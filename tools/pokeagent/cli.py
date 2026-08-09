@@ -129,6 +129,7 @@ def build_parser() -> argparse.ArgumentParser:
     for command, help_text in (
         ("validate", "validate one tracked asset manifest and source mesh"),
         ("inspect", "report normalized geometry, material, collision, and DS budgets"),
+        ("simplify", "run the manifest-declared deterministic simplification and report its budget result"),
         ("compile", "write deterministic ignored asset artifacts"),
     ):
         child = asset_subparsers.add_parser(command, help=help_text)
@@ -374,8 +375,16 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "qa" and args.qa_command == "run":
             payload = run_scenario(args.scenario, PROJECT_ROOT, args.timeout)
             _print_json(payload) if args.json else _print_qa(payload)
-        elif args.command == "asset" and args.asset_command in ("validate", "inspect"):
-            payload = compile_asset(args.manifest, PROJECT_ROOT)["report"]
+        elif args.command == "asset" and args.asset_command in ("validate", "inspect", "simplify"):
+            report = compile_asset(args.manifest, PROJECT_ROOT)["report"]
+            if args.asset_command == "simplify" and "simplification" not in report:
+                raise ValueError("asset simplify requires an opt-in simplification manifest")
+            payload = report if args.asset_command != "simplify" else {
+                "success": True,
+                "asset_id": report["asset_id"],
+                "simplification": report["simplification"],
+                "hashes": report["hashes"],
+            }
             _print_json(payload) if args.json else _print_asset(payload)
         elif args.command == "asset" and args.asset_command == "compile":
             compiled = compile_asset(args.manifest, PROJECT_ROOT)

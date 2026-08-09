@@ -25,6 +25,7 @@ from .geometry import (
     encode_mesh_primitives,
     inspect_mesh_display_list,
 )
+from .mesh_simplify import SimplificationError, simplify_coplanar_ir
 from .textures import (
     compile_png,
     compile_texture_catalog,
@@ -33,7 +34,7 @@ from .textures import (
 )
 
 
-ASSET_SCHEMA_VERSIONS = {1, 2, 3, 4, 5}
+ASSET_SCHEMA_VERSIONS = {1, 2, 3, 4, 5, 6}
 CATALOG_SCHEMA_VERSION = 1
 SAFE_ID = re.compile(r"^[a-z][a-z0-9_]{0,63}$")
 STAGE4B_BUDGET = {
@@ -46,6 +47,13 @@ STAGE4B_BUDGET = {
     "max_dimension_tiles": 8.0,
     "max_height_tiles": 8.0,
     "max_collision_tiles": 64,
+}
+STAGE4G_SOURCE_BUDGET = {
+    **STAGE4B_BUDGET,
+    "max_vertices": 128,
+    "max_uvs": 128,
+    "max_normals": 64,
+    "max_faces": 64,
 }
 ASSET_MATERIAL_BINDINGS = {
     "prop": {
@@ -232,20 +240,25 @@ def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
         "coordinate_system", "normalization", "material_policy", "collision", "budget", "status",
     }
     if not isinstance(data, dict) or data.get("schema_version") not in ASSET_SCHEMA_VERSIONS:
-        raise AssetError("unsupported_manifest_schema", "asset manifest schema_version must be 1, 2, 3, 4, or 5")
+        raise AssetError("unsupported_manifest_schema", "asset manifest schema_version must be in 1..6")
     expected = common | ({"textures"} if data["schema_version"] == 2 else set())
-    if data["schema_version"] in (3, 4, 5):
+    if data["schema_version"] in (3, 4, 5, 6):
         expected |= {"texture_catalog"}
+    if data["schema_version"] == 6:
+        expected |= {"simplification"}
     if set(data) != expected:
         raise AssetError("invalid_manifest", "asset manifest has unsupported or missing fields")
     if not isinstance(data.get("id"), str) or not SAFE_ID.fullmatch(data["id"]):
         raise AssetError("invalid_asset_id", "asset id must be stable lower snake_case")
     source = _safe_relative(root, data.get("source"), Path("assets/source"), "invalid_source")
     expected_source = "glb" if data["schema_version"] == 5 else "obj"
-    if source.suffix.lower() != f".{expected_source}" or data.get("source_format") != expected_source:
+    if data["schema_version"] == 6:
+        expected_source = data.get("source_format")
+    if expected_source not in {"obj", "glb"} or source.suffix.lower() != f".{expected_source}":
+        expected_label = expected_source.upper() if isinstance(expected_source, str) else "OBJ or GLB"
         raise AssetError(
             "unsupported_source_format",
-            f"asset manifest schema {data['schema_version']} requires {expected_source.upper()} source",
+            f"asset manifest schema {data['schema_version']} requires {expected_label} source",
         )
     if not source.is_file():
         raise AssetError("missing_source", f"asset source does not exist: {data.get('source')}")
@@ -282,6 +295,7 @@ def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
         3: "project_texture_catalog_binding",
         4: "project_texture_catalog_binding",
         5: "project_texture_catalog_binding",
+        6: "project_texture_catalog_binding",
     }
     expected_mode = expected_modes[data["schema_version"]]
     if not isinstance(material, dict) or set(material) != {"mode", "mappings"} or material["mode"] != expected_mode:
@@ -358,8 +372,36 @@ def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
         values.append(float(value))
     if not values[0] < values[1] or not values[2] < values[3]:
         raise AssetError("invalid_collision_proxy", "collision rectangle must have nonzero dimensions")
-    if data.get("budget") != "stage4b_proof":
-        raise AssetError("unsupported_budget", "Stage 4B requires the conservative stage4b_proof budget")
+    expected_budget = "stage4g_dense_source" if data["schema_version"] == 6 else "stage4b_proof"
+    if data.get("budget") != expected_budget:
+        raise AssetError(
+            "unsupported_budget", f"asset manifest schema {data['schema_version']} requires {expected_budget} budget",
+        )
+    if data["schema_version"] == 6:
+        simplification = data.get("simplification")
+        expected_simplification = {
+            "policy", "target", "reduction_mode", "reserve_bytes",
+            "preserve_boundaries", "preserve_uv_seams", "preserve_material_boundaries",
+            "preserve_hard_normals",
+        }
+        if not isinstance(simplification, dict) or set(simplification) != expected_simplification:
+            raise AssetError("invalid_simplification_policy", "Stage 4G simplification policy is incomplete")
+        if (
+            simplification["policy"] != "exact_coplanar_patches"
+            or simplification["target"] != "fit_shape"
+            or simplification["reduction_mode"] != "maximal_exact"
+            or any(simplification[field] is not True for field in (
+                "preserve_boundaries", "preserve_uv_seams", "preserve_material_boundaries",
+                "preserve_hard_normals",
+            ))
+        ):
+            raise AssetError(
+                "unsupported_simplification_policy",
+                "Stage 4G supports only maximal exact coplanar reduction with all boundaries protected",
+            )
+        reserve = simplification["reserve_bytes"]
+        if isinstance(reserve, bool) or not isinstance(reserve, int) or not 0 <= reserve <= 2048:
+            raise AssetError("invalid_target_budget", "simplification reserve_bytes must be an integer in 0..2048")
     return json.loads(json.dumps(data, sort_keys=True))
 
 
@@ -373,15 +415,16 @@ def load_manifest(path: Path, root: Path) -> tuple[dict[str, Any], bytes]:
 
 
 def _normalized_ir(manifest: dict[str, Any], mesh: SourceMesh, root: Path | None = None) -> dict[str, Any]:
+    budget = STAGE4G_SOURCE_BUDGET if manifest["schema_version"] == 6 else STAGE4B_BUDGET
     counts = {
         "vertices": len(mesh.vertices), "uvs": len(mesh.uvs),
         "normals": len(mesh.normals), "faces": len(mesh.faces),
     }
     for key, maximum in (
-        ("vertices", STAGE4B_BUDGET["max_vertices"]),
-        ("uvs", STAGE4B_BUDGET["max_uvs"]),
-        ("normals", STAGE4B_BUDGET["max_normals"]),
-        ("faces", STAGE4B_BUDGET["max_faces"]),
+        ("vertices", budget["max_vertices"]),
+        ("uvs", budget["max_uvs"]),
+        ("normals", budget["max_normals"]),
+        ("faces", budget["max_faces"]),
     ):
         if counts[key] > maximum:
             raise AssetError(f"{key}_over_budget", f"asset {key} count {counts[key]} exceeds {maximum}")
@@ -413,7 +456,7 @@ def _normalized_ir(manifest: dict[str, Any], mesh: SourceMesh, root: Path | None
     texture_dimensions = {
         texture["id"]: texture["dimensions"] for texture in manifest.get("textures", [])
     }
-    if manifest["schema_version"] in (3, 4, 5):
+    if manifest["schema_version"] in (3, 4, 5, 6):
         if root is None:
             raise AssetError("invalid_texture_catalog", "Stage 4D normalization requires its repository root")
         catalog = compile_texture_catalog(root / manifest["texture_catalog"], root)
@@ -440,12 +483,14 @@ def _normalized_ir(manifest: dict[str, Any], mesh: SourceMesh, root: Path | None
         normal = _normalize(cross, "degenerate_face")
         if face.primitive == "quad" and abs(_dot(_subtract(points[3], points[0]), normal)) > 1e-5:
             raise AssetError("nonplanar_face", f"{face.id} is not planar")
+        oriented_normals = []
         for corner in face.corners:
             source_normal = mesh.normals[corner.normal]
             oriented_normal = _normalize(
                 (_dot(source_normal, right), _dot(source_normal, up), _dot(source_normal, forward)),
                 "invalid_normal",
             )
+            oriented_normals.append(oriented_normal)
             if _dot(oriented_normal, normal) < 0.5:
                 raise AssetError("normal_winding_mismatch", f"{face.id} normal disagrees with face winding")
         mapping = material_mappings[face.material]
@@ -461,6 +506,13 @@ def _normalized_ir(manifest: dict[str, Any], mesh: SourceMesh, root: Path | None
         }
         if manifest["schema_version"] >= 4:
             face_ir["primitive"] = face.primitive
+        if manifest["schema_version"] == 6:
+            if any(_dot(oriented_normals[0], candidate) < 1.0 - 1e-6 for candidate in oriented_normals[1:]):
+                raise AssetError(
+                    "simplification_normal_boundary",
+                    "Stage 4G exact patches require one authored hard normal per source face",
+                )
+            face_ir["protected_normal"] = list(oriented_normals[0])
         if texture_id is not None:
             face_ir["texture"] = texture_id
         faces.append(face_ir)
@@ -552,17 +604,35 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
             mesh = parse_glb(source_bytes)
         except GLBError as error:
             raise AssetError(error.code, str(error), **error.details) from error
-    ir = _normalized_ir(manifest, mesh, root)
-    primitives = _ir_primitives(ir)
-    aliases = sorted({primitive.material for primitive in primitives})
+    source_ir = _normalized_ir(manifest, mesh, root)
+    source_primitives = _ir_primitives(source_ir)
+    aliases = sorted({primitive.material for primitive in source_primitives})
     if len(aliases) != 1:
         raise AssetError("unsupported_material", "asset must resolve to one verified template alias")
     binding = ASSET_MATERIAL_BINDINGS[aliases[0]]
+    source_display_list, source_primitive_plan = _encode_asset_primitives(source_primitives)
+    ir = source_ir
+    simplification_report = None
+    target_bytes = binding["capacity_bytes"]
+    if manifest["schema_version"] == 6:
+        target_bytes -= manifest["simplification"]["reserve_bytes"]
+        if target_bytes <= 0:
+            raise AssetError(
+                "invalid_target_budget", "simplification reserve leaves no usable shape capacity",
+                capacity_bytes=binding["capacity_bytes"], reserve_bytes=manifest["simplification"]["reserve_bytes"],
+            )
+        try:
+            ir, simplification_report = simplify_coplanar_ir(source_ir)
+        except SimplificationError as error:
+            raise AssetError(error.code, str(error), **error.details) from error
+    primitives = _ir_primitives(ir)
     display_list, primitive_plan = _encode_asset_primitives(primitives)
-    if len(display_list) > binding["capacity_bytes"]:
+    if len(display_list) > target_bytes:
+        code = "simplification_target_unreachable" if manifest["schema_version"] == 6 else "display_list_overflow"
         raise AssetError(
-            "display_list_overflow", "asset display list exceeds its verified template shape",
-            required_bytes=len(display_list), capacity_bytes=binding["capacity_bytes"], shape=binding["shape"],
+            code, "asset display list exceeds its allowed template shape budget",
+            required_bytes=len(display_list), target_bytes=target_bytes,
+            capacity_bytes=binding["capacity_bytes"], shape=binding["shape"],
         )
     rectangle = {key: float(value) for key, value in manifest["collision"]["rectangle"].items()}
     bounds = ir["bounds"]
@@ -583,6 +653,11 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
         "source_counts": {
             "vertices": len(mesh.vertices), "uvs": len(mesh.uvs),
             "normals": len(mesh.normals), "faces": len(mesh.faces),
+        },
+        "source_normalized_counts": {
+            "vertices": len(source_ir["vertices"]), "faces": len(source_ir["faces"]),
+            "quads": source_primitive_plan["quad_count"], "triangles": source_primitive_plan["triangle_count"],
+            "emitted_vertices": source_primitive_plan["vertex_count"],
         },
         "normalized_counts": {
             "vertices": len(ir["vertices"]), "faces": len(ir["faces"]),
@@ -606,26 +681,44 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
         "material_name": binding["material_name"],
         "display_list_bytes": len(display_list),
         "display_list_capacity_bytes": binding["capacity_bytes"],
+        "display_list_target_bytes": target_bytes,
         "shape_utilization_percent": round(len(display_list) * 100 / binding["capacity_bytes"], 3),
         "collision": {"policy": "footprint_rect", "rectangle": rectangle},
-        "budget": dict(STAGE4B_BUDGET),
+        "budget": dict(STAGE4G_SOURCE_BUDGET if manifest["schema_version"] == 6 else STAGE4B_BUDGET),
         "hashes": {
+            "normalized_source_mesh_sha256": _hash((json.dumps(source_ir, sort_keys=True, separators=(",", ":")) + "\n").encode()),
             "normalized_mesh_sha256": _hash((json.dumps(ir, sort_keys=True, separators=(",", ":")) + "\n").encode()),
             "display_list_sha256": _hash(display_list),
             "collision_sha256": _hash((json.dumps(rectangle, sort_keys=True, separators=(",", ":")) + "\n").encode()),
         },
     }
+    if simplification_report is not None:
+        source_bytes_count = len(source_display_list)
+        simplification_report.update({
+            "applied": True,
+            "source_projected_display_list_bytes": source_bytes_count,
+            "simplified_display_list_bytes": len(display_list),
+            "shape_capacity_bytes": binding["capacity_bytes"],
+            "target_bytes": target_bytes,
+            "source_overflow_bytes": max(0, source_bytes_count - binding["capacity_bytes"]),
+            "final_utilization_percent": round(len(display_list) * 100 / binding["capacity_bytes"], 3),
+            "face_reduction_percent": round(
+                (len(source_ir["faces"]) - len(ir["faces"])) * 100 / len(source_ir["faces"]), 3,
+            ),
+            "byte_reduction_percent": round((source_bytes_count - len(display_list)) * 100 / source_bytes_count, 3),
+        })
+        report["simplification"] = simplification_report
     compiled_textures = {
         texture["id"]: compile_png(texture, root) for texture in manifest.get("textures", [])
     }
-    if manifest["schema_version"] in (3, 4, 5):
+    if manifest["schema_version"] in (3, 4, 5, 6):
         compiled_textures = compile_texture_catalog(root / manifest["texture_catalog"], root)["textures"]
     if compiled_textures:
         report["textures"] = {
             texture_id: compiled_textures[texture_id]["report"] for texture_id in sorted(compiled_textures)
         }
     return {
-        "manifest": manifest, "mesh": mesh, "ir": ir, "primitives": primitives,
+        "manifest": manifest, "mesh": mesh, "source_ir": source_ir, "ir": ir, "primitives": primitives,
         "triangles": [primitive for primitive in primitives if isinstance(primitive, Triangle)],
         "quads": [primitive for primitive in primitives if isinstance(primitive, Quad)],
         "display_list": display_list, "collision": rectangle, "textures": compiled_textures, "report": report,
@@ -635,12 +728,15 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
 def compile_asset_outputs(manifest_path: Path, output: Path, root: Path) -> dict[str, Any]:
     compiled = compile_asset(manifest_path, root)
     output.mkdir(parents=True, exist_ok=True)
+    source_ir_bytes = (json.dumps(compiled["source_ir"], indent=2, sort_keys=True) + "\n").encode()
     ir_bytes = (json.dumps(compiled["ir"], indent=2, sort_keys=True) + "\n").encode()
     collision_bytes = (json.dumps({
         "schema_version": 1, "asset_id": compiled["manifest"]["id"],
         "policy": "footprint_rect", "rectangle": compiled["collision"],
     }, indent=2, sort_keys=True) + "\n").encode()
-    (output / "normalized-mesh.json").write_bytes(ir_bytes)
+    (output / "normalized-mesh.json").write_bytes(source_ir_bytes)
+    if compiled["manifest"]["schema_version"] == 6:
+        (output / "simplified-mesh.json").write_bytes(ir_bytes)
     (output / "display-list.bin").write_bytes(compiled["display_list"])
     (output / "collision.json").write_bytes(collision_bytes)
     for texture_id, texture in sorted(compiled["textures"].items()):
@@ -653,6 +749,8 @@ def compile_asset_outputs(manifest_path: Path, output: Path, root: Path) -> dict
         "collision": "collision.json",
         "report": "asset-report.json",
     }
+    if compiled["manifest"]["schema_version"] == 6:
+        report["outputs"]["simplified_mesh"] = "simplified-mesh.json"
     if compiled["textures"]:
         report["outputs"]["textures"] = "textures/"
     (output / "asset-report.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")

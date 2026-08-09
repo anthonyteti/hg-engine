@@ -466,3 +466,19 @@ scene, bufferView, accessor, and triangle decoding boundary. GLB UVs are
 canonicalized from the official upper-left convention before the existing
 texture-coordinate path. The world compiler and Nitro encoder never inspect
 GLB structures. See `docs/knowledge/hgss-stage4f-glb-assets.md`.
+
+Stage 4G adds one optional format-independent optimization step:
+
+```text
+normalized typed triangle IR
+  -> source display-list byte projection
+  -> exact coplanar patch reduction (manifest schema 6 only)
+  -> recomputed bounds/area/winding/normal validation
+  -> existing typed triangle/quad encoder and verified shape capacity
+```
+
+`tools.pokeagent.mesh_simplify` preserves source/world separation: it knows no
+OBJ, GLB, HGSS registry, texture container, placement, or collision format.
+Materials, UV seams, and authored hard normals are protected adjacency
+boundaries. Legacy schemas still fail on overflow. See
+`docs/knowledge/hgss-stage4g-mesh-simplification.md`.

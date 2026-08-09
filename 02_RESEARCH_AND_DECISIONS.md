@@ -258,3 +258,23 @@ authorizing GLTF breadth, repair, simplification, or generated assets.
 
 See `docs/STAGE_4F_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4f-glb-assets.md`.
+
+## Stage 4G decision: exact coplanar budget adaptation
+
+Simplify only after OBJ/GLB source adapters converge on normalized typed mesh
+IR. Asset manifest schema 6 opts into a project-owned deterministic exact
+coplanar-patch reducer targeting the assigned verified Nitro shape capacity.
+It may merge redundant triangle subdivisions only when plane, material,
+texture, UV boundary, authored hard normal, winding, and simple-boundary rules
+all agree. Recompute and validate output bounds, surface area, normals, and
+ordinary asset constraints before encoding; fail if exact fidelity and the byte
+budget cannot both be satisfied.
+
+Do not silently simplify legacy assets or treat this as QEM, arbitrary curved
+decimation, topology repair, normal/UV generation, detailed collision, or
+display-list expansion. The bounded result is a conservative prerequisite for
+later generated assets, not permission to ingest malformed or production-scale
+meshes.
+
+See `docs/STAGE_4G_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4g-mesh-simplification.md`.

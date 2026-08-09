@@ -24,6 +24,10 @@
     {
       "id": "stage4f_glb_faceted_tower",
       "manifest": "assets/manifests/stage4f_glb_faceted_tower.json"
+    },
+    {
+      "id": "stage4g_dense_faceted_tower",
+      "manifest": "assets/manifests/stage4g_dense_faceted_tower.json"
     }
   ]
 }

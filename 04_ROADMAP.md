@@ -202,6 +202,22 @@ skins, morphs, PBR material translation, repair, simplification, image-to-3D,
 and production assets. See `docs/STAGE_4F_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4f-glb-assets.md`.
 
+### Completed infrastructure checkpoint: Stage 4G
+
+An opt-in project-owned exact coplanar simplifier now reduces a valid 48-
+triangle GLB from a genuinely overflowing 3,276-byte display-list projection
+to an exact four-quad/four-triangle 648-byte model inside the unchanged 1,068-
+byte shape capacity. Bounds, area, hard normals, UV/material identity, texture,
+collision, symbolic IDs, runtime behavior, and visual appearance remain
+preserved; unreachable tighter targets fail clearly.
+
+The checkpoint is deliberately limited to redundant planar triangle patches
+with simple three/four-corner boundaries. It excludes approximate/QEM curved
+decimation, malformed-mesh repair, normal/UV generation, display-list
+expansion, image-to-3D, generated services, production kits, and content. See
+`docs/STAGE_4G_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4g-mesh-simplification.md`.
+
 ## Completed infrastructure checkpoint: Stage 3E2
 
 The revision-locked hybrid map-header layer has been proven for project IDs
