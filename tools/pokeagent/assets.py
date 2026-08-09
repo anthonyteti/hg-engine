@@ -16,6 +16,7 @@ from typing import Any
 
 from .asset_source import MeshCorner, MeshFace, SourceMesh
 from .glb import GLBError, parse_glb
+from .glb_preprocess import GLBPreprocessError, preprocess_static_glb
 from .geometry import (
     MODEL_BASE_Y,
     MODEL_TILE_SCALE,
@@ -36,7 +37,7 @@ from .textures import (
 )
 
 
-ASSET_SCHEMA_VERSIONS = {1, 2, 3, 4, 5, 6, 7, 8}
+ASSET_SCHEMA_VERSIONS = {1, 2, 3, 4, 5, 6, 7, 8, 9}
 CATALOG_SCHEMA_VERSION = 1
 SAFE_ID = re.compile(r"^[a-z][a-z0-9_]{0,63}$")
 STAGE4B_BUDGET = {
@@ -251,9 +252,9 @@ def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
         "coordinate_system", "normalization", "material_policy", "collision", "budget", "status",
     }
     if not isinstance(data, dict) or data.get("schema_version") not in ASSET_SCHEMA_VERSIONS:
-        raise AssetError("unsupported_manifest_schema", "asset manifest schema_version must be in 1..8")
+        raise AssetError("unsupported_manifest_schema", "asset manifest schema_version must be in 1..9")
     expected = common | ({"textures"} if data["schema_version"] == 2 else set())
-    if data["schema_version"] in (3, 4, 5, 6, 7, 8):
+    if data["schema_version"] in (3, 4, 5, 6, 7, 8, 9):
         expected |= {"texture_catalog"}
     if data["schema_version"] == 6:
         expected |= {"simplification"}
@@ -261,12 +262,14 @@ def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
         expected |= {"geometry_storage"}
     if data["schema_version"] == 8:
         expected |= {"simplification", "geometry_storage"}
+    if data["schema_version"] == 9:
+        expected |= {"preprocessing"}
     if set(data) != expected:
         raise AssetError("invalid_manifest", "asset manifest has unsupported or missing fields")
     if not isinstance(data.get("id"), str) or not SAFE_ID.fullmatch(data["id"]):
         raise AssetError("invalid_asset_id", "asset id must be stable lower snake_case")
     source = _safe_relative(root, data.get("source"), Path("assets/source"), "invalid_source")
-    expected_source = "glb" if data["schema_version"] in (5, 7, 8) else "obj"
+    expected_source = "glb" if data["schema_version"] in (5, 7, 8, 9) else "obj"
     if data["schema_version"] == 6:
         expected_source = data.get("source_format")
     if expected_source not in {"obj", "glb"} or source.suffix.lower() != f".{expected_source}":
@@ -313,6 +316,7 @@ def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
         6: "project_texture_catalog_binding",
         7: "project_texture_catalog_binding",
         8: "project_texture_catalog_binding",
+        9: "project_texture_catalog_binding",
     }
     expected_mode = expected_modes[data["schema_version"]]
     if not isinstance(material, dict) or set(material) != {"mode", "mappings"} or material["mode"] != expected_mode:
@@ -393,6 +397,7 @@ def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
         6: "stage4g_dense_source",
         7: "stage4i_project_relocated",
         8: "stage4j_approximate_source",
+        9: "stage4k_hierarchy_source",
     }.get(data["schema_version"], "stage4b_proof")
     if data.get("budget") != expected_budget:
         raise AssetError(
@@ -469,6 +474,15 @@ def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
                 "invalid_project_geometry_capacity",
                 f"Stage 4I max_bytes must be in 1..{PROJECT_DISPLAY_LIST_TESTED_MAX}",
             )
+    if data["schema_version"] == 9:
+        preprocessing = data.get("preprocessing")
+        if preprocessing != {
+            "structure": {"policy": "flatten_static_hierarchy", "bake_transforms": True},
+        }:
+            raise AssetError(
+                "unsupported_preprocessing_policy",
+                "Stage 4K requires explicit bounded static hierarchy flattening with transform baking",
+            )
     return json.loads(json.dumps(data, sort_keys=True))
 
 
@@ -527,7 +541,7 @@ def _normalized_ir(manifest: dict[str, Any], mesh: SourceMesh, root: Path | None
     texture_dimensions = {
         texture["id"]: texture["dimensions"] for texture in manifest.get("textures", [])
     }
-    if manifest["schema_version"] in (3, 4, 5, 6, 7, 8):
+    if manifest["schema_version"] in (3, 4, 5, 6, 7, 8, 9):
         if root is None:
             raise AssetError("invalid_texture_catalog", "Stage 4D normalization requires its repository root")
         catalog = compile_texture_catalog(root / manifest["texture_catalog"], root)
@@ -668,16 +682,21 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
     manifest, manifest_bytes = load_manifest(manifest_path, root)
     source_path = (root / manifest["source"]).resolve()
     source_bytes = source_path.read_bytes()
+    preprocess_result = None
     if manifest["source_format"] == "obj":
         mesh = parse_obj(source_bytes)
     else:
         try:
+            parse_bytes = source_bytes
+            if manifest["schema_version"] == 9:
+                preprocess_result = preprocess_static_glb(source_bytes)
+                parse_bytes = preprocess_result["canonical_glb"]
             mesh = parse_glb(
-                source_bytes,
+                parse_bytes,
                 STAGE4J_SOURCE_BUDGET | {"max_accessor_elements": 1024, "max_buffer_bytes": 524_288}
                 if manifest["schema_version"] == 8 else None,
             )
-        except GLBError as error:
+        except (GLBError, GLBPreprocessError) as error:
             raise AssetError(error.code, str(error), **error.details) from error
     source_ir = _normalized_ir(manifest, mesh, root)
     source_primitives = _ir_primitives(source_ir)
@@ -816,6 +835,9 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
             "collision_sha256": _hash((json.dumps(rectangle, sort_keys=True, separators=(",", ":")) + "\n").encode()),
         },
     }
+    if preprocess_result is not None:
+        report["preprocessing"] = preprocess_result["report"]
+        report["hashes"]["preprocessed_glb_sha256"] = _hash(preprocess_result["canonical_glb"])
     if simplification_report is not None and manifest["schema_version"] == 6:
         source_bytes_count = len(source_display_list)
         simplification_report.update({
@@ -850,7 +872,7 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
     compiled_textures = {
         texture["id"]: compile_png(texture, root) for texture in manifest.get("textures", [])
     }
-    if manifest["schema_version"] in (3, 4, 5, 6, 7, 8):
+    if manifest["schema_version"] in (3, 4, 5, 6, 7, 8, 9):
         compiled_textures = compile_texture_catalog(root / manifest["texture_catalog"], root)["textures"]
     if compiled_textures:
         report["textures"] = {
@@ -861,6 +883,7 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
         "triangles": [primitive for primitive in primitives if isinstance(primitive, Triangle)],
         "quads": [primitive for primitive in primitives if isinstance(primitive, Quad)],
         "display_list": display_list, "collision": rectangle, "textures": compiled_textures, "report": report,
+        "preprocessed_glb": preprocess_result["canonical_glb"] if preprocess_result is not None else None,
     }
 
 
@@ -888,6 +911,14 @@ def compile_asset_outputs(manifest_path: Path, output: Path, root: Path) -> dict
         "collision": "collision.json",
         "report": "asset-report.json",
     }
+    if compiled["preprocessed_glb"] is not None:
+        (output / "preprocessed.glb").write_bytes(compiled["preprocessed_glb"])
+        preprocess_report = compiled["report"]["preprocessing"]
+        (output / "preprocess-report.json").write_text(
+            json.dumps(preprocess_report, indent=2, sort_keys=True) + "\n", encoding="utf-8",
+        )
+        report["outputs"]["preprocessed_glb"] = "preprocessed.glb"
+        report["outputs"]["preprocess_report"] = "preprocess-report.json"
     if compiled["manifest"]["schema_version"] in (6, 8):
         report["outputs"]["simplified_mesh"] = "simplified-mesh.json"
     if compiled["textures"]:

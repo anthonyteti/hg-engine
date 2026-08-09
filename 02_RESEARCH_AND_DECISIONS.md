@@ -331,3 +331,19 @@ geometry only. It is not topology repair, hierarchy/transform handling,
 missing-attribute generation, a larger model budget, or approval of the
 rejected Stage 4H candidate. See `docs/STAGE_4J_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4j-approximate-decimation.md`.
+
+## Stage 4K decision: explicit static-GLB structural canonicalization
+
+Keep Stage 4F as the strict runtime asset boundary. Manifest schema 9 may
+explicitly opt a GLB into a separate bounded preprocessor that accepts one
+root-to-leaf chain of at most four static TRS nodes, composes transforms using
+glTF `T * R * S` semantics, bakes positions and existing normals, and emits a
+deterministic one-node implicit-identity GLB. UVs, indices, topology, and the
+single named material are preserved; missing attributes are never synthesized.
+
+Reject authored matrices, branching/DAG scenes, multiple meshes/scenes,
+animation, skinning, morphs, singular or reflective transforms, and remote
+resources. The immutable Stage 4H input is structurally preprocessable but
+remains rejected for its independent missing-attribute/material and geometry
+budget blockers. See `docs/STAGE_4K_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4k-static-glb-preprocess.md`.

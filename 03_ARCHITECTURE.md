@@ -541,3 +541,21 @@ collapse constraints, canonical ordering, and fidelity metrics. It knows no
 GLB/OBJ container, registry, texture container, collision, or NSBMD layout. The
 4,096-byte Stage 4I ceiling remains authoritative. See
 `docs/knowledge/hgss-stage4j-approximate-decimation.md`.
+
+Stage 4K adds a structural adapter before the unchanged strict GLB parser:
+
+```text
+bounded hierarchical GLB
+  -> explicit schema-9 static-hierarchy preprocessing
+  -> canonical one-node implicit-identity GLB
+  -> unchanged Stage 4F parser and shared typed IR
+  -> existing geometry/texture/collision/world pipeline
+```
+
+`tools.pokeagent.glb_preprocess` owns only bounded node-chain inspection, glTF
+TRS composition, position baking, inverse-transpose transformation of existing
+normals, and deterministic canonical GLB writing. It does not generate missing
+attributes/materials, repair geometry, parse world data, or change DS model
+capacity. The source hierarchy is part of the asset; normal symbolic world
+placement remains a separate downstream transform. See
+`docs/knowledge/hgss-stage4k-static-glb-preprocess.md`.

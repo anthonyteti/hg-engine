@@ -36,6 +36,10 @@
     {
       "id": "stage4j_dense_stone_shrine",
       "manifest": "assets/manifests/stage4j_dense_stone_shrine.json"
+    },
+    {
+      "id": "stage4k_hierarchical_tower",
+      "manifest": "assets/manifests/stage4k_hierarchical_tower.json"
     }
   ]
 }

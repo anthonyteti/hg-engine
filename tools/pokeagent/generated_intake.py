@@ -15,6 +15,7 @@ import struct
 from typing import Any
 
 from .glb import BIN_CHUNK, GLB_MAGIC, GLB_VERSION, JSON_CHUNK, GLB_LIMITS, GLBError, parse_glb
+from .glb_preprocess import inspect_static_hierarchy
 
 
 INTAKE_SCHEMA_VERSION = 1
@@ -407,6 +408,7 @@ def inspect_generated_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
         }
     target = manifest["target"]
     problems = _compatibility(document, metrics, strict_error, target["capacity_bytes"])
+    structure_projection = inspect_static_hierarchy(data)
     projected = TRIANGLE_DISPLAY_LIST_HEADER_BYTES + metrics["triangle_count"] * TRIANGLE_DISPLAY_LIST_BYTES
     stage4f_compliant = not problems and strict_error is None
     simplification_reasons = []
@@ -494,6 +496,17 @@ def inspect_generated_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
         "stage4g": {
             "exact_simplification_applicable": not simplification_reasons,
             "reasons": simplification_reasons,
+        },
+        "stage4k": {
+            "structure_preprocess": structure_projection,
+            "remaining_blockers": [
+                problem["code"] for problem in problems
+                if problem["code"] not in {
+                    "unsupported_scene", "node_count_exceeds_stage4f",
+                    "hierarchy_unsupported", "node_transform_unsupported",
+                }
+            ],
+            "retroactive_approval": False,
         },
         "target": target,
     }

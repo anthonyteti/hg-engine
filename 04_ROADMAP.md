@@ -261,6 +261,22 @@ hierarchies, increase the 4 KiB ceiling, approve the Stage 4H candidate, or
 begin production art. See `docs/STAGE_4J_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4j-approximate-decimation.md`.
 
+### Completed infrastructure checkpoint: Stage 4K
+
+A valid two-node static GLB rejected by the unchanged Stage 4F boundary can now
+opt into deterministic structural preprocessing. Parent/child translation,
+quaternion rotation, and positive scale are composed and baked into existing
+positions/normals; the output is a canonical one-node identity GLB whose bytes,
+typed IR, display list, collision, and texture binding exactly match a direct
+flat reference. Runtime build, collision walk-around, visual QA, and two-root
+determinism pass.
+
+This checkpoint does not synthesize materials, normals, or UVs; support
+arbitrary scenes/matrices/reflections; change the 4 KiB model ceiling; retry the
+Stage 4H candidate; or begin production assets. See
+`docs/STAGE_4K_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4k-static-glb-preprocess.md`.
+
 ## Completed infrastructure checkpoint: Stage 3E2
 
 The revision-locked hybrid map-header layer has been proven for project IDs
