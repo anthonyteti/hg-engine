@@ -336,6 +336,22 @@ composition and decide `COLOR_0` policy rather than add another isolated
 adapter. See `docs/STAGE_4O_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4o-geometry-predecimation.md`.
 
+### Completed infrastructure checkpoint: Stage 4P
+
+One bounded geometry-only hard-surface GLB now deterministically acquires a
+manifest source identity, repeat-per-planar-patch UV0, and final UV-aware
+crease normals in one atomic transaction, passes unchanged Stage 4F, and
+renders through the existing HeartGold runtime/QA path. Stage 4O output is
+proven compatible with this boundary. Explicit discard of bounded non-runtime
+`COLOR_0` is proven only for project-textured generated geometry.
+
+Stage 4H remains rejected: its color format is structurally eligible for the
+policy, but one zero-area face, two components, and 25 boundary loops remain
+outside the valid-source contract. The next engineering decision should be a
+separately scoped generated-topology intake policy, not production art. See
+`docs/STAGE_4P_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4p-attribute-bootstrap.md`.
+
 ## Completed infrastructure checkpoint: Stage 3E2
 
 The revision-locked hybrid map-header layer has been proven for project IDs

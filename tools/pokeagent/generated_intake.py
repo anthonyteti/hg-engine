@@ -15,6 +15,7 @@ import struct
 from typing import Any
 
 from .glb import BIN_CHUNK, GLB_MAGIC, GLB_VERSION, JSON_CHUNK, GLB_LIMITS, GLBError, parse_glb
+from .glb_bootstrap import inspect_color0_discard_applicability
 from .glb_preprocess import inspect_static_hierarchy
 from .glb_geometry_reduce import inspect_geometry_applicability
 from .glb_materials import inspect_material_applicability
@@ -417,6 +418,7 @@ def inspect_generated_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
     uv_projection = inspect_uv_applicability(data)
     material_projection = inspect_material_applicability(data)
     geometry_projection = inspect_geometry_applicability(data)
+    bootstrap_projection = inspect_color0_discard_applicability(data)
     topology_projection_reasons = []
     if metrics["triangle_count"] > NORMAL_LIMITS["max_faces"]:
         topology_projection_reasons.append({
@@ -573,6 +575,13 @@ def inspect_generated_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
         "stage4o": {
             "geometry_predecimation": geometry_projection,
             "raw_source_unchanged": True,
+            "retroactive_approval": False,
+        },
+        "stage4p": {
+            "color0_discard_projection": bootstrap_projection,
+            "attribute_bootstrap_not_attempted": True,
+            "raw_source_unchanged": True,
+            "derived_candidate_created": False,
             "retroactive_approval": False,
         },
         "target": target,

@@ -416,3 +416,18 @@ repaired. The Stage 4H candidate fits the numeric envelope but remains
 ineligible due to `COLOR_0`, a zero-area face, and multiple components. See
 `docs/STAGE_4O_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4o-geometry-predecimation.md`.
+
+## Stage 4P decision: atomic missing-attribute bootstrap
+
+Keep Stage 4F strict and replace the unproven manual chaining of isolated
+Stages 4L/M/N with one schema-13 transaction for bounded geometry-only
+hard-surface GLBs. Assign the manifest source identity, derive planar-patch UVs
+from winding, then derive final UV-aware crease normals. Fail atomically and
+record generated-attribute provenance.
+
+Permit `COLOR_0` discard only by explicit opt-in when generated geometry will
+intentionally receive a project texture and no authored/PBR appearance
+resource exists. Record and remove only the color accessor; preserve geometry
+semantics exactly. This does not approve Stage 4H or repair its zero-area face,
+two components, or boundary topology. See `docs/STAGE_4P_TECHNICAL_REPORT.md`
+and `docs/knowledge/hgss-stage4p-attribute-bootstrap.md`.

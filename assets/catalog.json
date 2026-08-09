@@ -52,6 +52,10 @@
     {
       "id": "stage4n_missing_material_turret",
       "manifest": "assets/manifests/stage4n_missing_material_turret.json"
+    },
+    {
+      "id": "stage4p_geometry_bootstrap_turret",
+      "manifest": "assets/manifests/stage4p_geometry_bootstrap_turret.json"
     }
   ]
 }

@@ -903,6 +903,23 @@ def resolve_stage4n_source(
     return resolved
 
 
+def resolve_stage4p_source(
+    source: dict[str, Any],
+    registry_path: Path = DEFAULT_REGISTRY,
+) -> dict[str, Any]:
+    """Resolve Stage 4P through the unchanged Stage 4D resource graph."""
+    if source.get("schema_version") != 20 or source.get("artifact_namespace") != "stage4p":
+        raise RegistryError("unsupported_world_schema", "Stage 4P bootstrap source must use schema 20")
+    stage4d_view = copy.deepcopy(source)
+    stage4d_view["schema_version"] = 10
+    stage4d_view["artifact_namespace"] = "stage4d"
+    resolved = resolve_stage4d_source(stage4d_view, registry_path)
+    resolved["schema_version"] = 20
+    resolved["canonical_schema_version"] = 20
+    resolved["artifact_namespace"] = "stage4p"
+    return resolved
+
+
 def resolve_stage3e1_source(
     source: dict[str, Any],
     registry_path: Path = DEFAULT_REGISTRY,

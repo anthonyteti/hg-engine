@@ -339,6 +339,67 @@ def _generate(
     return vertices, triangles, metrics
 
 
+def generate_planar_uvs_from_geometry(
+    positions: list[tuple[float, float, float]],
+    triangles: list[tuple[int, int, int]],
+    material: str,
+    *,
+    patch_normal_degrees: float = CANONICAL_PATCH_NORMAL_DEGREES,
+    plane_epsilon: float = CANONICAL_PLANE_EPSILON,
+    texture_size: int = CANONICAL_TEXTURE_SIZE,
+    padding_texels: int = CANONICAL_PADDING_TEXELS,
+) -> dict[str, object]:
+    """Run the Stage 4M planar core from geometry-derived face normals.
+
+    The transient normals exist only to classify and orient planar patches.
+    They are deliberately removed from the returned position/UV vertices so a
+    later Stage 4L pass can derive the final UV-seam-aware normals.
+    """
+    if texture_size != CANONICAL_TEXTURE_SIZE or isinstance(padding_texels, bool) or not isinstance(padding_texels, int):
+        raise UVGenerationError("invalid_uv_padding", "planar UV generation uses integer texel padding on one 32x32 texture")
+    if not positions or not triangles or len(triangles) > UV_LIMITS["max_faces"]:
+        raise UVGenerationError("uv_generation_face_budget", "geometry-only face count exceeds the bounded UV envelope")
+    faces: list[_Face] = []
+    for triangle in triangles:
+        if len(triangle) != 3 or any(index < 0 or index >= len(positions) for index in triangle):
+            raise UVGenerationError("invalid_indices", "geometry-only triangle index is invalid")
+        points = tuple(tuple(float(value) for value in positions[index]) for index in triangle)
+        if len(set(points)) != 3:
+            raise UVGenerationError("uv_generation_degenerate", "triangle repeats a geometric vertex")
+        area = _cross(_sub(points[1], points[0]), _sub(points[2], points[0]))
+        geometric_normal = _normalize(area, "uv_generation_degenerate")
+        corners = tuple(
+            _Corner(point, geometric_normal, (0, index))
+            for point, index in zip(points, triangle, strict=True)
+        )
+        faces.append(_Face(material, corners, area, geometric_normal))
+    faces.sort(key=_face_key)
+    keys = [(face.material, tuple(corner.position for corner in face.corners)) for face in faces]
+    if len(keys) != len(set(keys)):
+        raise UVGenerationError("uv_generation_duplicate_face", "duplicate oriented triangles are unsupported")
+    rich_vertices, rich_triangles, metrics = _generate(
+        faces,
+        normal_degrees=patch_normal_degrees,
+        plane_epsilon=plane_epsilon,
+        padding=padding_texels / texture_size,
+    )
+    vertices = sorted({(vertex[0], vertex[2]) for vertex in rich_vertices})
+    if len(vertices) > UV_LIMITS["max_accessor_elements"]:
+        raise UVGenerationError("uv_generation_vertex_budget", "generated UV seams exceed the attribute envelope")
+    lookup = {vertex: index for index, vertex in enumerate(vertices)}
+    remap = {index: lookup[(vertex[0], vertex[2])] for index, vertex in enumerate(rich_vertices)}
+    output_triangles = [tuple(remap[index] for index in triangle) for triangle in rich_triangles]
+    source_attributes = len({index for triangle in triangles for index in triangle})
+    metrics = {
+        **metrics,
+        "source_attribute_vertices": source_attributes,
+        "canonical_attribute_vertices": len(vertices),
+        "uv_split_count": len(vertices) - source_attributes,
+        "transient_geometric_normals_written": False,
+    }
+    return {"vertices": vertices, "triangles": output_triangles, "metrics": metrics}
+
+
 def _write_canonical(
     vertices: list[tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float]]],
     triangles: list[tuple[int, int, int]], material: str,

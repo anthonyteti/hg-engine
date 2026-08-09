@@ -57,6 +57,11 @@ def _validate_name(name: object) -> str:
     return name
 
 
+def validate_source_material_name(name: object) -> str:
+    """Validate the shared bounded source-material identity policy."""
+    return _validate_name(name)
+
+
 def _source_document(data: bytes) -> tuple[dict[str, Any], bytes, list[int]]:
     try:
         document, binary = _chunks(data, MATERIAL_LIMITS)

@@ -137,11 +137,12 @@ def build_parser() -> argparse.ArgumentParser:
         ("uvs", "generate manifest-declared bounded planar-patch UV0"),
         ("materials", "assign one manifest-declared bounded source-material identity"),
         ("geometry-reduce", "coarsely reduce bounded POSITION/index-only geometry"),
+        ("bootstrap", "atomically generate source material, planar UV0, and crease-aware normals"),
         ("compile", "write deterministic ignored asset artifacts"),
     ):
         child = asset_subparsers.add_parser(command, help=help_text)
         child.add_argument("manifest", type=Path)
-        if command in ("compile", "preprocess", "normals", "uvs", "materials", "geometry-reduce"):
+        if command in ("compile", "preprocess", "normals", "uvs", "materials", "geometry-reduce", "bootstrap"):
             child.add_argument("--output", type=Path)
         _add_output_argument(child)
     intake_parser = asset_subparsers.add_parser(
@@ -480,6 +481,15 @@ def main(argv: list[str] | None = None) -> int:
             else:
                 payload = reduce_geometry_manifest(args.manifest, PROJECT_ROOT)["report"]
             _print_json(payload) if args.json else _print_geometry_reduction(payload)
+        elif args.command == "asset" and args.asset_command == "bootstrap":
+            compiled = compile_asset(args.manifest, PROJECT_ROOT)
+            if compiled["bootstrapped_glb"] is None:
+                raise ValueError("asset bootstrap requires an opt-in Stage 4P manifest")
+            output = args.output or PROJECT_ROOT / "build" / "assets" / compiled["manifest"]["id"]
+            report = compile_asset_outputs(args.manifest, output, PROJECT_ROOT)
+            payload = dict(compiled["report"])
+            payload["outputs"] = report["outputs"]
+            _print_json(payload) if args.json else _print_asset(payload)
         elif args.command == "asset" and args.asset_command == "intake":
             if args.output:
                 payload = write_intake_report(args.manifest, args.output, PROJECT_ROOT)

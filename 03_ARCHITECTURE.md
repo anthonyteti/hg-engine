@@ -632,3 +632,21 @@ fidelity metrics. Neither module knows about Nitro commands, NSBMD, textures,
 collision, registry, or world layout. Stage 4O output is intentionally not a
 strict Stage 4F asset. See
 `docs/knowledge/hgss-stage4o-geometry-predecimation.md`.
+
+Stage 4P adds the explicit composition boundary Stage 4O was designed to feed:
+
+```text
+bounded POSITION + indices GLB
+  -> tools.pokeagent.glb_bootstrap atomic transaction
+  -> source identity + connected planar-patch UV0
+  -> final UV-aware crease normals
+  -> unchanged strict Stage 4F
+  -> existing typed IR / texture / collision / model / world path
+```
+
+The orchestrator reuses pure Stage 4M projection, Stage 4L final normal
+generation, and Stage 4N name semantics. It owns policy, ordering, provenance,
+atomic validation, and reporting—not the geometry algorithms. Optional
+`COLOR_0` discard is a separate explicit, hash-reported pre-geometry policy;
+it is never a default or a color conversion. See
+`docs/knowledge/hgss-stage4p-attribute-bootstrap.md`.
