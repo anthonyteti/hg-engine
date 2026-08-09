@@ -316,3 +316,18 @@ offsets, lengths, and command payloads must remain unchanged. The Stage 4H
 TripoSR input remains rejected and is not made viable by this bounded capacity
 increase. See `docs/STAGE_4I_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4i-model-capacity.md`.
+
+## Stage 4J decision: exact-first constrained approximate decimation
+
+Permit approximate loss only for schema-8 assets that explicitly opt into a
+fidelity policy and Stage 4I relocated storage. Run Stage 4G exact reduction
+first, then use deterministic quadric-error-ranked manifold edge collapses until
+the encoded Nitro stream first fits 4,096 bytes. Protect material/texture, UV
+seams, hard normals, boundaries, and ground contact; validate bounds, surface,
+normals, UVs, and five-view silhouette. Fail rather than exceed fidelity.
+
+This project-owned standard-library implementation supports valid typed static
+geometry only. It is not topology repair, hierarchy/transform handling,
+missing-attribute generation, a larger model budget, or approval of the
+rejected Stage 4H candidate. See `docs/STAGE_4J_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4j-approximate-decimation.md`.

@@ -69,8 +69,8 @@ def _array(document: dict[str, Any], key: str, code: str, *, maximum: int, exact
     return value
 
 
-def _chunks(data: bytes) -> tuple[dict[str, Any], bytes]:
-    if len(data) > GLB_LIMITS["max_source_bytes"]:
+def _chunks(data: bytes, limits: dict[str, int]) -> tuple[dict[str, Any], bytes]:
+    if len(data) > limits["max_source_bytes"]:
         raise GLBError("source_too_large", "GLB exceeds the bounded source byte budget")
     if len(data) < 20:
         raise GLBError("malformed_glb_length", "GLB is shorter than its header and JSON chunk")
@@ -107,7 +107,7 @@ def _chunks(data: bytes) -> tuple[dict[str, Any], bytes]:
     return document, chunks[1][1]
 
 
-def _validate_document(document: dict[str, Any], binary: bytes) -> dict[str, list[Any]]:
+def _validate_document(document: dict[str, Any], binary: bytes, limits: dict[str, int]) -> dict[str, list[Any]]:
     asset = document.get("asset")
     if not isinstance(asset, dict) or asset.get("version") != "2.0" or asset.get("minVersion") not in (None, "2.0"):
         raise GLBError("invalid_gltf_version", "GLB JSON asset must target glTF 2.0")
@@ -122,11 +122,11 @@ def _validate_document(document: dict[str, Any], binary: bytes) -> dict[str, lis
         raise GLBError("embedded_texture", "GLB images/textures are disallowed; use the project PNG catalog")
 
     scenes = _array(document, "scenes", "unsupported_scene", maximum=1, exact=1)
-    nodes = _array(document, "nodes", "unsupported_scene", maximum=GLB_LIMITS["max_nodes"], exact=1)
-    meshes = _array(document, "meshes", "unsupported_mesh_count", maximum=GLB_LIMITS["max_meshes"], exact=1)
+    nodes = _array(document, "nodes", "unsupported_scene", maximum=limits["max_nodes"], exact=1)
+    meshes = _array(document, "meshes", "unsupported_mesh_count", maximum=limits["max_meshes"], exact=1)
     materials = _array(document, "materials", "unsupported_material", maximum=1, exact=1)
-    accessors = _array(document, "accessors", "unsupported_accessor_count", maximum=GLB_LIMITS["max_accessors"])
-    views = _array(document, "bufferViews", "unsupported_buffer_view_count", maximum=GLB_LIMITS["max_buffer_views"])
+    accessors = _array(document, "accessors", "unsupported_accessor_count", maximum=limits["max_accessors"])
+    views = _array(document, "bufferViews", "unsupported_buffer_view_count", maximum=limits["max_buffer_views"])
     buffers = _array(document, "buffers", "unsupported_buffer_count", maximum=1, exact=1)
 
     if document.get("scene", 0) != 0 or not isinstance(scenes[0], dict) or scenes[0].get("nodes") != [0]:
@@ -148,7 +148,7 @@ def _validate_document(document: dict[str, Any], binary: bytes) -> dict[str, lis
     if not isinstance(buffer, dict) or set(buffer) - {"byteLength", "name"}:
         raise GLBError("external_uri", "GLB buffer must be the embedded buffer without a URI")
     byte_length = _integer(buffer.get("byteLength"), "invalid_buffer", "buffer.byteLength", minimum=1)
-    if byte_length > GLB_LIMITS["max_buffer_bytes"] or len(binary) < byte_length or len(binary) > byte_length + 3:
+    if byte_length > limits["max_buffer_bytes"] or len(binary) < byte_length or len(binary) > byte_length + 3:
         raise GLBError("invalid_buffer", "GLB BIN length disagrees with its declared buffer length")
     if any(binary[byte_length:]):
         raise GLBError("invalid_buffer_padding", "GLB BIN alignment padding must be zero")
@@ -179,6 +179,7 @@ def _decode_accessor(
     *,
     indices: bool = False,
     require_bounds: bool = False,
+    max_elements: int = GLB_LIMITS["max_accessor_elements"],
 ) -> tuple[tuple[float | int, ...], ...]:
     index = _integer(accessor_index, "invalid_accessor", "accessor index")
     if index >= len(arrays["accessors"]):
@@ -198,7 +199,7 @@ def _decode_accessor(
     if accessor.get("normalized", False) is not False:
         raise GLBError("unsupported_normalized_accessor", f"accessor {index} must not be normalized")
     count = _integer(accessor.get("count"), "invalid_accessor", f"accessor {index}.count", minimum=1)
-    if count > GLB_LIMITS["max_accessor_elements"]:
+    if count > max_elements:
         raise GLBError("accessor_over_budget", f"accessor {index} exceeds the element budget")
     view_index = _integer(accessor.get("bufferView"), "invalid_accessor", f"accessor {index}.bufferView")
     if view_index >= len(arrays["views"]):
@@ -242,15 +243,16 @@ def _decode_accessor(
     return tuple(values)
 
 
-def parse_glb(data: bytes) -> SourceMesh:
+def parse_glb(data: bytes, limits: dict[str, int] | None = None) -> SourceMesh:
     """Parse one static, identity-node, indexed-triangle GLB into neutral mesh records."""
-    document, binary = _chunks(data)
-    arrays = _validate_document(document, binary)
+    active_limits = {**GLB_LIMITS, **(limits or {})}
+    document, binary = _chunks(data, active_limits)
+    arrays = _validate_document(document, binary, active_limits)
     mesh = arrays["meshes"][0]
     if not isinstance(mesh, dict) or mesh.get("weights") is not None:
         raise GLBError("unsupported_morph_targets", "mesh weights and morph targets are unsupported")
     primitives = mesh.get("primitives")
-    if not isinstance(primitives, list) or not primitives or len(primitives) > GLB_LIMITS["max_primitives"]:
+    if not isinstance(primitives, list) or not primitives or len(primitives) > active_limits["max_primitives"]:
         raise GLBError("unsupported_primitive_count", "mesh must contain 1..4 triangle primitives")
 
     vertices: list[tuple[float, float, float]] = []
@@ -280,10 +282,14 @@ def parse_glb(data: bytes) -> SourceMesh:
             raise GLBError("missing_attribute", f"primitive {primitive_index} requires only POSITION/NORMAL/TEXCOORD_0; missing={missing}")
         positions = _decode_accessor(
             attributes["POSITION"], "VEC3", {5126}, arrays, binary, require_bounds=True,
+            max_elements=active_limits["max_accessor_elements"],
         )
-        primitive_normals = _decode_accessor(attributes["NORMAL"], "VEC3", {5126}, arrays, binary)
-        primitive_uvs = _decode_accessor(attributes["TEXCOORD_0"], "VEC2", {5126}, arrays, binary)
-        primitive_indices = _decode_accessor(primitive.get("indices"), "SCALAR", {5121, 5123, 5125}, arrays, binary, indices=True)
+        primitive_normals = _decode_accessor(attributes["NORMAL"], "VEC3", {5126}, arrays, binary, max_elements=active_limits["max_accessor_elements"])
+        primitive_uvs = _decode_accessor(attributes["TEXCOORD_0"], "VEC2", {5126}, arrays, binary, max_elements=active_limits["max_accessor_elements"])
+        primitive_indices = _decode_accessor(
+            primitive.get("indices"), "SCALAR", {5121, 5123, 5125}, arrays, binary,
+            indices=True, max_elements=active_limits["max_accessor_elements"],
+        )
         if len(positions) != len(primitive_normals) or len(positions) != len(primitive_uvs):
             raise GLBError("attribute_count_mismatch", "POSITION/NORMAL/TEXCOORD_0 counts must match")
         for normal in primitive_normals:

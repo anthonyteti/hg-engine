@@ -524,3 +524,20 @@ or write arbitrary model dictionaries. The compiler ceiling is the 4 KiB
 runtime-tested project capacity; the u32 format fields and unknown hardware
 ceiling are deliberately not exposed as authoring capacity. See
 `docs/knowledge/hgss-stage4i-model-capacity.md`.
+
+Stage 4J adds a second optional optimizer without changing source adapters or
+model layout ownership:
+
+```text
+normalized typed IR
+  -> Stage 4G exact coplanar reduction
+  -> schema-8 constrained approximate reduction to encoded-byte target
+  -> ordinary validation and Nitro encoder
+  -> Stage 4I relocated display-list writer/parser
+```
+
+`tools.pokeagent.mesh_decimate` owns deterministic QEM-ranked edge selection,
+collapse constraints, canonical ordering, and fidelity metrics. It knows no
+GLB/OBJ container, registry, texture container, collision, or NSBMD layout. The
+4,096-byte Stage 4I ceiling remains authoritative. See
+`docs/knowledge/hgss-stage4j-approximate-decimation.md`.

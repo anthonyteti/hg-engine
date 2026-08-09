@@ -248,6 +248,19 @@ materials, display-list regions beyond 4 KiB, or a general NSBMD writer. See
 `docs/STAGE_4I_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4i-model-capacity.md`.
 
+### Completed infrastructure checkpoint: Stage 4J
+
+Valid single-material non-coplanar static meshes may now opt into an exact-first
+deterministic approximate reduction policy. The dense shrine falls from 14,156
+projected Nitro bytes (10,928 after the exact pass) to a validated 4,024-byte
+relocated stream while preserving declared bounds, surface, silhouette,
+normals, UVs, texture, collision, and identity.
+
+This checkpoint does not repair malformed meshes, generate normals/UVs, flatten
+hierarchies, increase the 4 KiB ceiling, approve the Stage 4H candidate, or
+begin production art. See `docs/STAGE_4J_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4j-approximate-decimation.md`.
+
 ## Completed infrastructure checkpoint: Stage 3E2
 
 The revision-locked hybrid map-header layer has been proven for project IDs

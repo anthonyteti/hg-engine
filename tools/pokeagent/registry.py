@@ -818,6 +818,23 @@ def resolve_stage4i_source(
     return resolved
 
 
+def resolve_stage4j_source(
+    source: dict[str, Any],
+    registry_path: Path = DEFAULT_REGISTRY,
+) -> dict[str, Any]:
+    """Resolve Stage 4J through the unchanged Stage 4D resource graph."""
+    if source.get("schema_version") != 15 or source.get("artifact_namespace") != "stage4j":
+        raise RegistryError("unsupported_world_schema", "Stage 4J approximate-decimation source must use schema 15")
+    stage4d_view = copy.deepcopy(source)
+    stage4d_view["schema_version"] = 10
+    stage4d_view["artifact_namespace"] = "stage4d"
+    resolved = resolve_stage4d_source(stage4d_view, registry_path)
+    resolved["schema_version"] = 15
+    resolved["canonical_schema_version"] = 15
+    resolved["artifact_namespace"] = "stage4j"
+    return resolved
+
+
 def resolve_stage3e1_source(
     source: dict[str, Any],
     registry_path: Path = DEFAULT_REGISTRY,

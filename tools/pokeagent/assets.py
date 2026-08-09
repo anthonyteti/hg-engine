@@ -26,6 +26,7 @@ from .geometry import (
     inspect_mesh_display_list,
 )
 from .mesh_simplify import SimplificationError, simplify_coplanar_ir
+from .mesh_decimate import DecimationError, simplify_approximate_ir
 from .nsbmd_model import PROJECT_DISPLAY_LIST_TESTED_MAX
 from .textures import (
     compile_png,
@@ -35,7 +36,7 @@ from .textures import (
 )
 
 
-ASSET_SCHEMA_VERSIONS = {1, 2, 3, 4, 5, 6, 7}
+ASSET_SCHEMA_VERSIONS = {1, 2, 3, 4, 5, 6, 7, 8}
 CATALOG_SCHEMA_VERSION = 1
 SAFE_ID = re.compile(r"^[a-z][a-z0-9_]{0,63}$")
 STAGE4B_BUDGET = {
@@ -55,6 +56,15 @@ STAGE4G_SOURCE_BUDGET = {
     "max_uvs": 128,
     "max_normals": 64,
     "max_faces": 64,
+}
+STAGE4J_SOURCE_BUDGET = {
+    **STAGE4B_BUDGET,
+    "max_source_bytes": 524_288,
+    "max_vertices": 512,
+    "max_uvs": 512,
+    "max_normals": 256,
+    "max_faces": 256,
+    "max_projected_source_bytes": 24_000,
 }
 ASSET_MATERIAL_BINDINGS = {
     "prop": {
@@ -241,20 +251,22 @@ def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
         "coordinate_system", "normalization", "material_policy", "collision", "budget", "status",
     }
     if not isinstance(data, dict) or data.get("schema_version") not in ASSET_SCHEMA_VERSIONS:
-        raise AssetError("unsupported_manifest_schema", "asset manifest schema_version must be in 1..7")
+        raise AssetError("unsupported_manifest_schema", "asset manifest schema_version must be in 1..8")
     expected = common | ({"textures"} if data["schema_version"] == 2 else set())
-    if data["schema_version"] in (3, 4, 5, 6, 7):
+    if data["schema_version"] in (3, 4, 5, 6, 7, 8):
         expected |= {"texture_catalog"}
     if data["schema_version"] == 6:
         expected |= {"simplification"}
     if data["schema_version"] == 7:
         expected |= {"geometry_storage"}
+    if data["schema_version"] == 8:
+        expected |= {"simplification", "geometry_storage"}
     if set(data) != expected:
         raise AssetError("invalid_manifest", "asset manifest has unsupported or missing fields")
     if not isinstance(data.get("id"), str) or not SAFE_ID.fullmatch(data["id"]):
         raise AssetError("invalid_asset_id", "asset id must be stable lower snake_case")
     source = _safe_relative(root, data.get("source"), Path("assets/source"), "invalid_source")
-    expected_source = "glb" if data["schema_version"] in (5, 7) else "obj"
+    expected_source = "glb" if data["schema_version"] in (5, 7, 8) else "obj"
     if data["schema_version"] == 6:
         expected_source = data.get("source_format")
     if expected_source not in {"obj", "glb"} or source.suffix.lower() != f".{expected_source}":
@@ -300,6 +312,7 @@ def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
         5: "project_texture_catalog_binding",
         6: "project_texture_catalog_binding",
         7: "project_texture_catalog_binding",
+        8: "project_texture_catalog_binding",
     }
     expected_mode = expected_modes[data["schema_version"]]
     if not isinstance(material, dict) or set(material) != {"mode", "mappings"} or material["mode"] != expected_mode:
@@ -379,6 +392,7 @@ def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
     expected_budget = {
         6: "stage4g_dense_source",
         7: "stage4i_project_relocated",
+        8: "stage4j_approximate_source",
     }.get(data["schema_version"], "stage4b_proof")
     if data.get("budget") != expected_budget:
         raise AssetError(
@@ -409,7 +423,41 @@ def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
         reserve = simplification["reserve_bytes"]
         if isinstance(reserve, bool) or not isinstance(reserve, int) or not 0 <= reserve <= 2048:
             raise AssetError("invalid_target_budget", "simplification reserve_bytes must be an integer in 0..2048")
-    if data["schema_version"] == 7:
+    if data["schema_version"] == 8:
+        simplification = data.get("simplification")
+        if not isinstance(simplification, dict) or set(simplification) != {"pipeline", "exact", "approximate"}:
+            raise AssetError("invalid_approximate_simplification_policy", "Stage 4J requires exact and approximate policies")
+        if simplification["pipeline"] != "exact_then_approximate":
+            raise AssetError("unsupported_simplification_policy", "Stage 4J requires the exact-then-approximate pipeline")
+        exact = simplification["exact"]
+        if exact != {"policy": "exact_coplanar_patches", "enabled": True}:
+            raise AssetError("unsupported_simplification_policy", "Stage 4J always runs the bounded exact pass first")
+        approximate = simplification["approximate"]
+        expected_approximate = {
+            "policy", "target", "max_geometric_error", "max_surface_area_delta_percent",
+            "max_bounds_delta", "min_silhouette_iou", "max_normal_deviation_degrees", "max_uv_distortion_percent",
+            "hard_normal_degrees", "preserve_boundaries", "preserve_uv_seams",
+            "preserve_material_boundaries", "preserve_hard_normals",
+        }
+        if not isinstance(approximate, dict) or set(approximate) != expected_approximate:
+            raise AssetError("invalid_approximate_simplification_policy", "Stage 4J approximate policy is incomplete")
+        if approximate["policy"] != "constrained_deterministic_qem" or approximate["target"] != "fit_project_geometry":
+            raise AssetError("unsupported_simplification_policy", "Stage 4J supports only the constrained deterministic QEM policy")
+        if any(approximate[field] is not True for field in (
+            "preserve_boundaries", "preserve_uv_seams", "preserve_material_boundaries", "preserve_hard_normals",
+        )):
+            raise AssetError("unsupported_simplification_policy", "Stage 4J requires all structural protections")
+        ranges = {
+            "max_geometric_error": (0.001, 1.0), "max_bounds_delta": (0.001, 1.0),
+            "max_surface_area_delta_percent": (0.1, 30.0),
+            "min_silhouette_iou": (0.5, 1.0), "max_normal_deviation_degrees": (1.0, 90.0),
+            "max_uv_distortion_percent": (1.0, 100.0), "hard_normal_degrees": (1.0, 120.0),
+        }
+        for field, (minimum, maximum) in ranges.items():
+            value = approximate[field]
+            if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or not minimum <= value <= maximum:
+                raise AssetError("invalid_approximate_simplification_policy", f"{field} is outside its bounded range")
+    if data["schema_version"] in (7, 8):
         storage = data.get("geometry_storage")
         if not isinstance(storage, dict) or set(storage) != {"policy", "max_bytes"}:
             raise AssetError("invalid_geometry_storage", "Stage 4I geometry_storage requires policy and max_bytes")
@@ -434,7 +482,11 @@ def load_manifest(path: Path, root: Path) -> tuple[dict[str, Any], bytes]:
 
 
 def _normalized_ir(manifest: dict[str, Any], mesh: SourceMesh, root: Path | None = None) -> dict[str, Any]:
-    budget = STAGE4G_SOURCE_BUDGET if manifest["schema_version"] in (6, 7) else STAGE4B_BUDGET
+    budget = (
+        STAGE4J_SOURCE_BUDGET if manifest["schema_version"] == 8
+        else STAGE4G_SOURCE_BUDGET if manifest["schema_version"] in (6, 7)
+        else STAGE4B_BUDGET
+    )
     counts = {
         "vertices": len(mesh.vertices), "uvs": len(mesh.uvs),
         "normals": len(mesh.normals), "faces": len(mesh.faces),
@@ -475,7 +527,7 @@ def _normalized_ir(manifest: dict[str, Any], mesh: SourceMesh, root: Path | None
     texture_dimensions = {
         texture["id"]: texture["dimensions"] for texture in manifest.get("textures", [])
     }
-    if manifest["schema_version"] in (3, 4, 5, 6, 7):
+    if manifest["schema_version"] in (3, 4, 5, 6, 7, 8):
         if root is None:
             raise AssetError("invalid_texture_catalog", "Stage 4D normalization requires its repository root")
         catalog = compile_texture_catalog(root / manifest["texture_catalog"], root)
@@ -620,7 +672,11 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
         mesh = parse_obj(source_bytes)
     else:
         try:
-            mesh = parse_glb(source_bytes)
+            mesh = parse_glb(
+                source_bytes,
+                STAGE4J_SOURCE_BUDGET | {"max_accessor_elements": 1024, "max_buffer_bytes": 524_288}
+                if manifest["schema_version"] == 8 else None,
+            )
         except GLBError as error:
             raise AssetError(error.code, str(error), **error.details) from error
     source_ir = _normalized_ir(manifest, mesh, root)
@@ -630,6 +686,12 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
         raise AssetError("unsupported_material", "asset must resolve to one verified template alias")
     binding = ASSET_MATERIAL_BINDINGS[aliases[0]]
     source_display_list, source_primitive_plan = _encode_asset_primitives(source_primitives)
+    if manifest["schema_version"] == 8 and len(source_display_list) > STAGE4J_SOURCE_BUDGET["max_projected_source_bytes"]:
+        raise AssetError(
+            "projected_source_over_budget", "Stage 4J source exceeds the bounded preprocessing envelope",
+            projected_bytes=len(source_display_list),
+            maximum_bytes=STAGE4J_SOURCE_BUDGET["max_projected_source_bytes"],
+        )
     ir = source_ir
     simplification_report = None
     target_bytes = binding["capacity_bytes"]
@@ -646,11 +708,34 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
             raise AssetError(error.code, str(error), **error.details) from error
     elif manifest["schema_version"] == 7:
         target_bytes = manifest["geometry_storage"]["max_bytes"]
+    elif manifest["schema_version"] == 8:
+        target_bytes = manifest["geometry_storage"]["max_bytes"]
+        try:
+            exact_ir, exact_report = simplify_coplanar_ir(source_ir)
+        except SimplificationError as error:
+            raise AssetError(error.code, str(error), **error.details) from error
+        exact_display_list, exact_plan = _encode_asset_primitives(_ir_primitives(exact_ir))
+        try:
+            ir, approximate_report = simplify_approximate_ir(
+                exact_ir, target_bytes, manifest["simplification"]["approximate"],
+            )
+        except DecimationError as error:
+            raise AssetError(error.code, str(error), **error.details) from error
+        simplification_report = {
+            "pipeline": "exact_then_approximate", "exact": exact_report,
+            "approximate": approximate_report,
+            "source_projected_display_list_bytes": len(source_display_list),
+            "post_exact_display_list_bytes": len(exact_display_list),
+            "post_exact_counts": {
+                "triangles": exact_plan["triangle_count"], "quads": exact_plan["quad_count"],
+                "emitted_vertices": exact_plan["vertex_count"],
+            },
+        }
     primitives = _ir_primitives(ir)
     display_list, primitive_plan = _encode_asset_primitives(primitives)
     if len(display_list) > target_bytes:
         code = (
-            "simplification_target_unreachable" if manifest["schema_version"] == 6
+            "simplification_target_unreachable" if manifest["schema_version"] in (6, 8)
             else "project_geometry_capacity_exceeded" if manifest["schema_version"] == 7
             else "display_list_overflow"
         )
@@ -659,7 +744,7 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
             "capacity_bytes": binding["capacity_bytes"], "shape": binding["shape"],
         }
         message = "asset display list exceeds its allowed template shape budget"
-        if manifest["schema_version"] == 7:
+        if manifest["schema_version"] in (7, 8):
             message = "asset display list exceeds its configured geometry storage"
             details.update({
                 "asset_id": manifest["id"],
@@ -714,12 +799,16 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
         "material_index": binding["material_index"],
         "material_name": binding["material_name"],
         "display_list_bytes": len(display_list),
-        "display_list_capacity_bytes": target_bytes if manifest["schema_version"] == 7 else binding["capacity_bytes"],
+        "display_list_capacity_bytes": target_bytes if manifest["schema_version"] in (7, 8) else binding["capacity_bytes"],
         "inherited_display_list_capacity_bytes": binding["capacity_bytes"],
         "display_list_target_bytes": target_bytes,
         "shape_utilization_percent": round(len(display_list) * 100 / target_bytes, 3),
         "collision": {"policy": "footprint_rect", "rectangle": rectangle},
-        "budget": dict(STAGE4G_SOURCE_BUDGET if manifest["schema_version"] in (6, 7) else STAGE4B_BUDGET),
+        "budget": dict(
+            STAGE4J_SOURCE_BUDGET if manifest["schema_version"] == 8
+            else STAGE4G_SOURCE_BUDGET if manifest["schema_version"] in (6, 7)
+            else STAGE4B_BUDGET
+        ),
         "hashes": {
             "normalized_source_mesh_sha256": _hash((json.dumps(source_ir, sort_keys=True, separators=(",", ":")) + "\n").encode()),
             "normalized_mesh_sha256": _hash((json.dumps(ir, sort_keys=True, separators=(",", ":")) + "\n").encode()),
@@ -727,7 +816,7 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
             "collision_sha256": _hash((json.dumps(rectangle, sort_keys=True, separators=(",", ":")) + "\n").encode()),
         },
     }
-    if simplification_report is not None:
+    if simplification_report is not None and manifest["schema_version"] == 6:
         source_bytes_count = len(source_display_list)
         simplification_report.update({
             "applied": True,
@@ -743,7 +832,15 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
             "byte_reduction_percent": round((source_bytes_count - len(display_list)) * 100 / source_bytes_count, 3),
         })
         report["simplification"] = simplification_report
-    if manifest["schema_version"] == 7:
+    elif simplification_report is not None:
+        simplification_report.update({
+            "final_display_list_bytes": len(display_list), "target_bytes": target_bytes,
+            "final_utilization_percent": round(len(display_list) * 100 / target_bytes, 3),
+            "source_overflow_bytes": max(0, len(source_display_list) - target_bytes),
+            "post_exact_overflow_bytes": max(0, simplification_report["post_exact_display_list_bytes"] - target_bytes),
+        })
+        report["simplification"] = simplification_report
+    if manifest["schema_version"] in (7, 8):
         report["geometry_storage"] = {
             **manifest["geometry_storage"],
             "inherited_capacity_bytes": binding["capacity_bytes"],
@@ -753,7 +850,7 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
     compiled_textures = {
         texture["id"]: compile_png(texture, root) for texture in manifest.get("textures", [])
     }
-    if manifest["schema_version"] in (3, 4, 5, 6, 7):
+    if manifest["schema_version"] in (3, 4, 5, 6, 7, 8):
         compiled_textures = compile_texture_catalog(root / manifest["texture_catalog"], root)["textures"]
     if compiled_textures:
         report["textures"] = {
@@ -777,7 +874,7 @@ def compile_asset_outputs(manifest_path: Path, output: Path, root: Path) -> dict
         "policy": "footprint_rect", "rectangle": compiled["collision"],
     }, indent=2, sort_keys=True) + "\n").encode()
     (output / "normalized-mesh.json").write_bytes(source_ir_bytes)
-    if compiled["manifest"]["schema_version"] == 6:
+    if compiled["manifest"]["schema_version"] in (6, 8):
         (output / "simplified-mesh.json").write_bytes(ir_bytes)
     (output / "display-list.bin").write_bytes(compiled["display_list"])
     (output / "collision.json").write_bytes(collision_bytes)
@@ -791,7 +888,7 @@ def compile_asset_outputs(manifest_path: Path, output: Path, root: Path) -> dict
         "collision": "collision.json",
         "report": "asset-report.json",
     }
-    if compiled["manifest"]["schema_version"] == 6:
+    if compiled["manifest"]["schema_version"] in (6, 8):
         report["outputs"]["simplified_mesh"] = "simplified-mesh.json"
     if compiled["textures"]:
         report["outputs"]["textures"] = "textures/"
@@ -881,7 +978,7 @@ def compile_placements(catalog_path: Path, placements: object, root: Path) -> di
         }
         binding = ASSET_MATERIAL_BINDINGS[next(iter(aliases))]
         asset_ids_by_shape.setdefault(binding["shape"], set()).add(asset_id)
-        if compiled["manifest"]["schema_version"] == 7:
+        if compiled["manifest"]["schema_version"] in (7, 8):
             project_capacity = int(compiled["manifest"]["geometry_storage"]["max_bytes"])
             previous = project_capacity_by_shape.setdefault(binding["shape"], project_capacity)
             if previous != project_capacity:

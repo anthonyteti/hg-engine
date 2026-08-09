@@ -1,0 +1,28 @@
+{
+  "schema_version": 15,
+  "id": "stage4j_approximate_decimation_world_32x32",
+  "artifact_namespace": "stage4j",
+  "registry": "world/registry.json",
+  "dimensions": {"width": 32, "height": 32},
+  "world": {"matrix": {"id": "stage3c_proof_matrix", "width": 1, "height": 1, "name": "stage4j-decimation", "cells": ["stage4j_decimation_map"], "altitudes": [0]}},
+  "map": {
+    "id": "stage4j_decimation_map",
+    "matrix": "stage3c_proof_matrix",
+    "map_header": "stage3c_proof_northwest_header",
+    "map_member": "stage3c_proof_northwest_member",
+    "event_bank": "stage3c_empty_events",
+    "script_bank": "stage3c_noop_scripts",
+    "script_header": "stage3c_script_header",
+    "text_bank": "stage3c_proof_text"
+  },
+  "resources": {"event_bank": "stage3c_empty_events", "local_script_bank": "stage3c_noop_scripts", "start_script": "stage3c_controlled_start_script", "script_header": "stage3c_script_header", "text_bank": "stage3c_proof_text"},
+  "model": {"template_map_member": "verified_stage2_model_template", "template_member_sha256": "f9fbf0196f416739019288f24be604fd6c096a2ec4ebf7e820e116e7ecc329cc", "area_data": "stage4d_project_area_data", "half_extent": 16},
+  "texture_container": {"catalog": "assets/texture_catalog.json", "area_data_bank": "stage4d_project_area_data", "area_texture_member": "stage4d_project_area_texture"},
+  "terrain": {"height": 0, "block_border": true, "permission_type": 0, "walkable_collision": 0, "blocked_collision": 128},
+  "asset_catalog": "assets/catalog.json",
+  "assets": [{"id": "approximate_shrine_center", "asset": "stage4j_dense_stone_shrine", "x": 16, "z": 16, "rotation": 0}],
+  "player_start": {"map": "stage4j_decimation_map", "x": 16, "z": 23, "direction": 0},
+  "warps": [],
+  "text": "STAGE 4J APPROXIMATE DECIMATION PROOF",
+  "header_template": "verified_normal_overworld_header_template"
+}

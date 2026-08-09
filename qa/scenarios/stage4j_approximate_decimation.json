@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "stage4j_approximate_decimation",
+  "fixture": "fixtures/stage4j_approximate_decimation_world.json",
+  "build_target": "stage4j-approx-decimation-proof",
+  "entry": {"mode": "new_game_controlled"},
+  "steps": [
+    {"assert": "rom_running", "value": true},
+    {"assert": "map_id", "value": 538},
+    {"assert": "matrix_id", "value": 1},
+    {"assert": "map_member", "value": 633},
+    {"assert": "position", "x": 16, "z": 23},
+    {"assert": "height", "current_height": 0, "position_y_fx32": 0},
+    {"assert": "event_counts", "npc": 0, "warp": 0},
+    {"action": "move", "direction": "north", "tiles": 5},
+    {"assert": "position", "x": 16, "z": 18},
+    {"assert": "collision_blocked", "direction": "north"},
+    {"action": "move", "direction": "east", "tiles": 4},
+    {"action": "move", "direction": "north", "tiles": 6},
+    {"action": "move", "direction": "west", "tiles": 4},
+    {"assert": "position", "x": 16, "z": 12},
+    {"action": "capture", "name": "approximate_shrine_front"},
+    {"assert": "screenshot_valid", "name": "approximate_shrine_front"},
+    {"action": "move", "direction": "west", "tiles": 5},
+    {"assert": "position", "x": 11, "z": 12},
+    {"action": "capture", "name": "approximate_shrine_rear"},
+    {"assert": "screenshot_valid", "name": "approximate_shrine_rear"},
+    {"action": "wait", "frames": 600},
+    {"assert": "rom_running", "value": true},
+    {"assert": "position", "x": 11, "z": 12}
+  ]
+}

@@ -169,6 +169,9 @@ endif
 ifeq ($(STAGE4I_MODEL_CAPACITY),Y)
     WORLD_INSTALL_ARGS := --fixture fixtures/stage4i_expanded_geometry_world.json --output build/stage4i/generated
 endif
+ifeq ($(STAGE4J_APPROX_DECIMATION),Y)
+    WORLD_INSTALL_ARGS := --fixture fixtures/stage4j_approximate_decimation_world.json --output build/stage4j/generated
+endif
 
 ####################### Output #######################
 C_SUBDIR = src
@@ -464,6 +467,11 @@ stage4g-simplification-proof:
 stage4i-model-capacity-proof:
 	$(MAKE) clean
 	$(MAKE) STAGE2_MAP=Y STAGE4I_MODEL_CAPACITY=Y
+
+.PHONY: stage4j-approx-decimation-proof
+stage4j-approx-decimation-proof:
+	$(MAKE) clean
+	$(MAKE) STAGE2_MAP=Y STAGE4J_APPROX_DECIMATION=Y
 
 ALL_CODE_OBJS := $(patsubst $(C_SUBDIR)/%.c,$(BUILD)/%.o,$(ALL_C_SRCS)) \
  $(patsubst $(ASM_SUBDIR)/%.s,$(BUILD)/%.o,$(ALL_ASM_SRCS)) \

@@ -32,6 +32,10 @@
     {
       "id": "stage4i_expanded_gatehouse",
       "manifest": "assets/manifests/stage4i_expanded_gatehouse.json"
+    },
+    {
+      "id": "stage4j_dense_stone_shrine",
+      "manifest": "assets/manifests/stage4j_dense_stone_shrine.json"
     }
   ]
 }
