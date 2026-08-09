@@ -450,3 +450,19 @@ Terrain continues using its proven quad compiler. Asset schemas 1--3 remain
 quad-only; schema 4 is the explicit triangle capability boundary. Nitro strips,
 fans, N-gons, auto-triangulation, and relocation remain outside the compiler.
 See `docs/knowledge/hgss-stage4e-triangle-assets.md`.
+
+Stage 4F makes source parsing explicitly pluggable while keeping one downstream
+asset compiler:
+
+```text
+bounded OBJ parser ─┐
+                    ├─> SourceMesh records -> shared normalization/typed IR
+bounded GLB parser ─┘                        -> budgets/Nitro/textures/collision
+```
+
+`tools.pokeagent.asset_source` owns the source-neutral corner, face, and mesh
+records. `tools.pokeagent.glb` owns only the strict offline GLB 2.0 container,
+scene, bufferView, accessor, and triangle decoding boundary. GLB UVs are
+canonicalized from the official upper-left convention before the existing
+texture-coordinate path. The world compiler and Nitro encoder never inspect
+GLB structures. See `docs/knowledge/hgss-stage4f-glb-assets.md`.

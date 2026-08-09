@@ -1,15 +1,12 @@
-"""Deterministic, bounded OBJ ingestion for static environment assets.
+"""Deterministic, bounded external static-mesh ingestion.
 
-The importer intentionally accepts one conservative subset: finite Y-up
-right-handed OBJ meshes made from planar quads and, for Stage 4E schema 4,
-independent triangles with explicit UVs, normals, and one manifest-mapped
-material. It produces the neutral normalized mesh IR, budget report, collision
-proxy, and bounded Nitro primitive command stream.
+OBJ and GLB parsers terminate at one source-neutral mesh record. Shared
+normalization, validation, budgets, typed mesh IR, Nitro encoding, texture
+binding, placement, and collision remain format-independent.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import hashlib
 import json
 import math
@@ -17,6 +14,8 @@ from pathlib import Path
 import re
 from typing import Any
 
+from .asset_source import MeshCorner, MeshFace, SourceMesh
+from .glb import GLBError, parse_glb
 from .geometry import (
     MODEL_BASE_Y,
     MODEL_TILE_SCALE,
@@ -34,7 +33,7 @@ from .textures import (
 )
 
 
-ASSET_SCHEMA_VERSIONS = {1, 2, 3, 4}
+ASSET_SCHEMA_VERSIONS = {1, 2, 3, 4, 5}
 CATALOG_SCHEMA_VERSION = 1
 SAFE_ID = re.compile(r"^[a-z][a-z0-9_]{0,63}$")
 STAGE4B_BUDGET = {
@@ -76,32 +75,6 @@ class AssetError(ValueError):
         return {"code": self.code, "message": str(self), "details": self.details}
 
 
-@dataclass(frozen=True)
-class OBJCorner:
-    vertex: int
-    uv: int
-    normal: int
-
-
-@dataclass(frozen=True)
-class OBJFace:
-    id: str
-    material: str
-    corners: tuple[OBJCorner, ...]
-
-    @property
-    def primitive(self) -> str:
-        return "triangle" if len(self.corners) == 3 else "quad"
-
-
-@dataclass(frozen=True)
-class OBJMesh:
-    vertices: tuple[tuple[float, float, float], ...]
-    uvs: tuple[tuple[float, float], ...]
-    normals: tuple[tuple[float, float, float], ...]
-    faces: tuple[OBJFace, ...]
-
-
 def _hash(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
@@ -130,7 +103,7 @@ def _safe_relative(root: Path, value: object, required_parent: Path, code: str) 
     return resolved
 
 
-def parse_obj(data: bytes) -> OBJMesh:
+def parse_obj(data: bytes) -> SourceMesh:
     """Parse the deterministic explicit triangle/quad OBJ subset."""
     if len(data) > STAGE4B_BUDGET["max_source_bytes"]:
         raise AssetError("source_too_large", "OBJ exceeds the Stage 4B source byte budget")
@@ -141,7 +114,7 @@ def parse_obj(data: bytes) -> OBJMesh:
     vertices: list[tuple[float, float, float]] = []
     uvs: list[tuple[float, float]] = []
     normals: list[tuple[float, float, float]] = []
-    faces: list[OBJFace] = []
+    faces: list[MeshFace] = []
     material: str | None = None
     allowed_ignored = {"o", "g", "s"}
     for line_number, raw_line in enumerate(text.splitlines(), 1):
@@ -179,7 +152,7 @@ def parse_obj(data: bytes) -> OBJMesh:
                 )
             if material is None:
                 raise AssetError("unsupported_material", f"line {line_number}: face has no usemtl assignment")
-            corners: list[OBJCorner] = []
+            corners: list[MeshCorner] = []
             for token in fields[1:]:
                 indices = token.split("/")
                 if len(indices) != 3 or not all(indices):
@@ -190,8 +163,8 @@ def parse_obj(data: bytes) -> OBJMesh:
                     raise AssetError("malformed_mesh", f"line {line_number}: invalid face index") from error
                 if min(vertex, uv, normal) <= 0:
                     raise AssetError("unsupported_index", f"line {line_number}: zero/negative OBJ indices are unsupported")
-                corners.append(OBJCorner(vertex - 1, uv - 1, normal - 1))
-            faces.append(OBJFace(f"face_{len(faces):03d}", material, tuple(corners)))
+                corners.append(MeshCorner(vertex - 1, uv - 1, normal - 1))
+            faces.append(MeshFace(f"face_{len(faces):03d}", material, tuple(corners)))
         elif keyword in allowed_ignored:
             continue
         else:
@@ -202,7 +175,14 @@ def parse_obj(data: bytes) -> OBJMesh:
         for corner in face.corners:
             if corner.vertex >= len(vertices) or corner.uv >= len(uvs) or corner.normal >= len(normals):
                 raise AssetError("invalid_index", f"{face.id} references an out-of-range OBJ index")
-    return OBJMesh(tuple(vertices), tuple(uvs), tuple(normals), tuple(faces))
+    return SourceMesh(
+        tuple(vertices), tuple(uvs), tuple(normals), tuple(faces),
+        {
+            "source_format": "obj", "uv_origin": "lower_left",
+            "scene_count": 1, "node_count": 1, "mesh_count": 1,
+            "primitive_count": len(faces),
+        },
+    )
 
 
 def _axis(value: object, field: str) -> tuple[float, float, float]:
@@ -252,17 +232,21 @@ def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
         "coordinate_system", "normalization", "material_policy", "collision", "budget", "status",
     }
     if not isinstance(data, dict) or data.get("schema_version") not in ASSET_SCHEMA_VERSIONS:
-        raise AssetError("unsupported_manifest_schema", "asset manifest schema_version must be 1, 2, 3, or 4")
+        raise AssetError("unsupported_manifest_schema", "asset manifest schema_version must be 1, 2, 3, 4, or 5")
     expected = common | ({"textures"} if data["schema_version"] == 2 else set())
-    if data["schema_version"] in (3, 4):
+    if data["schema_version"] in (3, 4, 5):
         expected |= {"texture_catalog"}
     if set(data) != expected:
         raise AssetError("invalid_manifest", "asset manifest has unsupported or missing fields")
     if not isinstance(data.get("id"), str) or not SAFE_ID.fullmatch(data["id"]):
         raise AssetError("invalid_asset_id", "asset id must be stable lower snake_case")
     source = _safe_relative(root, data.get("source"), Path("assets/source"), "invalid_source")
-    if source.suffix.lower() != ".obj" or data.get("source_format") != "obj":
-        raise AssetError("unsupported_source_format", "Stage 4B supports OBJ source only")
+    expected_source = "glb" if data["schema_version"] == 5 else "obj"
+    if source.suffix.lower() != f".{expected_source}" or data.get("source_format") != expected_source:
+        raise AssetError(
+            "unsupported_source_format",
+            f"asset manifest schema {data['schema_version']} requires {expected_source.upper()} source",
+        )
     if not source.is_file():
         raise AssetError("missing_source", f"asset source does not exist: {data.get('source')}")
     if data.get("category") not in {"building_shell", "outdoor_prop"}:
@@ -297,6 +281,7 @@ def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
         2: "existing_template_alias_with_project_texture",
         3: "project_texture_catalog_binding",
         4: "project_texture_catalog_binding",
+        5: "project_texture_catalog_binding",
     }
     expected_mode = expected_modes[data["schema_version"]]
     if not isinstance(material, dict) or set(material) != {"mode", "mappings"} or material["mode"] != expected_mode:
@@ -387,7 +372,7 @@ def load_manifest(path: Path, root: Path) -> tuple[dict[str, Any], bytes]:
     return _validate_manifest(data, root), raw
 
 
-def _normalized_ir(manifest: dict[str, Any], mesh: OBJMesh, root: Path | None = None) -> dict[str, Any]:
+def _normalized_ir(manifest: dict[str, Any], mesh: SourceMesh, root: Path | None = None) -> dict[str, Any]:
     counts = {
         "vertices": len(mesh.vertices), "uvs": len(mesh.uvs),
         "normals": len(mesh.normals), "faces": len(mesh.faces),
@@ -428,19 +413,25 @@ def _normalized_ir(manifest: dict[str, Any], mesh: OBJMesh, root: Path | None = 
     texture_dimensions = {
         texture["id"]: texture["dimensions"] for texture in manifest.get("textures", [])
     }
-    if manifest["schema_version"] in (3, 4):
+    if manifest["schema_version"] in (3, 4, 5):
         if root is None:
             raise AssetError("invalid_texture_catalog", "Stage 4D normalization requires its repository root")
         catalog = compile_texture_catalog(root / manifest["texture_catalog"], root)
         texture_dimensions = {
             symbol: texture["spec"]["dimensions"] for symbol, texture in catalog["textures"].items()
         }
+    canonical_uvs = tuple(
+        (u, 1.0 - v) if mesh.metadata.get("uv_origin") == "upper_left" else (u, v)
+        for u, v in mesh.uvs
+    )
+    if any(not math.isfinite(value) or value < 0.0 or value > 1.0 for uv in canonical_uvs for value in uv):
+        raise AssetError("invalid_uv", "source UVs must resolve to the canonical 0..1 range")
     faces: list[dict[str, Any]] = []
     for face in mesh.faces:
         if manifest["schema_version"] < 4 and face.primitive != "quad":
             raise AssetError("unsupported_polygon", "legacy asset manifests remain quad-only")
         if face.material not in material_mappings:
-            raise AssetError("unsupported_material", f"OBJ material {face.material!r} is not mapped by the manifest")
+            raise AssetError("unsupported_material", f"source material {face.material!r} is not mapped by the manifest")
         points = tuple(vertices[corner.vertex] for corner in face.corners)
         if len(set(points)) != len(points):
             raise AssetError("degenerate_face", f"{face.id} repeats one or more positions")
@@ -485,7 +476,7 @@ def _normalized_ir(manifest: dict[str, Any], mesh: OBJMesh, root: Path | None = 
             "handedness": "right", "anchor": "footprint_center_base",
         },
         "vertices": [list(vertex) for vertex in vertices],
-        "uvs": [list(uv) for uv in mesh.uvs],
+        "uvs": [list(uv) for uv in canonical_uvs],
         "faces": faces,
         "bounds": bounds,
         "source_bounds_after_axis_scale": source_bounds,
@@ -554,7 +545,13 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
     manifest, manifest_bytes = load_manifest(manifest_path, root)
     source_path = (root / manifest["source"]).resolve()
     source_bytes = source_path.read_bytes()
-    mesh = parse_obj(source_bytes)
+    if manifest["source_format"] == "obj":
+        mesh = parse_obj(source_bytes)
+    else:
+        try:
+            mesh = parse_glb(source_bytes)
+        except GLBError as error:
+            raise AssetError(error.code, str(error), **error.details) from error
     ir = _normalized_ir(manifest, mesh, root)
     primitives = _ir_primitives(ir)
     aliases = sorted({primitive.material for primitive in primitives})
@@ -579,9 +576,10 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
         "success": True,
         "asset_id": manifest["id"],
         "source": manifest["source"],
-        "source_format": "obj",
+        "source_format": manifest["source_format"],
         "source_sha256": _hash(source_bytes),
         "manifest_sha256": _hash(manifest_bytes),
+        "source_details": mesh.metadata,
         "source_counts": {
             "vertices": len(mesh.vertices), "uvs": len(mesh.uvs),
             "normals": len(mesh.normals), "faces": len(mesh.faces),
@@ -620,7 +618,7 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
     compiled_textures = {
         texture["id"]: compile_png(texture, root) for texture in manifest.get("textures", [])
     }
-    if manifest["schema_version"] in (3, 4):
+    if manifest["schema_version"] in (3, 4, 5):
         compiled_textures = compile_texture_catalog(root / manifest["texture_catalog"], root)["textures"]
     if compiled_textures:
         report["textures"] = {

@@ -236,3 +236,25 @@ inspection without changing the Stage 4D texture container.
 
 See `docs/STAGE_4E_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4e-triangle-assets.md`.
+
+## Stage 4F decision: bounded project-owned GLB 2.0 reader
+
+Add GLB as a source adapter only. A project-owned standard-library parser
+accepts one embedded, static glTF 2.0 scene with one identity-transform mesh
+node, one named material, and one to four indexed independent-triangle
+primitives containing authored float32 positions, unit normals, and UVs. It
+decodes tightly packed or bounded interleaved buffer views and unsigned
+8/16/32-bit indices, then terminates at the same source-neutral records used by
+OBJ. Normalization, winding checks, typed IR, budgets, Nitro encoding, project
+textures, placement, and collision remain shared.
+
+Reject external/remote resources, embedded images, extensions, transforms,
+hierarchies, animation, skins, morphs, sparse/normalized accessors, other
+primitive modes, missing attributes, and PBR material state. No dependency was
+added: the evaluated MIT `pygltflib` 1.16.5 package was broader than the proof
+and would not remove the need for project-specific security and subset
+validation. This decision proves modern single-file interchange without
+authorizing GLTF breadth, repair, simplification, or generated assets.
+
+See `docs/STAGE_4F_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4f-glb-assets.md`.

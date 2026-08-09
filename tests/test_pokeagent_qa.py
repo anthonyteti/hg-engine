@@ -26,6 +26,7 @@ SCENARIOS = (
     ROOT / "qa/scenarios/stage4c_project_texture.json",
     ROOT / "qa/scenarios/stage4d_scalable_textures.json",
     ROOT / "qa/scenarios/stage4e_triangle_asset.json",
+    ROOT / "qa/scenarios/stage4f_glb_asset.json",
 )
 
 

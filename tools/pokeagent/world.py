@@ -29,6 +29,7 @@ from .registry import (
     resolve_stage4c_source,
     resolve_stage4d_source,
     resolve_stage4e_source,
+    resolve_stage4f_source,
     resolve_world_source,
     verify_rom_revision,
 )
@@ -115,15 +116,20 @@ def load_fixture(path: Path = DEFAULT_FIXTURE) -> dict[str, Any]:
         if not isinstance(registry_reference, str):
             raise WorldBuildError("Stage 4E fixture must declare a symbolic registry path")
         fixture = resolve_stage4e_source(fixture, PROJECT_ROOT / registry_reference)
+    elif fixture.get("schema_version") == 12:
+        registry_reference = fixture.get("registry")
+        if not isinstance(registry_reference, str):
+            raise WorldBuildError("Stage 4F fixture must declare a symbolic registry path")
+        fixture = resolve_stage4f_source(fixture, PROJECT_ROOT / registry_reference)
     validate_fixture(fixture)
     return fixture
 
 
 def validate_fixture(fixture: dict[str, Any]) -> None:
     schema_version = fixture.get("schema_version")
-    if schema_version not in (1, 2, 3, 5, 6, 7, 8, 9, 10, 11):
-        raise WorldBuildError("only resolved Stage 2 through Stage 4E schemas are supported")
-    if schema_version in (8, 9, 10, 11):
+    if schema_version not in (1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12):
+        raise WorldBuildError("only resolved Stage 2 through Stage 4F schemas are supported")
+    if schema_version in (8, 9, 10, 11, 12):
         _validate_stage4b_fixture(fixture)
         return
     if schema_version == 7:
@@ -228,9 +234,10 @@ def _validate_stage4b_fixture(fixture: dict[str, Any]) -> None:
         9: ("stage4c", "stage4c-texture"),
         10: ("stage4d", "stage4d-scalable-textures"),
         11: ("stage4e", "stage4e-triangles"),
+        12: ("stage4f", "stage4f-glb"),
     }
     if schema not in expected:
-        raise WorldBuildError("asset fixture must use a resolved Stage 4B through Stage 4E schema")
+        raise WorldBuildError("asset fixture must use a resolved Stage 4B through Stage 4F schema")
     namespace, matrix_name = expected[schema]
     if fixture.get("artifact_namespace") != namespace or fixture.get("canonical_schema_version") != schema:
         raise WorldBuildError(f"resolved {namespace} source must preserve schema and artifact identity")
@@ -249,7 +256,7 @@ def _validate_stage4b_fixture(fixture: dict[str, Any]) -> None:
         raise WorldBuildError("Stage 4B asset proof must not add NPCs or warps")
     expected_start = (
         {"x": 16, "z": 24, "direction": 0} if schema == 10
-        else {"x": 16, "z": 22, "direction": 0} if schema == 11
+        else {"x": 16, "z": 22, "direction": 0} if schema in (11, 12)
         else {"x": 16, "z": 20, "direction": 0}
     )
     if fixture.get("player_start") != expected_start:
@@ -298,6 +305,20 @@ def _validate_stage4b_fixture(fixture: dict[str, Any]) -> None:
         counts = asset["report"]["normalized_counts"]
         if asset["manifest"]["schema_version"] != 4 or counts["triangles"] < 1 or counts["quads"] < 1:
             raise WorldBuildError("Stage 4E proof asset must contain both triangles and quads")
+    if schema == 12:
+        container = fixture.get("texture_container", {})
+        if container.get("area_data_bank") != 106 or container.get("area_texture_member") != 106:
+            raise WorldBuildError("Stage 4F must preserve the Stage 4D project texture container")
+        asset_path = load_catalog(PROJECT_ROOT / catalog, PROJECT_ROOT)[fixture["assets"][0]["asset"]]
+        asset = compile_asset(asset_path, PROJECT_ROOT)
+        counts = asset["report"]["normalized_counts"]
+        if (
+            asset["manifest"]["schema_version"] != 5
+            or asset["report"]["source_format"] != "glb"
+            or counts["triangles"] < 1
+            or counts["quads"] != 0
+        ):
+            raise WorldBuildError("Stage 4F proof asset must be an all-triangle schema-5 GLB")
 
 
 def _validate_stage3e1_fixture(fixture: dict[str, Any]) -> None:
@@ -718,7 +739,7 @@ def split_hgss_map_member(member: bytes) -> dict[str, bytes]:
 def _build_bgs(fixture: dict[str, Any], template_bgs: bytes) -> bytes:
     if len(template_bgs) < 4:
         raise WorldBuildError("template BGS section is missing its four-byte header")
-    if fixture["schema_version"] not in (3, 6, 7, 8, 9, 10, 11):
+    if fixture["schema_version"] not in (3, 6, 7, 8, 9, 10, 11, 12):
         return template_bgs
     # The BGS header's second u16 is its payload length.  The Stage 2
     # physical invariant places PER immediately after this four-byte header
@@ -755,7 +776,7 @@ def build_per(fixture: dict[str, Any], map_name: str | None = None) -> bytes:
     else:
         blocked = {tuple(tile) for tile in terrain.get("blocked_tiles", [])}
         open_border = set()
-    if fixture["schema_version"] in (8, 9, 10, 11):
+    if fixture["schema_version"] in (8, 9, 10, 11, 12):
         compiled_assets = compile_placements(
             PROJECT_ROOT / fixture["asset_catalog"], fixture["assets"], PROJECT_ROOT,
         )
@@ -860,7 +881,7 @@ def build_map_member(
         )
         model_info["geometry"] = geometry["report"]
         model_info["material_bindings"] = MATERIAL_BINDINGS
-    elif fixture["schema_version"] in (8, 9, 10, 11):
+    elif fixture["schema_version"] in (8, 9, 10, 11, 12):
         assets = compile_placements(
             PROJECT_ROOT / fixture["asset_catalog"], fixture["assets"], PROJECT_ROOT,
         )
@@ -907,7 +928,7 @@ def build_matrix(fixture: dict[str, Any]) -> bytes:
         output += bytes(matrix["altitudes"])
         output += struct.pack(f"<{len(members)}H", *members)
         return bytes(output)
-    if fixture["schema_version"] in (5, 8, 9, 10, 11):
+    if fixture["schema_version"] in (5, 8, 9, 10, 11, 12):
         name = fixture["world"]["matrix"]["name"].encode("ascii")
     else:
         name = b"stage2-proof" if fixture["schema_version"] == 1 else b"stage3a-height"
@@ -938,7 +959,7 @@ def build_event(fixture: dict[str, Any], map_name: str | None = None) -> bytes:
             output += struct.pack("<4HI", x, z, warp["destination_header"], warp["destination_warp"], 0)
         output += struct.pack("<I", 0)
         return bytes(output)
-    if fixture["schema_version"] in (2, 3, 5, 8, 9, 10, 11):
+    if fixture["schema_version"] in (2, 3, 5, 8, 9, 10, 11, 12):
         return struct.pack("<4I", 0, 0, 0, 0)
     npc = fixture["npc"]
     output = bytearray(struct.pack("<I", 0))
@@ -1001,7 +1022,7 @@ def build_map_header(
         "<7H", output, 4, matrix_id, banks["script"], banks["script_header"], banks["text"],
         struct.unpack_from("<H", output, 12)[0], struct.unpack_from("<H", output, 14)[0], banks["event"],
     )
-    if fixture["schema_version"] in (10, 11):
+    if fixture["schema_version"] in (10, 11, 12):
         flags = struct.unpack_from("<I", output, 20)[0]
         flags = (flags & ~(0x3F << 12)) | (4 << 12)
         struct.pack_into("<I", output, 20, flags)
@@ -1078,10 +1099,10 @@ def _write_script_source(
             encoding="utf-8",
         )
         return
-    if fixture["schema_version"] in (2, 3, 5, 8, 9, 10, 11):
+    if fixture["schema_version"] in (2, 3, 5, 8, 9, 10, 11, 12):
         if fixture["schema_version"] == 5:
             label = "stage3d_geometry_noop"
-        elif fixture["schema_version"] in (8, 9, 10, 11):
+        elif fixture["schema_version"] in (8, 9, 10, 11, 12):
             label = f"{fixture['artifact_namespace']}_asset_noop"
         elif fixture["schema_version"] == 2:
             label = "stage3a_height_noop"
@@ -1269,7 +1290,7 @@ def generate_world(
     if not rom_path.is_file():
         raise WorldBuildError("missing ignored user-supplied rom.nds template source")
     if fixture.get("artifact_namespace") in (
-        "stage3c", "stage3d", "stage3e1", "stage3e2", "stage4b", "stage4c", "stage4d", "stage4e",
+        "stage3c", "stage3d", "stage3e1", "stage3e2", "stage4b", "stage4c", "stage4d", "stage4e", "stage4f",
     ):
         registry_reference = fixture["registry_resolution"]["registry"]
         registry = load_registry(root / registry_reference)
@@ -1391,7 +1412,7 @@ def generate_world(
             ).encode("utf-8")
             for shape, display_list in sorted(geometry["display_lists"].items()):
                 raw_components[f"display-lists/shape-{shape}.bin"] = display_list
-        elif fixture["schema_version"] in (8, 9, 10, 11):
+        elif fixture["schema_version"] in (8, 9, 10, 11, 12):
             assets = compile_placements(
                 root / fixture["asset_catalog"], fixture["assets"], root,
             )
@@ -1478,7 +1499,7 @@ def generate_world(
                         raw_components["texture-container-report.json"] = (
                             json.dumps(stage4c_texture_narc_report, indent=2, sort_keys=True) + "\n"
                         ).encode("utf-8")
-            if fixture["schema_version"] in (10, 11):
+            if fixture["schema_version"] in (10, 11, 12):
                 container = fixture["texture_container"]
                 compiled_catalog = compile_texture_catalog(root / container["catalog"], root)
                 source_texture_narc = rom.getFileByName("a/0/4/4")
@@ -1608,7 +1629,7 @@ def generate_world(
             texture_target = root / "base/root/a/0/4/4"
             shutil.copyfile(texture_destination, texture_target)
             installed_paths["area_texture"] = str(texture_target)
-    if fixture["schema_version"] in (10, 11):
+    if fixture["schema_version"] in (10, 11, 12):
         if any(value is None for value in (
             stage4d_texture_narc, stage4d_area_data_narc,
             stage4d_texture_narc_report, stage4d_area_data_narc_report,

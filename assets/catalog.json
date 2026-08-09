@@ -20,6 +20,10 @@
     {
       "id": "stage4e_faceted_tower",
       "manifest": "assets/manifests/stage4e_faceted_tower.json"
+    },
+    {
+      "id": "stage4f_glb_faceted_tower",
+      "manifest": "assets/manifests/stage4f_glb_faceted_tower.json"
     }
   ]
 }

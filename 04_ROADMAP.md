@@ -187,6 +187,21 @@ simplification, image-to-3D, production landmarks/kits, and content. See
 `docs/STAGE_4E_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4e-triangle-assets.md`.
 
+### Completed infrastructure checkpoint: Stage 4F
+
+A tracked project-authored GLB now decodes through a strict offline glTF 2.0
+subset into the same neutral records, normalized typed triangle IR, Nitro
+encoder, project texture, symbolic placement, footprint collision, and QA path
+as OBJ. The GLB and reference OBJ towers are semantically equivalent after
+normalization; the GLB build renders correctly and passes binary, gameplay,
+visual, mutation, and clean-root determinism gates.
+
+The checkpoint deliberately excludes external resources, embedded textures,
+node transforms/hierarchies, non-triangle modes, sparse accessors, animation,
+skins, morphs, PBR material translation, repair, simplification, image-to-3D,
+and production assets. See `docs/STAGE_4F_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4f-glb-assets.md`.
+
 ## Completed infrastructure checkpoint: Stage 3E2
 
 The revision-locked hybrid map-header layer has been proven for project IDs
