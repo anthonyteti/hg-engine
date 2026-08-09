@@ -504,3 +504,23 @@ Rejected candidates remain outside `assets/catalog.json`, world fixtures, and
 numeric resource registries. The immutable raw hash is the downstream
 determinism boundary; external generator reruns are not assumed deterministic.
 See `docs/knowledge/hgss-stage4h-generated-asset-intake.md`.
+
+Stage 4I makes model storage an explicit opt-in layer after command encoding:
+
+```text
+typed mesh IR -> Nitro display-list bytes
+                         |
+          legacy: inherited shape region
+          schema 7: bounded MDL0-tail append + shape-record redirect
+                         |
+              independent model-layout parser
+                         |
+                 unchanged HGSS map assembly
+```
+
+`tools.pokeagent.nsbmd_model` owns only the hash-locked one-MDL0, one-model,
+no-inverse-bind map-template subset. It does not parse assets, assign materials,
+or write arbitrary model dictionaries. The compiler ceiling is the 4 KiB
+runtime-tested project capacity; the u32 format fields and unknown hardware
+ceiling are deliberately not exposed as authoring capacity. See
+`docs/knowledge/hgss-stage4i-model-capacity.md`.

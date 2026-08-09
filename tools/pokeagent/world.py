@@ -1,9 +1,9 @@
-"""Deterministic HGSS world-proof generator for Stages 2 through 4D.
+"""Deterministic HGSS world-proof generator for Stages 2 through 4I.
 
 This intentionally implements only the binary subset required by the fixture.
 The NSBMD writer is a hash-locked, user-local template transformer: it preserves
-the template's material dictionaries while replacing every display list and
-emitting only the bounded static geometry required by each fixture.
+the template's material dictionaries while replacing display lists. Stage 4I
+may additionally append one bounded project list and redirect its shape record.
 """
 
 from __future__ import annotations
@@ -21,6 +21,7 @@ from ndspy.rom import NintendoDSRom
 
 from .assets import ASSET_MATERIAL_BINDINGS, compile_asset, compile_placements, load_catalog
 from .geometry import MATERIAL_BINDINGS, MATERIAL_ORDER, GeometryError, compile_geometry
+from .nsbmd_model import relocate_display_lists
 from .registry import (
     load_registry,
     resolve_stage3d_source,
@@ -31,6 +32,7 @@ from .registry import (
     resolve_stage4e_source,
     resolve_stage4f_source,
     resolve_stage4g_source,
+    resolve_stage4i_source,
     resolve_world_source,
     verify_rom_revision,
 )
@@ -41,6 +43,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_FIXTURE = PROJECT_ROOT / "fixtures" / "stage2_proof_map.json"
 DEFAULT_OUTPUT = PROJECT_ROOT / "build" / "stage2" / "generated"
 HGSS_US_HEADER_OFFSET = 0xF6BE0
+_SCRIPT_OUTPUT_TOKEN = "__POKEAGENT_OUTPUT__"
 MAP_HEADER_SIZE = 24
 MAP_TILES = 32
 STAGE3B_CELL_ORDER = ("nw", "ne", "sw", "se")
@@ -127,15 +130,20 @@ def load_fixture(path: Path = DEFAULT_FIXTURE) -> dict[str, Any]:
         if not isinstance(registry_reference, str):
             raise WorldBuildError("Stage 4G fixture must declare a symbolic registry path")
         fixture = resolve_stage4g_source(fixture, PROJECT_ROOT / registry_reference)
+    elif fixture.get("schema_version") == 14:
+        registry_reference = fixture.get("registry")
+        if not isinstance(registry_reference, str):
+            raise WorldBuildError("Stage 4I fixture must declare a symbolic registry path")
+        fixture = resolve_stage4i_source(fixture, PROJECT_ROOT / registry_reference)
     validate_fixture(fixture)
     return fixture
 
 
 def validate_fixture(fixture: dict[str, Any]) -> None:
     schema_version = fixture.get("schema_version")
-    if schema_version not in (1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13):
-        raise WorldBuildError("only resolved Stage 2 through Stage 4G schemas are supported")
-    if schema_version in (8, 9, 10, 11, 12, 13):
+    if schema_version not in (1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14):
+        raise WorldBuildError("only resolved Stage 2 through Stage 4I schemas are supported")
+    if schema_version in (8, 9, 10, 11, 12, 13, 14):
         _validate_stage4b_fixture(fixture)
         return
     if schema_version == 7:
@@ -242,9 +250,10 @@ def _validate_stage4b_fixture(fixture: dict[str, Any]) -> None:
         11: ("stage4e", "stage4e-triangles"),
         12: ("stage4f", "stage4f-glb"),
         13: ("stage4g", "stage4g-simplified"),
+        14: ("stage4i", "stage4i-capacity"),
     }
     if schema not in expected:
-        raise WorldBuildError("asset fixture must use a resolved Stage 4B through Stage 4G schema")
+        raise WorldBuildError("asset fixture must use a resolved Stage 4B through Stage 4I schema")
     namespace, matrix_name = expected[schema]
     if fixture.get("artifact_namespace") != namespace or fixture.get("canonical_schema_version") != schema:
         raise WorldBuildError(f"resolved {namespace} source must preserve schema and artifact identity")
@@ -264,6 +273,7 @@ def _validate_stage4b_fixture(fixture: dict[str, Any]) -> None:
     expected_start = (
         {"x": 16, "z": 24, "direction": 0} if schema == 10
         else {"x": 16, "z": 22, "direction": 0} if schema in (11, 12, 13)
+        else {"x": 16, "z": 23, "direction": 0} if schema == 14
         else {"x": 16, "z": 20, "direction": 0}
     )
     if fixture.get("player_start") != expected_start:
@@ -312,6 +322,19 @@ def _validate_stage4b_fixture(fixture: dict[str, Any]) -> None:
         counts = asset["report"]["normalized_counts"]
         if asset["manifest"]["schema_version"] != 4 or counts["triangles"] < 1 or counts["quads"] < 1:
             raise WorldBuildError("Stage 4E proof asset must contain both triangles and quads")
+    if schema == 14:
+        container = fixture.get("texture_container", {})
+        if container.get("area_data_bank") != 106 or container.get("area_texture_member") != 106:
+            raise WorldBuildError("Stage 4I must preserve the Stage 4D project texture container")
+        asset_path = load_catalog(PROJECT_ROOT / catalog, PROJECT_ROOT)[fixture["assets"][0]["asset"]]
+        asset = compile_asset(asset_path, PROJECT_ROOT)
+        storage = asset["report"].get("geometry_storage", {})
+        if (
+            asset["manifest"]["schema_version"] != 7
+            or storage.get("requires_relocation") is not True
+            or asset["report"]["display_list_bytes"] <= asset["report"]["inherited_display_list_capacity_bytes"]
+        ):
+            raise WorldBuildError("Stage 4I proof asset must require project-owned display-list relocation")
     if schema == 12:
         container = fixture.get("texture_container", {})
         if container.get("area_data_bank") != 106 or container.get("area_texture_member") != 106:
@@ -760,7 +783,7 @@ def split_hgss_map_member(member: bytes) -> dict[str, bytes]:
 def _build_bgs(fixture: dict[str, Any], template_bgs: bytes) -> bytes:
     if len(template_bgs) < 4:
         raise WorldBuildError("template BGS section is missing its four-byte header")
-    if fixture["schema_version"] not in (3, 6, 7, 8, 9, 10, 11, 12, 13):
+    if fixture["schema_version"] not in (3, 6, 7, 8, 9, 10, 11, 12, 13, 14):
         return template_bgs
     # The BGS header's second u16 is its payload length.  The Stage 2
     # physical invariant places PER immediately after this four-byte header
@@ -797,7 +820,7 @@ def build_per(fixture: dict[str, Any], map_name: str | None = None) -> bytes:
     else:
         blocked = {tuple(tile) for tile in terrain.get("blocked_tiles", [])}
         open_border = set()
-    if fixture["schema_version"] in (8, 9, 10, 11, 12, 13):
+    if fixture["schema_version"] in (8, 9, 10, 11, 12, 13, 14):
         compiled_assets = compile_placements(
             PROJECT_ROOT / fixture["asset_catalog"], fixture["assets"], PROJECT_ROOT,
         )
@@ -902,16 +925,48 @@ def build_map_member(
         )
         model_info["geometry"] = geometry["report"]
         model_info["material_bindings"] = MATERIAL_BINDINGS
-    elif fixture["schema_version"] in (8, 9, 10, 11, 12, 13):
+    elif fixture["schema_version"] in (8, 9, 10, 11, 12, 13, 14):
         assets = compile_placements(
             PROJECT_ROOT / fixture["asset_catalog"], fixture["assets"], PROJECT_ROOT,
         )
         display_lists = {5: build_flat_display_list(), **assets["display_lists"]}
         quad_counts = {5: 1, **assets["quad_counts"]}
         triangle_counts = {5: 0, **assets["triangle_counts"]}
-        model, model_info = transform_template_nsbmd_multi(
-            template["nsbmd"], display_lists, quad_counts, triangle_counts,
-        )
+        if assets["relocation_capacities"]:
+            capacities = set(assets["relocation_capacities"].values())
+            if len(capacities) != 1:
+                raise WorldBuildError("Stage 4I requires one bounded project display-list capacity")
+            relocated_shapes = set(assets["relocation_capacities"])
+            placeholders = {
+                shape: build_degenerate_display_list() if shape in relocated_shapes else payload
+                for shape, payload in display_lists.items()
+            }
+            model, model_info = transform_template_nsbmd_multi(
+                template["nsbmd"], placeholders, quad_counts, triangle_counts,
+            )
+            model, relocation = relocate_display_lists(
+                model,
+                {shape: display_lists[shape] for shape in sorted(relocated_shapes)},
+                configured_capacity=capacities.pop(),
+            )
+            for shape in sorted(relocated_shapes):
+                assignment = model_info["assignments"][str(shape)]
+                assignment.update({
+                    "display_list_bytes": len(display_lists[shape]),
+                    "capacity_bytes": assets["relocation_capacities"][shape],
+                    "utilization_percent": round(
+                        len(display_lists[shape]) * 100 / assets["relocation_capacities"][shape], 3,
+                    ),
+                })
+            model_info["model_primitive_counts"] = {
+                key: relocation["model_counters"][key]
+                for key in ("vertices", "polygons", "triangles", "quads")
+            }
+            model_info["relocation"] = relocation
+        else:
+            model, model_info = transform_template_nsbmd_multi(
+                template["nsbmd"], display_lists, quad_counts, triangle_counts,
+            )
         model_info["asset_geometry"] = assets["report"]
         model_info["material_bindings"] = {
             "ground": MATERIAL_BINDINGS["ground"],
@@ -949,7 +1004,7 @@ def build_matrix(fixture: dict[str, Any]) -> bytes:
         output += bytes(matrix["altitudes"])
         output += struct.pack(f"<{len(members)}H", *members)
         return bytes(output)
-    if fixture["schema_version"] in (5, 8, 9, 10, 11, 12, 13):
+    if fixture["schema_version"] in (5, 8, 9, 10, 11, 12, 13, 14):
         name = fixture["world"]["matrix"]["name"].encode("ascii")
     else:
         name = b"stage2-proof" if fixture["schema_version"] == 1 else b"stage3a-height"
@@ -980,7 +1035,7 @@ def build_event(fixture: dict[str, Any], map_name: str | None = None) -> bytes:
             output += struct.pack("<4HI", x, z, warp["destination_header"], warp["destination_warp"], 0)
         output += struct.pack("<I", 0)
         return bytes(output)
-    if fixture["schema_version"] in (2, 3, 5, 8, 9, 10, 11, 12, 13):
+    if fixture["schema_version"] in (2, 3, 5, 8, 9, 10, 11, 12, 13, 14):
         return struct.pack("<4I", 0, 0, 0, 0)
     npc = fixture["npc"]
     output = bytearray(struct.pack("<I", 0))
@@ -1043,7 +1098,7 @@ def build_map_header(
         "<7H", output, 4, matrix_id, banks["script"], banks["script_header"], banks["text"],
         struct.unpack_from("<H", output, 12)[0], struct.unpack_from("<H", output, 14)[0], banks["event"],
     )
-    if fixture["schema_version"] in (10, 11, 12, 13):
+    if fixture["schema_version"] in (10, 11, 12, 13, 14):
         flags = struct.unpack_from("<I", output, 20)[0]
         flags = (flags & ~(0x3F << 12)) | (4 << 12)
         struct.pack_into("<I", output, 20, flags)
@@ -1084,6 +1139,9 @@ def _encode_header_flags(profile: object) -> int:
 def _write_script_source(
     fixture: dict[str, Any], source: Path, output: Path, map_name: str | None = None,
 ) -> None:
+    # Keep the tracked/hashed source independent of its clean output root.  A
+    # temporary invocation copy substitutes the actual output path for armips.
+    del output
     if fixture["schema_version"] in (6, 7):
         if map_name not in fixture["maps"]:
             raise WorldBuildError("Stage 3E1 script generation requires a declared map name")
@@ -1102,7 +1160,7 @@ def _write_script_source(
             ".nds\n.thumb\n\n"
             '.include "armips/include/scriptmacros.s"\n'
             '.include "armips/include/soundeffects.s"\n\n'
-            f'.create "{output.as_posix()}", 0\n\n'
+            f'.create "{_SCRIPT_OUTPUT_TOKEN}", 0\n\n'
             f"scrdef {fixture['artifact_namespace']}_{map_name}_npc\n"
             "scrdef_end\n\n"
             f"{fixture['artifact_namespace']}_{map_name}_npc:\n"
@@ -1120,10 +1178,10 @@ def _write_script_source(
             encoding="utf-8",
         )
         return
-    if fixture["schema_version"] in (2, 3, 5, 8, 9, 10, 11, 12, 13):
+    if fixture["schema_version"] in (2, 3, 5, 8, 9, 10, 11, 12, 13, 14):
         if fixture["schema_version"] == 5:
             label = "stage3d_geometry_noop"
-        elif fixture["schema_version"] in (8, 9, 10, 11, 12, 13):
+        elif fixture["schema_version"] in (8, 9, 10, 11, 12, 13, 14):
             label = f"{fixture['artifact_namespace']}_asset_noop"
         elif fixture["schema_version"] == 2:
             label = "stage3a_height_noop"
@@ -1134,7 +1192,7 @@ def _write_script_source(
         source.write_text(
             ".nds\n.thumb\n\n"
             '.include "armips/include/scriptmacros.s"\n\n'
-            f'.create "{output.as_posix()}", 0\n\n'
+            f'.create "{_SCRIPT_OUTPUT_TOKEN}", 0\n\n'
             f"scrdef {label}\n"
             "scrdef_end\n\n"
             f"{label}:\n"
@@ -1148,7 +1206,7 @@ def _write_script_source(
         ".nds\n.thumb\n\n"
         ".include \"armips/include/scriptmacros.s\"\n"
         ".include \"armips/include/soundeffects.s\"\n\n"
-        f'.create "{output.as_posix()}", 0\n\n'
+        f'.create "{_SCRIPT_OUTPUT_TOKEN}", 0\n\n'
         "scrdef stage2_proof_npc\n"
         "scrdef_end\n\n"
         "stage2_proof_npc:\n"
@@ -1166,6 +1224,7 @@ def _write_script_source(
 
 
 def _write_start_script_source(fixture: dict[str, Any], source: Path, output: Path) -> None:
+    del output
     start = fixture["player_start"]
     header = _map_header_id(fixture, start.get("map"))
     if fixture["schema_version"] in (3, 6, 7):
@@ -1177,7 +1236,7 @@ def _write_start_script_source(fixture: dict[str, Any], source: Path, output: Pa
     source.write_text(
         ".nds\n.thumb\n\n"
         '.include "armips/include/scriptmacros.s"\n\n'
-        f'.create "{output.as_posix()}", 0\n\n'
+        f'.create "{_SCRIPT_OUTPUT_TOKEN}", 0\n\n'
         "scrdef stage2_start\n"
         "scrdef_end\n\n"
         "stage2_start:\n"
@@ -1191,6 +1250,18 @@ def _run_checked(command: list[str], root: Path) -> None:
     result = subprocess.run(command, cwd=root, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=False)
     if result.returncode != 0:
         raise WorldBuildError(f"command failed ({result.returncode}): {' '.join(command)}\n{result.stdout[-2000:]}")
+
+
+def _assemble_script_source(source: Path, output: Path, root: Path) -> None:
+    text = source.read_text(encoding="utf-8")
+    if text.count(_SCRIPT_OUTPUT_TOKEN) != 1:
+        raise WorldBuildError("generated script source has an invalid output token")
+    invocation = source.with_name(f".{source.name}.armips-input")
+    invocation.write_text(text.replace(_SCRIPT_OUTPUT_TOKEN, output.as_posix()), encoding="utf-8")
+    try:
+        _run_checked([str(root / "tools/armips"), str(invocation)], root)
+    finally:
+        invocation.unlink(missing_ok=True)
 
 
 def _narc_btaf_count(data: bytes) -> int:
@@ -1311,7 +1382,7 @@ def generate_world(
     if not rom_path.is_file():
         raise WorldBuildError("missing ignored user-supplied rom.nds template source")
     if fixture.get("artifact_namespace") in (
-        "stage3c", "stage3d", "stage3e1", "stage3e2", "stage4b", "stage4c", "stage4d", "stage4e", "stage4f", "stage4g",
+        "stage3c", "stage3d", "stage3e1", "stage3e2", "stage4b", "stage4c", "stage4d", "stage4e", "stage4f", "stage4g", "stage4i",
     ):
         registry_reference = fixture["registry_resolution"]["registry"]
         registry = load_registry(root / registry_reference)
@@ -1433,7 +1504,7 @@ def generate_world(
             ).encode("utf-8")
             for shape, display_list in sorted(geometry["display_lists"].items()):
                 raw_components[f"display-lists/shape-{shape}.bin"] = display_list
-        elif fixture["schema_version"] in (8, 9, 10, 11, 12, 13):
+        elif fixture["schema_version"] in (8, 9, 10, 11, 12, 13, 14):
             assets = compile_placements(
                 root / fixture["asset_catalog"], fixture["assets"], root,
             )
@@ -1453,6 +1524,10 @@ def generate_world(
             raw_components["asset-world-report.json"] = (
                 json.dumps(report, indent=2, sort_keys=True) + "\n"
             ).encode("utf-8")
+            if fixture["schema_version"] == 14:
+                raw_components["model-layout-report.json"] = (
+                    json.dumps(model_info["relocation"], indent=2, sort_keys=True) + "\n"
+                ).encode("utf-8")
             for shape, display_list in sorted(assets["display_lists"].items()):
                 raw_components[f"display-lists/asset-shape-{shape}.bin"] = display_list
             for asset_id in sorted({placement["asset"] for placement in fixture["assets"]}):
@@ -1524,7 +1599,7 @@ def generate_world(
                         raw_components["texture-container-report.json"] = (
                             json.dumps(stage4c_texture_narc_report, indent=2, sort_keys=True) + "\n"
                         ).encode("utf-8")
-            if fixture["schema_version"] in (10, 11, 12, 13):
+            if fixture["schema_version"] in (10, 11, 12, 13, 14):
                 container = fixture["texture_container"]
                 compiled_catalog = compile_texture_catalog(root / container["catalog"], root)
                 source_texture_narc = rom.getFileByName("a/0/4/4")
@@ -1603,7 +1678,7 @@ def generate_world(
             script_path = components / f"2_{spec['script']:03d}"
             script_source = components / f"{stage_name}_{name}_script.s"
             _write_script_source(fixture, script_source, script_path, name)
-            _run_checked([str(root / "tools/armips"), str(script_source)], root)
+            _assemble_script_source(script_source, script_path, root)
             script_outputs[name] = script_path.read_bytes()
             header = bytes((0, 0xA1 + index, 0xE1, 0))
             script_header_outputs[name] = header
@@ -1621,12 +1696,12 @@ def generate_world(
         script_output = components / f"2_{slots['script']:03d}"
         script_source = components / f"{stage_name}_script.s"
         _write_script_source(fixture, script_source, script_output)
-        _run_checked([str(root / "tools/armips"), str(script_source)], root)
+        _assemble_script_source(script_source, script_output, root)
 
     start_script_output = components / f"2_{slots['start_script']:03d}"
     start_script_source = components / f"{stage_name}_start_script.s"
     _write_start_script_source(fixture, start_script_source, start_script_output)
-    _run_checked([str(root / "tools/armips"), str(start_script_source)], root)
+    _assemble_script_source(start_script_source, start_script_output, root)
 
     if fixture["schema_version"] not in (6, 7):
         text_source = components / f"{stage_name}_dialogue.txt"
@@ -1654,7 +1729,7 @@ def generate_world(
             texture_target = root / "base/root/a/0/4/4"
             shutil.copyfile(texture_destination, texture_target)
             installed_paths["area_texture"] = str(texture_target)
-    if fixture["schema_version"] in (10, 11, 12, 13):
+    if fixture["schema_version"] in (10, 11, 12, 13, 14):
         if any(value is None for value in (
             stage4d_texture_narc, stage4d_area_data_narc,
             stage4d_texture_narc_report, stage4d_area_data_narc_report,

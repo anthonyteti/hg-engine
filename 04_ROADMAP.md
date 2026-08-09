@@ -232,6 +232,22 @@ honest rejection boundary and identifies future preprocessing gaps without
 weakening GLB, geometry, or budget validation. See
 `docs/STAGE_4H_TECHNICAL_REPORT.md`.
 
+### Completed infrastructure checkpoint: Stage 4I
+
+Project assets may now opt into a bounded relocated map-model display list
+instead of inheriting the selected retail shape's byte allocation. A valid
+56-triangle gatehouse that fails the old 1,068-byte region at 3,820 bytes is
+appended to a rebuilt MDL0 model tail under a 4,096-byte tested ceiling, while
+all 17 other shape payloads remain unchanged. The independent parser, ROM
+build, collision walk-around, visual QA, mutation, stress, and determinism
+gates define the supported boundary.
+
+This checkpoint does not approve the Stage 4H generated candidate or add
+approximate decimation, attribute generation, hierarchy handling, arbitrary
+materials, display-list regions beyond 4 KiB, or a general NSBMD writer. See
+`docs/STAGE_4I_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4i-model-capacity.md`.
+
 ## Completed infrastructure checkpoint: Stage 3E2
 
 The revision-locked hybrid map-header layer has been proven for project IDs

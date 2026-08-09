@@ -299,3 +299,20 @@ This result validates the intake architecture while rejecting this asset. It
 does not invalidate the hand-authored OBJ/GLB factory and does not authorize
 production generation. See `docs/STAGE_4H_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4h-generated-asset-intake.md`.
+
+## Stage 4I decision: opt-in model-tail display-list relocation
+
+Keep the typed geometry encoder separate from bounded NSBMD layout ownership.
+For manifest schema 7 only, first apply the hash-locked legacy transformer with
+an invisible placeholder, then append the actual project display list to the
+end of the single-model MDL0 block and redirect only its 16-byte shape record.
+Update the BMD0, MDL0, model, inverse-bind-end, and model-counter fields, and
+reopen the result with an independent bounded parser before map assembly.
+
+The current project ceiling is 4,096 bytes per relocated display list. This is
+a runtime-tested project policy, not a Nintendo DS hardware limit. Legacy
+manifests retain their original byte-for-byte layout path; non-target shape
+offsets, lengths, and command payloads must remain unchanged. The Stage 4H
+TripoSR input remains rejected and is not made viable by this bounded capacity
+increase. See `docs/STAGE_4I_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4i-model-capacity.md`.

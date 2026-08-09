@@ -26,6 +26,7 @@ from .geometry import (
     inspect_mesh_display_list,
 )
 from .mesh_simplify import SimplificationError, simplify_coplanar_ir
+from .nsbmd_model import PROJECT_DISPLAY_LIST_TESTED_MAX
 from .textures import (
     compile_png,
     compile_texture_catalog,
@@ -34,7 +35,7 @@ from .textures import (
 )
 
 
-ASSET_SCHEMA_VERSIONS = {1, 2, 3, 4, 5, 6}
+ASSET_SCHEMA_VERSIONS = {1, 2, 3, 4, 5, 6, 7}
 CATALOG_SCHEMA_VERSION = 1
 SAFE_ID = re.compile(r"^[a-z][a-z0-9_]{0,63}$")
 STAGE4B_BUDGET = {
@@ -240,18 +241,20 @@ def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
         "coordinate_system", "normalization", "material_policy", "collision", "budget", "status",
     }
     if not isinstance(data, dict) or data.get("schema_version") not in ASSET_SCHEMA_VERSIONS:
-        raise AssetError("unsupported_manifest_schema", "asset manifest schema_version must be in 1..6")
+        raise AssetError("unsupported_manifest_schema", "asset manifest schema_version must be in 1..7")
     expected = common | ({"textures"} if data["schema_version"] == 2 else set())
-    if data["schema_version"] in (3, 4, 5, 6):
+    if data["schema_version"] in (3, 4, 5, 6, 7):
         expected |= {"texture_catalog"}
     if data["schema_version"] == 6:
         expected |= {"simplification"}
+    if data["schema_version"] == 7:
+        expected |= {"geometry_storage"}
     if set(data) != expected:
         raise AssetError("invalid_manifest", "asset manifest has unsupported or missing fields")
     if not isinstance(data.get("id"), str) or not SAFE_ID.fullmatch(data["id"]):
         raise AssetError("invalid_asset_id", "asset id must be stable lower snake_case")
     source = _safe_relative(root, data.get("source"), Path("assets/source"), "invalid_source")
-    expected_source = "glb" if data["schema_version"] == 5 else "obj"
+    expected_source = "glb" if data["schema_version"] in (5, 7) else "obj"
     if data["schema_version"] == 6:
         expected_source = data.get("source_format")
     if expected_source not in {"obj", "glb"} or source.suffix.lower() != f".{expected_source}":
@@ -296,6 +299,7 @@ def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
         4: "project_texture_catalog_binding",
         5: "project_texture_catalog_binding",
         6: "project_texture_catalog_binding",
+        7: "project_texture_catalog_binding",
     }
     expected_mode = expected_modes[data["schema_version"]]
     if not isinstance(material, dict) or set(material) != {"mode", "mappings"} or material["mode"] != expected_mode:
@@ -372,7 +376,10 @@ def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
         values.append(float(value))
     if not values[0] < values[1] or not values[2] < values[3]:
         raise AssetError("invalid_collision_proxy", "collision rectangle must have nonzero dimensions")
-    expected_budget = "stage4g_dense_source" if data["schema_version"] == 6 else "stage4b_proof"
+    expected_budget = {
+        6: "stage4g_dense_source",
+        7: "stage4i_project_relocated",
+    }.get(data["schema_version"], "stage4b_proof")
     if data.get("budget") != expected_budget:
         raise AssetError(
             "unsupported_budget", f"asset manifest schema {data['schema_version']} requires {expected_budget} budget",
@@ -402,6 +409,18 @@ def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
         reserve = simplification["reserve_bytes"]
         if isinstance(reserve, bool) or not isinstance(reserve, int) or not 0 <= reserve <= 2048:
             raise AssetError("invalid_target_budget", "simplification reserve_bytes must be an integer in 0..2048")
+    if data["schema_version"] == 7:
+        storage = data.get("geometry_storage")
+        if not isinstance(storage, dict) or set(storage) != {"policy", "max_bytes"}:
+            raise AssetError("invalid_geometry_storage", "Stage 4I geometry_storage requires policy and max_bytes")
+        if storage["policy"] != "project_relocated_display_list":
+            raise AssetError("unsupported_geometry_storage", "Stage 4I supports only project display-list relocation")
+        maximum = storage["max_bytes"]
+        if isinstance(maximum, bool) or not isinstance(maximum, int) or not 1 <= maximum <= PROJECT_DISPLAY_LIST_TESTED_MAX:
+            raise AssetError(
+                "invalid_project_geometry_capacity",
+                f"Stage 4I max_bytes must be in 1..{PROJECT_DISPLAY_LIST_TESTED_MAX}",
+            )
     return json.loads(json.dumps(data, sort_keys=True))
 
 
@@ -415,7 +434,7 @@ def load_manifest(path: Path, root: Path) -> tuple[dict[str, Any], bytes]:
 
 
 def _normalized_ir(manifest: dict[str, Any], mesh: SourceMesh, root: Path | None = None) -> dict[str, Any]:
-    budget = STAGE4G_SOURCE_BUDGET if manifest["schema_version"] == 6 else STAGE4B_BUDGET
+    budget = STAGE4G_SOURCE_BUDGET if manifest["schema_version"] in (6, 7) else STAGE4B_BUDGET
     counts = {
         "vertices": len(mesh.vertices), "uvs": len(mesh.uvs),
         "normals": len(mesh.normals), "faces": len(mesh.faces),
@@ -456,7 +475,7 @@ def _normalized_ir(manifest: dict[str, Any], mesh: SourceMesh, root: Path | None
     texture_dimensions = {
         texture["id"]: texture["dimensions"] for texture in manifest.get("textures", [])
     }
-    if manifest["schema_version"] in (3, 4, 5, 6):
+    if manifest["schema_version"] in (3, 4, 5, 6, 7):
         if root is None:
             raise AssetError("invalid_texture_catalog", "Stage 4D normalization requires its repository root")
         catalog = compile_texture_catalog(root / manifest["texture_catalog"], root)
@@ -625,14 +644,29 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
             ir, simplification_report = simplify_coplanar_ir(source_ir)
         except SimplificationError as error:
             raise AssetError(error.code, str(error), **error.details) from error
+    elif manifest["schema_version"] == 7:
+        target_bytes = manifest["geometry_storage"]["max_bytes"]
     primitives = _ir_primitives(ir)
     display_list, primitive_plan = _encode_asset_primitives(primitives)
     if len(display_list) > target_bytes:
-        code = "simplification_target_unreachable" if manifest["schema_version"] == 6 else "display_list_overflow"
+        code = (
+            "simplification_target_unreachable" if manifest["schema_version"] == 6
+            else "project_geometry_capacity_exceeded" if manifest["schema_version"] == 7
+            else "display_list_overflow"
+        )
+        details: dict[str, object] = {
+            "required_bytes": len(display_list), "target_bytes": target_bytes,
+            "capacity_bytes": binding["capacity_bytes"], "shape": binding["shape"],
+        }
+        message = "asset display list exceeds its allowed template shape budget"
+        if manifest["schema_version"] == 7:
+            message = "asset display list exceeds its configured geometry storage"
+            details.update({
+                "asset_id": manifest["id"],
+                "tested_project_capacity_bytes": PROJECT_DISPLAY_LIST_TESTED_MAX,
+            })
         raise AssetError(
-            code, "asset display list exceeds its allowed template shape budget",
-            required_bytes=len(display_list), target_bytes=target_bytes,
-            capacity_bytes=binding["capacity_bytes"], shape=binding["shape"],
+            code, message, **details,
         )
     rectangle = {key: float(value) for key, value in manifest["collision"]["rectangle"].items()}
     bounds = ir["bounds"]
@@ -680,11 +714,12 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
         "material_index": binding["material_index"],
         "material_name": binding["material_name"],
         "display_list_bytes": len(display_list),
-        "display_list_capacity_bytes": binding["capacity_bytes"],
+        "display_list_capacity_bytes": target_bytes if manifest["schema_version"] == 7 else binding["capacity_bytes"],
+        "inherited_display_list_capacity_bytes": binding["capacity_bytes"],
         "display_list_target_bytes": target_bytes,
-        "shape_utilization_percent": round(len(display_list) * 100 / binding["capacity_bytes"], 3),
+        "shape_utilization_percent": round(len(display_list) * 100 / target_bytes, 3),
         "collision": {"policy": "footprint_rect", "rectangle": rectangle},
-        "budget": dict(STAGE4G_SOURCE_BUDGET if manifest["schema_version"] == 6 else STAGE4B_BUDGET),
+        "budget": dict(STAGE4G_SOURCE_BUDGET if manifest["schema_version"] in (6, 7) else STAGE4B_BUDGET),
         "hashes": {
             "normalized_source_mesh_sha256": _hash((json.dumps(source_ir, sort_keys=True, separators=(",", ":")) + "\n").encode()),
             "normalized_mesh_sha256": _hash((json.dumps(ir, sort_keys=True, separators=(",", ":")) + "\n").encode()),
@@ -708,10 +743,17 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
             "byte_reduction_percent": round((source_bytes_count - len(display_list)) * 100 / source_bytes_count, 3),
         })
         report["simplification"] = simplification_report
+    if manifest["schema_version"] == 7:
+        report["geometry_storage"] = {
+            **manifest["geometry_storage"],
+            "inherited_capacity_bytes": binding["capacity_bytes"],
+            "tested_project_capacity_bytes": PROJECT_DISPLAY_LIST_TESTED_MAX,
+            "requires_relocation": len(display_list) > binding["capacity_bytes"],
+        }
     compiled_textures = {
         texture["id"]: compile_png(texture, root) for texture in manifest.get("textures", [])
     }
-    if manifest["schema_version"] in (3, 4, 5, 6):
+    if manifest["schema_version"] in (3, 4, 5, 6, 7):
         compiled_textures = compile_texture_catalog(root / manifest["texture_catalog"], root)["textures"]
     if compiled_textures:
         report["textures"] = {
@@ -815,6 +857,8 @@ def compile_placements(catalog_path: Path, placements: object, root: Path) -> di
     blocked: set[tuple[int, int]] = set()
     placement_ir: list[dict[str, Any]] = []
     asset_reports: dict[str, dict[str, Any]] = {}
+    project_capacity_by_shape: dict[int, int] = {}
+    asset_ids_by_shape: dict[int, set[str]] = {}
     for placement in placements:
         if not isinstance(placement, dict) or set(placement) != {"id", "asset", "x", "z", "rotation"}:
             raise AssetError("invalid_placement", "placement requires id, asset, x, z, and rotation")
@@ -836,6 +880,16 @@ def compile_placements(catalog_path: Path, placements: object, root: Path) -> di
             value if isinstance(value, str) else value["alias"] for value in mapping_values
         }
         binding = ASSET_MATERIAL_BINDINGS[next(iter(aliases))]
+        asset_ids_by_shape.setdefault(binding["shape"], set()).add(asset_id)
+        if compiled["manifest"]["schema_version"] == 7:
+            project_capacity = int(compiled["manifest"]["geometry_storage"]["max_bytes"])
+            previous = project_capacity_by_shape.setdefault(binding["shape"], project_capacity)
+            if previous != project_capacity:
+                raise AssetError(
+                    "project_geometry_capacity_conflict",
+                    "placements sharing one shape must use one project capacity",
+                    shape=binding["shape"], capacities=sorted({previous, project_capacity}),
+                )
         primitives_by_shape.setdefault(binding["shape"], []).extend(_ir_primitives(compiled["ir"], placement))
         rectangle = compiled["collision"]
         min_x, max_x, min_z, max_z = _rotated_rectangle(rectangle, placement)
@@ -878,12 +932,15 @@ def compile_placements(catalog_path: Path, placements: object, root: Path) -> di
         bindings = {ASSET_MATERIAL_BINDINGS[alias]["shape"]: ASSET_MATERIAL_BINDINGS[alias] for alias in aliases}
         if set(bindings) != {shape}:
             raise AssetError("material_slot_conflict", "one shape received incompatible material aliases")
-        capacity = min(ASSET_MATERIAL_BINDINGS[alias]["capacity_bytes"] for alias in aliases)
+        inherited_capacity = min(ASSET_MATERIAL_BINDINGS[alias]["capacity_bytes"] for alias in aliases)
+        capacity = project_capacity_by_shape.get(shape, inherited_capacity)
         display_list, primitive_plan = _encode_asset_primitives(primitives)
         if len(display_list) > capacity:
+            code = "project_geometry_capacity_exceeded" if shape in project_capacity_by_shape else "display_list_overflow"
             raise AssetError(
-                "display_list_overflow", "placed asset display list exceeds its verified template shape",
-                required_bytes=len(display_list), capacity_bytes=capacity, shape=shape,
+                code, "placed asset display list exceeds its configured geometry storage",
+                asset_ids=sorted(asset_ids_by_shape[shape]), required_bytes=len(display_list),
+                capacity_bytes=capacity, shape=shape,
             )
         display_lists[shape] = display_list
         shape_reports.append({
@@ -893,6 +950,10 @@ def compile_placements(catalog_path: Path, placements: object, root: Path) -> di
             "vertex_count": primitive_plan["vertex_count"],
             "primitive_blocks": primitive_plan["primitive_blocks"],
             "display_list_bytes": len(display_list), "capacity_bytes": capacity,
+            "inherited_capacity_bytes": inherited_capacity,
+            "storage_policy": (
+                "project_relocated_display_list" if shape in project_capacity_by_shape else "inherited_template_region"
+            ),
             "utilization_percent": round(len(display_list) * 100 / capacity, 3),
             "sha256": _hash(display_list),
         })
@@ -914,6 +975,7 @@ def compile_placements(catalog_path: Path, placements: object, root: Path) -> di
             for primitives in primitives_by_shape.values() for primitive in primitives
         ),
         "shapes": shape_reports,
+        "relocation_capacities": dict(sorted(project_capacity_by_shape.items())),
         "blocked_tile_count": len(blocked),
         "assets": {key: asset_reports[key] for key in sorted(asset_reports)},
         "hashes": {
@@ -945,5 +1007,6 @@ def compile_placements(catalog_path: Path, placements: object, root: Path) -> di
             for shape, primitives in sorted(primitives_by_shape.items())
         },
         "blocked_tiles": blocked,
+        "relocation_capacities": dict(sorted(project_capacity_by_shape.items())),
         "report": report,
     }

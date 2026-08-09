@@ -166,6 +166,9 @@ endif
 ifeq ($(STAGE4G_SIMPLIFICATION),Y)
     WORLD_INSTALL_ARGS := --fixture fixtures/stage4g_simplified_world.json --output build/stage4g/generated
 endif
+ifeq ($(STAGE4I_MODEL_CAPACITY),Y)
+    WORLD_INSTALL_ARGS := --fixture fixtures/stage4i_expanded_geometry_world.json --output build/stage4i/generated
+endif
 
 ####################### Output #######################
 C_SUBDIR = src
@@ -456,6 +459,11 @@ stage4f-glb-proof:
 stage4g-simplification-proof:
 	$(MAKE) clean
 	$(MAKE) STAGE2_MAP=Y STAGE4G_SIMPLIFICATION=Y
+
+.PHONY: stage4i-model-capacity-proof
+stage4i-model-capacity-proof:
+	$(MAKE) clean
+	$(MAKE) STAGE2_MAP=Y STAGE4I_MODEL_CAPACITY=Y
 
 ALL_CODE_OBJS := $(patsubst $(C_SUBDIR)/%.c,$(BUILD)/%.o,$(ALL_C_SRCS)) \
  $(patsubst $(ASM_SUBDIR)/%.s,$(BUILD)/%.o,$(ALL_ASM_SRCS)) \

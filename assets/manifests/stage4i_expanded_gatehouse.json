@@ -1,0 +1,19 @@
+{
+  "schema_version": 7,
+  "id": "stage4i_expanded_gatehouse",
+  "source": "assets/source/stage4i_expanded_gatehouse.glb",
+  "source_format": "glb",
+  "category": "building_shell",
+  "provenance": {"kind": "project_authored", "license": "CC0-1.0"},
+  "coordinate_system": {"units": "meters", "up_axis": "+y", "forward_axis": "+z", "handedness": "right"},
+  "normalization": {"scale_policy": "units_to_tiles", "units_to_tiles": 1.0, "anchor": "footprint_center_base"},
+  "material_policy": {
+    "mode": "project_texture_catalog_binding",
+    "mappings": {"gatehouse_shell": {"alias": "prop_secondary", "texture": "stage4d_stone"}}
+  },
+  "texture_catalog": "assets/texture_catalog.json",
+  "collision": {"policy": "footprint_rect", "rectangle": {"min_x": -2.29, "max_x": 2.29, "min_z": -1.94, "max_z": 1.94}},
+  "budget": "stage4i_project_relocated",
+  "geometry_storage": {"policy": "project_relocated_display_list", "max_bytes": 4096},
+  "status": "proof"
+}
