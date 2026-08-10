@@ -496,3 +496,19 @@ Extraction resolution is not a proven TripoSR path into the factory. Any next
 generator experiment must be separately authorized and should prefer an
 exporter that emits valid bounded topology. See
 `docs/knowledge/hgss-stage4t-generator-topology.md`.
+
+## Stage 4U decision: SPAR3D remains untested because official execution is unavailable
+
+Official-source inspection confirms that the current Stability AI SPAR3D code
+exposes triangle remeshing and approximate face-count targeting, so the
+authorized 1000/500/250/125 experiment remains mechanically well-formed. It
+could not be executed: the official hosted Space is in `BUILD_ERROR`, the
+official model is gated, and this environment has neither an existing accepted
+credential nor cached authorized weights. Do not use an unofficial mirror,
+accept a license on the user's behalf, or substitute another generator.
+
+This result is an access blocker, not evidence that SPAR3D topology is
+compatible or incompatible. Preserve every Q/R/O/P/F/J/I contract unchanged.
+Retry the exact predeclared sweep only when an official execution route is
+already usable. See `docs/STAGE_4U_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4u-spar3d-generator.md`.

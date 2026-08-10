@@ -417,6 +417,20 @@ Stage 4P, a model, ROM, or QA. Stage 4 asset infrastructure still has the
 specific generator-topology blocker. Do not automatically start another
 generator experiment or Stage 5. See `docs/STAGE_4T_TECHNICAL_REPORT.md`.
 
+### Completed access-blocked checkpoint: Stage 4U
+
+The authorized official SPAR3D experiment stopped before generation. Official
+source inspection confirms the requested triangle-remesh/target-count sweep is
+supported approximately, but the official hosted Space is in `BUILD_ERROR`,
+the official model is gated, and no already-authorized local credential or
+weights are available. No unofficial service, alternate generator, license
+acceptance, or topology change was used.
+
+This does not establish SPAR3D topology or fidelity. Stage 4 asset
+infrastructure therefore retains a specific access blocker. Resume only the
+same predeclared sweep when an official route is already usable; do not begin
+Stage 5 automatically. See `docs/STAGE_4U_TECHNICAL_REPORT.md`.
+
 ## Completed infrastructure checkpoint: Stage 3E2
 
 The revision-locked hybrid map-header layer has been proven for project IDs

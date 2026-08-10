@@ -716,3 +716,13 @@ MC48 stops at Stage 4Q's non-branching-boundary contract; MC32 stops at raw
 fidelity and has the same structural class. No candidate reaches R/O/P/F/J/I.
 The analyzer owns no generation, sanitation, reduction, attribute, model, or
 runtime algorithm. See `docs/knowledge/hgss-stage4t-generator-topology.md`.
+
+Stage 4U also adds no asset-pipeline layer. It is an official-source access and
+capability probe for Stability AI SPAR3D. Source inspection confirms triangle
+remeshing, approximate target-count controls, and rich GLB appearance output,
+but no authorized candidate could be generated because the official Space is
+unavailable and the gated weights are not present locally. Consequently no
+geometry-analysis projection, appearance-discard policy, topology result, or
+Q/R/O/P/F/J/I artifact exists. The architecture remains unchanged until an
+official executable candidate can cross the immutable raw-hash boundary. See
+`docs/knowledge/hgss-stage4u-spar3d-generator.md`.
