@@ -48,7 +48,13 @@ class Stage5BRuntimeProofTests(unittest.TestCase):
             step["value"] for step in scenario["steps"]
             if step.get("action") == "write_memory" and step.get("offset") == 8
         }
-        self.assertEqual(commands, {1, 2, 3, 4})
+        self.assertEqual(commands, {1, 2, 3, 4, 5})
+        self.assertEqual(
+            sum(step.get("assert") == "marker" and step.get("value") == 45 for step in scenario["steps"]),
+            2,
+        )
+        self.assertIn("victini_party_persisted", captures)
+        self.assertIn("victini_pc_box_persisted", captures)
 
     def test_battle_fixture_uses_victini_on_both_sides(self) -> None:
         source = (ROOT / "data/battle_tests/stage5b/victini_runtime.c").read_text()

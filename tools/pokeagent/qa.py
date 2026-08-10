@@ -289,7 +289,14 @@ def _prepare_battery_config(path: Path, entry_mode: str) -> None:
     path.mkdir(parents=True, exist_ok=True)
 
 
-def run_scenario(path: Path, root: Path = PROJECT_ROOT, timeout_seconds: float = 300) -> dict[str, object]:
+def run_scenario(
+    path: Path,
+    root: Path = PROJECT_ROOT,
+    timeout_seconds: float = 300,
+    *,
+    build: bool = False,
+    build_timeout_seconds: float = 1200,
+) -> dict[str, object]:
     root = root.resolve()
     scenario = load_scenario(path, root)
     plan = deterministic_plan(scenario)
@@ -302,6 +309,30 @@ def run_scenario(path: Path, root: Path = PROJECT_ROOT, timeout_seconds: float =
     battery_config = artifact_dir / "desmume-config"
     rom_path = root / GENERATED_ROM_NAME
     errors: list[object] = []
+    build_result = None
+    if build:
+        build_result = run_command(
+            ["make", scenario["build_target"]],
+            cwd=root,
+            timeout_seconds=build_timeout_seconds,
+        )
+        if not build_result.succeeded:
+            return {
+                "schema_version": QA_SCHEMA_VERSION,
+                "operation": "qa_run",
+                "scenario": scenario["id"],
+                "fixture": scenario["fixture"],
+                "build_target": scenario["build_target"],
+                "entry_strategy": scenario["entry"]["mode"],
+                "plan": plan,
+                "build": build_result.to_dict(),
+                "rom_sha256": sha256_file(rom_path) if rom_path.is_file() else None,
+                "success": False,
+                "errors": [QAError(
+                    "qa_build_failed",
+                    f"declared QA build target failed: {scenario['build_target']}",
+                ).as_dict()],
+            }
     report: dict[str, object] = {
         "schema_version": QA_SCHEMA_VERSION,
         "operation": "qa_run",
@@ -319,6 +350,8 @@ def run_scenario(path: Path, root: Path = PROJECT_ROOT, timeout_seconds: float =
         },
         "errors": errors,
     }
+    if build_result is not None:
+        report["build"] = build_result.to_dict()
     targets = (artifact_dir, report_path, trace_path, worker_path, log_path, screenshots, battery_config)
     if any(path_is_git_ignored(root, target) is not True for target in targets):
         errors.append(QAError("unsafe_output_path", "QA artifacts must be Git-ignored").as_dict())

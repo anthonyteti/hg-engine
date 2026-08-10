@@ -460,15 +460,19 @@ Only after these pass should bulk roster generation begin.
 
 ### Stage 5B partial checkpoint: Victini runtime matrix
 
-The opt-in Victini proof confirms live personal data, generated moves, party
-state, Dex-bit updates, follower lookup/rendering/movement, and ordinary PC-box
-deposit without adding species capability. It does not complete the required
-matrix. The shared controlled-entry route currently fails for both Stage 5B
-and the unchanged Stage 4A persistence control, while the battle runner cannot
-start without its ignored `test.sav` fixture. Battle presentation, trainer,
-wild/capture, icon UI, follower transition, and battery-save/Continue remain
-unproven. Restore those generic test prerequisites and rerun the unchanged
-Victini proof before evolution, forms, Mega runtime, or roster normalization.
+The original opt-in proof established personal data, generated moves, party,
+Dex APIs, follower lookup/rendering/movement, and ordinary PC deposit. Stage
+5B-R recovered its generic blockers: QA now builds the declared target, the
+unchanged Stage 4A persistence control passes, and an ignored battle save can
+be provisioned through normal game save behavior. The rerun additionally
+proves two-sided battle-test front/back rendering and ordinary party and box
+battery persistence through hard reset/Continue.
+
+Stage 5B remains partial rather than progressing to evolution/forms/Megas.
+Ordinary wild encounter/capture, trainer-NARC loading, party/PC icon UI, cry
+routing, and native follower transition evidence remain. Address these shared
+runtime paths in one bounded follow-up; do not add roster content to force a
+representative pass.
 
 
 ## Stage 6: Art factory

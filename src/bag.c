@@ -1,4 +1,5 @@
 #include "../include/bag.h"
+#include "../include/battle_save_provision.h"
 #include "../include/config.h"
 #include "../include/constants/item.h"
 #include "../include/constants/file.h"
@@ -592,6 +593,9 @@ BOOL IsPlayerOnLadder(void)
 {
     if (gFieldSysPtr == NULL)
         return TRUE;
+#ifdef BATTLE_SAVE_PROVISION
+    BattleSaveProvisionTick();
+#endif
 #ifdef STAGE5B_RUNTIME_PROOF
     Stage5B_RuntimeTick();
 #endif

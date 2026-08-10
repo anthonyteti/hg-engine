@@ -520,7 +520,10 @@ def _validate_stage3e1_fixture(fixture: dict[str, Any]) -> None:
             "local_id", "graphics_id", "movement_type", "direction", "local_x", "local_z",
             "script_index", "marker_value", "dialogue", "marker_var",
         }
-        if set(npc) != required_npc or npc["marker_var"] != 0x4000 or npc["script_index"] != 1:
+        optional_npc = {"save_game", "warp_after_save"} if fixture["canonical_schema_version"] == 7 else set()
+        if not required_npc <= set(npc) or set(npc) - required_npc - optional_npc:
+            raise WorldBuildError(f"Stage 3E1 {name} NPC/script proof is malformed")
+        if npc["marker_var"] != 0x4000 or npc["script_index"] != 1:
             raise WorldBuildError(f"Stage 3E1 {name} NPC/script proof is malformed")
     if fixture.get("player_start") != {"map": "west", "local_x": 16, "local_z": 16, "direction": 3}:
         raise WorldBuildError("Stage 3E1 controlled start must begin in the west member")
@@ -1262,14 +1265,11 @@ def _write_script_source(
         if map_name not in fixture["maps"]:
             raise WorldBuildError("Stage 3E1 script generation requires a declared map name")
         npc = fixture["maps"][map_name]["npc"]
-        save_command = (
-            "    save_game_normal 0x800C\n"
-            if fixture["schema_version"] == 7 and map_name == "east"
-            else ""
-        )
+        legacy_east = fixture["schema_version"] == 7 and map_name == "east"
+        save_command = "    save_game_normal 0x800C\n" if npc.get("save_game", legacy_east) else ""
         warp_command = (
             f"    warp {fixture['maps']['west']['map_header']}, 0xFFFF, 16, 16, 3\n"
-            if fixture["schema_version"] == 7 and map_name == "east"
+            if npc.get("warp_after_save", legacy_east)
             else ""
         )
         source.write_text(

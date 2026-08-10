@@ -107775,15 +107775,17 @@
   "schema_version": 1,
   "selected_expanded_species_proof": {
     "id": 544,
-    "runtime_blocker": "battle runner lacks ignored test.sav; shared controlled-entry route blocks trainer, wild/capture, icon UI, transition, and hard-reset/Continue completion",
+    "runtime_blocker": "generic harness recovered; ordinary wild/capture, trainer-NARC loading, party/PC icon UI, cry routing, and native follower transition remain unexecuted",
     "runtime_evidence": [
       "party identity, level, form, generated moves, calculated stats, typing, and ability",
       "Dex seen/caught storage APIs",
       "follower lookup, field rendering, and movement",
-      "ordinary PC box deposit with species/form/level/move preservation"
+      "ordinary PC box deposit/withdraw with species/form/level/move preservation",
+      "ordinary party and box battery-save persistence through hard reset and Continue",
+      "two-sided battle-test front/back rendering and move execution"
     ],
     "runtime_status": "PARTIAL_EXECUTED",
-    "selection_reason": "first post-Gen-4 identity with direct data, complete render assets, cry, Dex number/name/sprite/seen-caught support, and follower mappings; expanded Dex category/description and runtime paths remain unresolved",
+    "selection_reason": "first post-Gen-4 identity with direct data, complete render assets, cry, Dex number/name/sprite/seen-caught support, and follower mappings; expanded Dex category/description and the listed ordinary runtime paths remain unresolved",
     "source_configuration": {
       "level": 20,
       "moves_from_engine_learnset": true,

@@ -128,6 +128,11 @@ def build_parser() -> argparse.ArgumentParser:
         child.add_argument("scenario", type=Path)
         if command == "run":
             child.add_argument("--timeout", type=float, default=300)
+            child.add_argument(
+                "--build", action="store_true",
+                help="build the scenario's declared Make target before execution",
+            )
+            child.add_argument("--build-timeout", type=float, default=1200)
         _add_output_argument(child)
 
     asset_parser = subparsers.add_parser("asset", help="validate and compile bounded environment assets")
@@ -429,7 +434,13 @@ def main(argv: list[str] | None = None) -> int:
             payload = inspect_scenario(args.scenario, PROJECT_ROOT)
             _print_json(payload) if args.json else _print_qa(payload)
         elif args.command == "qa" and args.qa_command == "run":
-            payload = run_scenario(args.scenario, PROJECT_ROOT, args.timeout)
+            payload = run_scenario(
+                args.scenario,
+                PROJECT_ROOT,
+                args.timeout,
+                build=args.build,
+                build_timeout_seconds=args.build_timeout,
+            )
             _print_json(payload) if args.json else _print_qa(payload)
         elif args.command == "asset" and args.asset_command in ("validate", "inspect", "simplify"):
             report = compile_asset(args.manifest, PROJECT_ROOT)["report"]

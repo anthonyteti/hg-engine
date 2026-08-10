@@ -131,6 +131,10 @@ ifeq ($(STAGE5B_RUNTIME_PROOF),Y)
     CFLAGS += -DSTAGE5B_RUNTIME_PROOF -Werror
 endif
 
+ifeq ($(BATTLE_SAVE_PROVISION),Y)
+    CFLAGS += -DBATTLE_SAVE_PROVISION -Werror
+endif
+
 WORLD_INSTALL_ARGS :=
 ifeq ($(STAGE3A_HEIGHT),Y)
     WORLD_INSTALL_ARGS := --fixture fixtures/stage3a_height_proof_map.json --output build/stage3a/generated
@@ -151,6 +155,9 @@ ifeq ($(STAGE3E2_HEADER),Y)
     CFLAGS += -DSTAGE3E2_HEADER_TEST
     WORLD_INSTALL_ARGS := --fixture fixtures/stage3e2_header_expansion_world.json --output build/stage3e2/generated
     PROJECT_HEADER_INCLUDE := include/constants/generated/project_map_headers.h
+endif
+ifeq ($(STAGE5B_RUNTIME_PROOF),Y)
+    WORLD_INSTALL_ARGS := --fixture fixtures/stage5b_victini_world.json --output build/stage5b/generated
 endif
 ifeq ($(STAGE4B_ASSET),Y)
     WORLD_INSTALL_ARGS := --fixture fixtures/stage4b_asset_world.json --output build/stage4b/generated
@@ -456,6 +463,14 @@ stage3e2-header-expansion-proof:
 stage5b-runtime-proof:
 	$(MAKE) clean
 	$(MAKE) STAGE2_MAP=Y STAGE3E2_HEADER=Y STAGE5B_RUNTIME_PROOF=Y
+
+.PHONY: battle-test-save
+battle-test-save:
+	$(MAKE) clean
+	$(MAKE) BATTLE_SAVE_PROVISION=Y
+	. .venv/bin/activate; python3 -m tools.pokeagent.battle_save \
+		--rom test.nds \
+		--output test.sav
 
 .PHONY: stage4b-asset-proof
 stage4b-asset-proof:

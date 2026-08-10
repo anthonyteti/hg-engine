@@ -44,8 +44,6 @@ static void Stage5B_SeedVictini(void) {
     RecalcPartyPokemonStats(&victini);
     SetMonData(&victini, MON_DATA_HP, &hp);
     PokeParty_Add(party, &victini);
-    SetScriptFlag(STAGE5B_HAVE_FOLLOWER_FLAG);
-    FollowPokeFsysParamSet(gFieldSysPtr, SPECIES_VICTINI, 0, FALSE, 2);
     SetScriptVar(STAGE5B_PHASE_VAR, 1);
     SetScriptVar(STAGE5B_BOX_VAR, STAGE5B_INVALID_LOCATION);
     SetScriptVar(STAGE5B_SLOT_VAR, STAGE5B_INVALID_LOCATION);
@@ -95,9 +93,15 @@ static BOOL Stage5B_Withdraw(void) {
     if (!PokeParty_Add(Stage5B_GetParty(), &mon))
         return FALSE;
     PCStorage_DeleteBoxMonByIndexPair(Stage5B_GetStorage(), box, slot);
+    SetScriptVar(STAGE5B_PHASE_VAR, 3);
+    return TRUE;
+}
+
+static BOOL Stage5B_EnableFollower(void) {
+    if (Stage5B_GetPartyVictini() == NULL)
+        return FALSE;
     SetScriptFlag(STAGE5B_HAVE_FOLLOWER_FLAG);
     FollowPokeFsysParamSet(gFieldSysPtr, SPECIES_VICTINI, 0, FALSE, 2);
-    SetScriptVar(STAGE5B_PHASE_VAR, 3);
     return TRUE;
 }
 
@@ -123,6 +127,10 @@ static void Stage5B_HandleCommand(void) {
         result = Stage5B_Withdraw();
         if (result)
             gStage5BRuntimeState.withdrawCommands++;
+    } else if (command == STAGE5B_COMMAND_ENABLE_FOLLOWER) {
+        result = Stage5B_EnableFollower();
+        if (result)
+            gStage5BRuntimeState.enabledFollowerCommands++;
     }
     gStage5BRuntimeState.commandResult = result ? command : 0x80000000u | command;
     gStage5BRuntimeState.command = STAGE5B_COMMAND_NONE;
@@ -156,7 +164,9 @@ static void Stage5B_Refresh(void) {
     gStage5BRuntimeState.boxNumber = GetScriptVar(STAGE5B_BOX_VAR);
     gStage5BRuntimeState.boxSlot = GetScriptVar(STAGE5B_SLOT_VAR);
     gStage5BRuntimeState.dexOwned = Pokedex_CountDexOwned(SaveData_GetDexPtr(gFieldSysPtr->savedata));
-    gStage5BRuntimeState.followerSpecies = gFieldSysPtr->followMon.species;
+    gStage5BRuntimeState.followerSpecies = partyMon != NULL && CheckScriptFlag(STAGE5B_HAVE_FOLLOWER_FLAG)
+        ? GetMonData(partyMon, MON_DATA_SPECIES, NULL)
+        : SPECIES_NONE;
     gStage5BRuntimeState.followerForm = gFieldSysPtr->followMon.forme;
     gStage5BRuntimeState.followerSprite = FollowingPokemon_GetSpriteID(SPECIES_VICTINI, 0, 2);
 }

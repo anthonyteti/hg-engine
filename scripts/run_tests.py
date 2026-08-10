@@ -168,6 +168,13 @@ def callback_function_when_game_put_thing_into_communication_hole(address, size)
     else:
         return
 
+    screenshot_dir = os.environ.get("TEST_RUNNER_SCREENSHOT_DIR")
+    if screenshot_dir:
+        destination = pathlib.Path(screenshot_dir)
+        destination.mkdir(parents=True, exist_ok=True)
+        name = re.sub(r"[^a-z0-9]+", "-", test_case_names[current_test_case].lower()).strip("-")
+        emu.screenshot().save(str(destination / f"{name}.png"))
+
     current_test_case += 1
 
     if ci:
@@ -332,6 +339,12 @@ def run_single_partition(args) -> int:
 
     signal.signal(signal.SIGINT, end_test)
 
+    if not args.video:
+        os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
+    config_root = pathlib.Path("build", "battle_tests", "desmume-config").resolve()
+    config_root.mkdir(parents=True, exist_ok=True)
+    os.environ["XDG_CONFIG_HOME"] = str(config_root)
+
     emu = DeSmuME()
     emu_memory = emu.memory
     memory = DeSmuME_Memory(emu)
@@ -357,8 +370,33 @@ def run_single_partition(args) -> int:
             print(format_aggregate_results([payload]), flush=True)
         return 0
 
+    battle_save = pathlib.Path("test.sav")
+    if not battle_save.is_file():
+        message = "Battle save fixture is missing: test.sav. Provision it locally with: make battle-test-save"
+        print(f"{bcolors.FAIL}{message}{bcolors.ENDC}", flush=True)
+        payload = mark_result_error(
+            get_result_payload(partition_count, partition_index),
+            "missing_battle_save",
+            message,
+        )
+        write_result_payload(result_file, payload)
+        return 1
+    if battle_save.stat().st_size != 512 * 1024:
+        message = (
+            f"Battle save fixture has invalid size {battle_save.stat().st_size}; expected 524288 bytes. "
+            "Recreate it with: make battle-test-save"
+        )
+        print(f"{bcolors.FAIL}{message}{bcolors.ENDC}", flush=True)
+        payload = mark_result_error(
+            get_result_payload(partition_count, partition_index),
+            "invalid_battle_save",
+            message,
+        )
+        write_result_payload(result_file, payload)
+        return 1
+
     emu.open("test.nds")
-    emu.backup.import_file("test.sav")
+    emu.backup.import_file(str(battle_save))
 
     window = None
     if args.video:
@@ -395,6 +433,9 @@ def run_single_partition(args) -> int:
                 "timeout",
                 timeout_message,
             )
+            timeout_capture = pathlib.Path("build", "battle_tests", "timeout.png")
+            emu.screenshot().save(str(timeout_capture))
+            payload["timeout_screenshot"] = str(timeout_capture)
             write_result_payload(result_file, payload)
             return 1
 

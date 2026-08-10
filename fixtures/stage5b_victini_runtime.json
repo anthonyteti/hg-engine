@@ -3,7 +3,7 @@
   "id": "stage5b_victini_runtime",
   "proof_only": true,
   "build_flag": "STAGE5B_RUNTIME_PROOF=Y",
-  "world_fixture": "fixtures/stage3e2_header_expansion_world.json",
+  "world_fixture": "fixtures/stage5b_victini_world.json",
   "species": {
     "constant": "SPECIES_VICTINI",
     "engine_id": 544,

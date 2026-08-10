@@ -9,6 +9,7 @@ enum Stage5BRuntimeCommand {
     STAGE5B_COMMAND_MARK_CAUGHT = 2,
     STAGE5B_COMMAND_DEPOSIT = 3,
     STAGE5B_COMMAND_WITHDRAW = 4,
+    STAGE5B_COMMAND_ENABLE_FOLLOWER = 5,
 };
 
 struct Stage5BRuntimeState {
@@ -44,6 +45,7 @@ struct Stage5BRuntimeState {
     u32 caughtCommands;
     u32 depositCommands;
     u32 withdrawCommands;
+    u32 enabledFollowerCommands;
 };
 
 #ifdef STAGE5B_RUNTIME_PROOF

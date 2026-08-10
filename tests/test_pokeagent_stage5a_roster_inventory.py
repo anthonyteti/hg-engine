@@ -59,7 +59,8 @@ class Stage5ARosterInventoryTests(unittest.TestCase):
         self.assertFalse(victini["capabilities"]["pokedex_complete"])
         proof = self.inventory["selected_expanded_species_proof"]
         self.assertEqual(proof["runtime_status"], "PARTIAL_EXECUTED")
-        self.assertEqual(len(proof["runtime_evidence"]), 4)
+        self.assertEqual(len(proof["runtime_evidence"]), 6)
+        self.assertIn("generic harness recovered", proof["runtime_blocker"])
 
     def test_storage_widths_cover_base_species_and_bound_forms(self) -> None:
         limits = self.inventory["limits"]

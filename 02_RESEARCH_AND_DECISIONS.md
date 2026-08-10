@@ -529,7 +529,16 @@ promoting trainer, wild, battle presentation, icon UI, cry playback, or
 battery-save paths that did not execute. A representative species can increase
 confidence in shared paths, but cannot promote every expanded identity.
 
-Do not patch Victini to bypass missing test infrastructure. Restore the
-repository's ignored battle `test.sav` fixture and the generic controlled-entry
-route, then rerun the same matrix. Until then Stage 5B and all storage/follower
-classifications remain partial.
+Stage 5B-R traced the shared controlled-entry failure to stale-ROM reuse: the
+QA runner did not build the scenario's declared target. An explicit build gate
+restores unchanged Stage 4A basic and persistence controls. A local ignored
+battle save is now created through normal new-game and `SaveGameNormal`
+behavior; missing saves fail with the exact provisioning command. This is a
+generic harness recovery, not a Victini patch.
+
+The rerun proves two-sided Victini battle-test rendering and ordinary party and
+box persistence through hard reset/Continue. Storage may therefore be called
+representatively proven. Keep expanded base-species and follower runtime
+partial because wild/capture, trainer-NARC loading, icon UI, cry routing, and a
+native follower map transition remain unexecuted. Source or compiled-table
+evidence still cannot replace those live paths.

@@ -299,6 +299,9 @@ struct GameStats {
 
 extern SaveData *sSaveDataPtr;
 
+struct FieldSystem;
+int SaveGameNormal(SaveData *saveData);
+
 BOOL LONG_CALL SaveDetectFlash(void);
 void LONG_CALL SaveData_InitSubstructs(struct SaveArrayHeader *headers);
 void LONG_CALL SaveData_InitSlotSpecs(struct SaveSlotSpec *slotSpecs, struct SaveArrayHeader *headers);
