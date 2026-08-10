@@ -1,0 +1,85 @@
+{
+  "schema_version": 16,
+  "id": "stage4s_real_generated_shrine",
+  "source": "assets/source/generated/stage4h_generated_shrine_raw.glb",
+  "source_sha256": "7327a0a619bdcd1bc401587f2ee7a4748978a153628374be6fb94176627eef60",
+  "concept": {
+    "path": "assets/concepts/stage4h_generated_shrine_concept.png",
+    "sha256": "06ef9543876681bd63d066b65f254dbe983a5f5bec112ba5dc128ce517e5644f"
+  },
+  "provenance": {
+    "path": "assets/provenance/stage4h_generated_shrine.json",
+    "sha256": "25ce9c327f7399e12d29f16af1b08c43f87a374048853fd6c51e992a7dfbbf07"
+  },
+  "intended_size_tiles": [4.0, 6.0, 4.0],
+  "appearance": {
+    "color0_policy": "explicit_discard",
+    "source_material": "generated_surface",
+    "project_material_alias": "prop_secondary",
+    "project_texture": "stage4d_stone"
+  },
+  "topology": {
+    "policy": "generated_static_exact_sanitize_v1",
+    "remove_exact_zero_area_faces": true,
+    "preserve_components": true,
+    "preserve_boundary_loops": true,
+    "max_components": 4,
+    "color0_policy": "explicit_discard"
+  },
+  "tiny_faces": {
+    "policy": "target_quantized_degenerate_v1",
+    "candidate_scope": "stage4o_normal_rejected_only",
+    "coordinate_system": {"up_axis": "+y", "forward_axis": "+z", "handedness": "right"},
+    "normalization": "fit_intended_size",
+    "placement": {"x": 16, "z": 16, "rotation": 0},
+    "preserve_components": true,
+    "require_valid_boundaries": true
+  },
+  "geometry_reduction": {
+    "policy": "constrained_geometry_qem",
+    "target_faces": 64,
+    "target_positions": 64,
+    "preserve_boundaries": true,
+    "preserve_ground_contact": true,
+    "require_one_component": true,
+    "crease_angle_degrees": 60.0,
+    "ground_tolerance_ratio": 0.000001,
+    "max_face_rotation_degrees": 80.0,
+    "crease_penalty": 0.0001,
+    "max_bounds_delta_ratio": 0.04,
+    "max_geometric_error_ratio": 0.08,
+    "max_surface_area_delta_percent": 22.0,
+    "min_silhouette_iou": 0.84
+  },
+  "bootstrap": {
+    "policy": "hard_surface_static_v1",
+    "material_name": "generated_surface",
+    "color0_policy": "reject",
+    "patch_normal_degrees": 0.1,
+    "plane_epsilon": 0.00001,
+    "texture_size": 32,
+    "padding_texels": 1,
+    "crease_angle_degrees": 60,
+    "normal_weighting": "area"
+  },
+  "final_decimation": {
+    "policy": "constrained_deterministic_qem",
+    "target": "fit_project_geometry",
+    "max_geometric_error": 0.25,
+    "max_bounds_delta": 0.25,
+    "max_surface_area_delta_percent": 12.0,
+    "min_silhouette_iou": 0.9,
+    "max_normal_deviation_degrees": 50.0,
+    "max_uv_distortion_percent": 70.0,
+    "hard_normal_degrees": 80.0,
+    "preserve_boundaries": true,
+    "preserve_uv_seams": true,
+    "preserve_material_boundaries": true,
+    "preserve_hard_normals": true
+  },
+  "model": {"policy": "project_relocated_display_list", "max_bytes": 4096},
+  "collision": {
+    "policy": "footprint_rect",
+    "rectangle": {"min_x": -2.0, "max_x": 2.0, "min_z": -2.0, "max_z": 2.0}
+  }
+}

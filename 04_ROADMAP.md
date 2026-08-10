@@ -388,6 +388,22 @@ attempt and must retain all fidelity, 4 KiB, runtime, provenance, and visual
 rejection gates. See `docs/STAGE_4R_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4r-tiny-face-policy.md`.
 
+### Completed kill-gate checkpoint: Stage 4S
+
+The first authorized derived attempt from the immutable real TripoSR asset
+passes its COLOR_0, exact sanitation, and target-null gates, then correctly
+stops at unchanged Stage 4O. The main component cannot reach its allocated
+56-face/58-position target; valid constrained collapses end at 177 faces/103
+positions. No Stage 4P/F/J/model/ROM/QA artifact is produced, and no fidelity,
+topology, or 4 KiB limit is weakened.
+
+Stage 4 infrastructure therefore has one specific blocker rather than a proven
+real pipeline. Do not automatically add another Stage 4 substage or begin Stage
+5. The next decision should explicitly choose between a narrowly justified
+pre-bootstrap reduction architecture and a generator/export path that produces
+simpler topology. See `docs/STAGE_4S_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4s-real-generated-asset.md`.
+
 ## Completed infrastructure checkpoint: Stage 3E2
 
 The revision-locked hybrid map-header layer has been proven for project IDs

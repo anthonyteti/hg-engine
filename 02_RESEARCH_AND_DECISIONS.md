@@ -465,3 +465,19 @@ Stage 4H blocking face meets this target-null rule at its intended 4 x 6 x 4
 tile scale. This makes a separately authorized derived attempt ready; it does
 not create or approve one. See `docs/STAGE_4R_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4r-tiny-face-policy.md`.
+
+## Stage 4S decision: real candidate stops at the unchanged Stage 4O envelope
+
+The explicitly authorized real TripoSR derived attempt passes immutable source
+verification, explicit COLOR_0 discard, Stage 4Q exact inspection, and Stage
+4R's one target-null removal. Preserve that proven prefix. Do not describe the
+full generated-asset pipeline as proven: unchanged Stage 4O allocates the main
+component 56 faces / 58 positions but exhausts valid constrained collapses at
+177 faces / 103 positions. Stage 4P accepts at most 80 faces, and Stage 4J
+requires complete attributes after Stage 4P.
+
+Do not weaken thresholds, delete the detached component, invent provisional
+attributes, or expand the model budget to force this asset through. This is a
+specific reusable preprocessing blocker, not evidence that the raw source or
+prior stages changed. See `docs/STAGE_4S_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4s-real-generated-asset.md`.

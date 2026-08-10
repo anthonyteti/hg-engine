@@ -684,3 +684,19 @@ The filter calls the same signed 4.12 coordinate quantizer as the display-list
 encoder. It owns no QEM, attributes, material, collision, world, or binary
 model logic. It never applies a relative-area threshold and never changes the
 exact Stage 4Q rule. See `docs/knowledge/hgss-stage4r-tiny-face-policy.md`.
+
+Stage 4S adds only a fail-closed generated-pipeline orchestrator:
+
+```text
+immutable source/provenance guard
+  -> proven COLOR_0 / Q / R prefix
+  -> unchanged Stage 4O
+  -> STOP on target-unreachable
+```
+
+It emits an ignored post-Q/R GLB, deterministic diagnostic views, and a gate
+report. It never treats a failing Stage 4O snapshot as output, so Stage 4P/F/J,
+model, ROM, and QA layers receive nothing. The real evidence exposes a boundary
+between geometry-only Stage 4O (best 177 faces) and the Stage 4P bootstrap
+envelope (80 faces), documented in
+`docs/knowledge/hgss-stage4s-real-generated-asset.md`.

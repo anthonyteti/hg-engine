@@ -11,6 +11,7 @@ import sys
 from .assets import compile_asset, compile_asset_outputs
 from .emulator import run_smoke
 from .generated_intake import inspect_generated_asset, write_intake_report
+from .generated_pipeline import run_generated_pipeline_manifest, write_generated_pipeline_outputs
 from .glb_geometry_reduce import reduce_geometry_manifest, write_geometry_outputs
 from .glb_tinyface import run_tinyface_manifest, write_tinyface_outputs
 from .glb_topology import run_topology_manifest, write_topology_outputs
@@ -142,11 +143,12 @@ def build_parser() -> argparse.ArgumentParser:
         ("bootstrap", "atomically generate source material, planar UV0, and crease-aware normals"),
         ("topology-sanitize", "remove exact-zero faces and preserve bounded components"),
         ("tinyface-sanitize", "remove topology-safe Stage 4O blockers null in target VTX_16"),
+        ("generated-pipeline", "run the kill-gated real generated-asset derivation"),
         ("compile", "write deterministic ignored asset artifacts"),
     ):
         child = asset_subparsers.add_parser(command, help=help_text)
         child.add_argument("manifest", type=Path)
-        if command in ("compile", "preprocess", "normals", "uvs", "materials", "geometry-reduce", "bootstrap", "topology-sanitize", "tinyface-sanitize"):
+        if command in ("compile", "preprocess", "normals", "uvs", "materials", "geometry-reduce", "bootstrap", "topology-sanitize", "tinyface-sanitize", "generated-pipeline"):
             child.add_argument("--output", type=Path)
         _add_output_argument(child)
     intake_parser = asset_subparsers.add_parser(
@@ -501,6 +503,10 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "asset" and args.asset_command == "tinyface-sanitize":
             output = args.output or PROJECT_ROOT / "build" / "assets" / args.manifest.stem
             payload = write_tinyface_outputs(args.manifest, output, PROJECT_ROOT) if args.output else run_tinyface_manifest(args.manifest, PROJECT_ROOT)["report"]
+            _print_json(payload) if args.json else _print_geometry_reduction(payload)
+        elif args.command == "asset" and args.asset_command == "generated-pipeline":
+            output = args.output or PROJECT_ROOT / "build" / "assets" / args.manifest.stem
+            payload = write_generated_pipeline_outputs(args.manifest, output, PROJECT_ROOT) if args.output else run_generated_pipeline_manifest(args.manifest, PROJECT_ROOT)["report"]
             _print_json(payload) if args.json else _print_geometry_reduction(payload)
         elif args.command == "asset" and args.asset_command == "intake":
             if args.output:

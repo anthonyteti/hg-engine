@@ -529,6 +529,11 @@ stage4r-tiny-face-proof:
 	. .venv/bin/activate; python3 -m tools.pokeagent asset tinyface-sanitize assets/manifests/stage4r_target_null.json --output build/stage4r --json
 	. .venv/bin/activate; python3 -m unittest -v tests.test_pokeagent_stage4r_tinyface
 
+.PHONY: stage4s-real-generated-asset-proof
+stage4s-real-generated-asset-proof:
+	. .venv/bin/activate; python3 -m tools.pokeagent asset generated-pipeline assets/manifests/stage4s_real_generated_shrine.json --output build/stage4s --json; test $$? -eq 1
+	. .venv/bin/activate; python3 -m unittest -v tests.test_pokeagent_stage4s_generated_pipeline
+
 ALL_CODE_OBJS := $(patsubst $(C_SUBDIR)/%.c,$(BUILD)/%.o,$(ALL_C_SRCS)) \
  $(patsubst $(ASM_SUBDIR)/%.s,$(BUILD)/%.o,$(ALL_ASM_SRCS)) \
  $(patsubst $(C_SUBDIR)/%.c,$(BUILD)/%.d,$(ALL_C_SRCS))
