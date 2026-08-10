@@ -668,3 +668,19 @@ reserves sixteen faces per component, distributes remaining capacity by surface
 area with stable remainders, forbids cross-component collapse, and validates
 one-to-one survival plus loop-count preservation. See
 `docs/knowledge/hgss-stage4q-generated-topology.md`.
+
+Stage 4R inserts one representation-aware filter between exact sanitation and
+coarse reduction:
+
+```text
+Stage 4Q exact-zero geometry
+  -> mesh_tinyface production normalization / VTX_16 integer probe
+  -> remove only target-null Stage 4O blockers after topology safety checks
+  -> unchanged Stage 4O multi-component reduction
+  -> unchanged Stage 4P / strict Stage 4F
+```
+
+The filter calls the same signed 4.12 coordinate quantizer as the display-list
+encoder. It owns no QEM, attributes, material, collision, world, or binary
+model logic. It never applies a relative-area threshold and never changes the
+exact Stage 4Q rule. See `docs/knowledge/hgss-stage4r-tiny-face-policy.md`.

@@ -248,10 +248,16 @@ def _wall_quads(features: list[Feature], grid: list[list[Feature]], threshold: f
     return quads
 
 
-def _fx16(value: float) -> int:
+def quantize_vtx16_coordinate(value: float) -> int:
+    """Return the signed integer emitted by the project's Nitro VTX_16 path."""
     raw = round(value * 4096)
     if not -0x8000 <= raw <= 0x7FFF:
         raise GeometryError("vertex_overflow", f"vertex coordinate {value} does not fit fx16")
+    return raw
+
+
+def _fx16(value: float) -> int:
+    raw = quantize_vtx16_coordinate(value)
     return raw & 0xFFFF
 
 

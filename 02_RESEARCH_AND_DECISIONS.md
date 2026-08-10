@@ -449,3 +449,19 @@ inspection proves cross-product squared `2.6948343349697145e-19`, not zero.
 The exact sanitation policy therefore correctly preserves it, after which the
 Stage 4O validity gate still rejects it. See `docs/STAGE_4Q_TECHNICAL_REPORT.md`
 and `docs/knowledge/hgss-stage4q-generated-topology.md`.
+
+## Stage 4R decision: remove only target-representation-null Stage 4O blockers
+
+Do not add a relative-area or generic tiny-triangle epsilon. A mathematically
+nonzero face may be removed only when unchanged Stage 4O rejects its geometric
+normal, the exact production normalization and signed 4.12 `VTX_16` quantizer
+make its integer target triangle degenerate, and removal preserves component
+and boundary topology. Exact-zero classification remains exclusively Stage 4Q;
+target-null faces that do not block Stage 4O remain preserved.
+
+The controlled Q -> R -> O -> P -> unchanged Stage 4F proof passes and rejects
+a tiny but target-representable negative fixture. Read-only evidence shows the
+Stage 4H blocking face meets this target-null rule at its intended 4 x 6 x 4
+tile scale. This makes a separately authorized derived attempt ready; it does
+not create or approve one. See `docs/STAGE_4R_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4r-tiny-face-policy.md`.

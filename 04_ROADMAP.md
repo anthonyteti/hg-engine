@@ -370,6 +370,24 @@ numeric-validity boundary; it must not start production art or general repair.
 See `docs/STAGE_4Q_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4q-generated-topology.md`.
 
+### Completed infrastructure checkpoint: Stage 4R
+
+The production coordinate path is now explicit: normalized tile coordinates
+enter the model at scale 0.25 and encode as signed 4.12 `VTX_16` values using
+nearest/ties-to-even rounding. One nonzero face may be filtered only when it
+blocks unchanged Stage 4O, becomes exactly degenerate in those integer target
+coordinates, and passes component/boundary safety checks. Exact Stage 4Q and
+representable tiny geometry remain untouched.
+
+The controlled Q -> R -> O -> P -> strict Stage 4F proof passes. Read-only
+Stage 4H evidence shows its blocking face is target-null at intended scale and
+hypothetical removal leaves two valid components and 25 valid loops. A derived
+candidate is ready for a separately authorized attempt, but none was created
+or approved. Stage 4S, if authorized, should be that bounded derived-copy
+attempt and must retain all fidelity, 4 KiB, runtime, provenance, and visual
+rejection gates. See `docs/STAGE_4R_TECHNICAL_REPORT.md` and
+`docs/knowledge/hgss-stage4r-tiny-face-policy.md`.
+
 ## Completed infrastructure checkpoint: Stage 3E2
 
 The revision-locked hybrid map-header layer has been proven for project IDs
