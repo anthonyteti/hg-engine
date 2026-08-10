@@ -481,3 +481,18 @@ attributes, or expand the model budget to force this asset through. This is a
 specific reusable preprocessing blocker, not evidence that the raw source or
 prior stages changed. See `docs/STAGE_4S_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4s-real-generated-asset.md`.
+
+## Stage 4T decision: extraction resolution alone does not close the blocker
+
+The authorized fixed TripoSR sweep reused the Stage 4H concept, foreground
+policy, and exact model revision. MC48 retains the required MC64 raw silhouette
+but emits two degree-4 branching open-boundary vertices and is rejected by
+unchanged Stage 4Q. MC32 has one such vertex and also fails the `0.88` raw
+silhouette floor. The official extraction API rejects values below 32, so MC24
+and MC16 are unavailable.
+
+Keep Stage 4Q strict and do not add boundary repair as an incidental response.
+Extraction resolution is not a proven TripoSR path into the factory. Any next
+generator experiment must be separately authorized and should prefer an
+exporter that emits valid bounded topology. See
+`docs/knowledge/hgss-stage4t-generator-topology.md`.

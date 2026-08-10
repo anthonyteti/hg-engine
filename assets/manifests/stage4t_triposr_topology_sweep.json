@@ -1,0 +1,64 @@
+{
+  "schema_version": 17,
+  "id": "stage4t_triposr_topology_sweep",
+  "concept": {
+    "path": "assets/concepts/stage4h_generated_shrine_concept.png",
+    "sha256": "06ef9543876681bd63d066b65f254dbe983a5f5bec112ba5dc128ce517e5644f"
+  },
+  "baseline": {
+    "resolution": 64,
+    "path": "assets/source/generated/stage4h_generated_shrine_raw.glb",
+    "sha256": "7327a0a619bdcd1bc401587f2ee7a4748978a153628374be6fb94176627eef60"
+  },
+  "generator": {
+    "model": "stabilityai/TripoSR",
+    "revision": "f84354eb350eb07a108faf33a6bc564d455f9764",
+    "endpoint": "https://stabilityai-triposr.hf.space",
+    "remove_background": true,
+    "foreground_ratio": 0.85,
+    "processed_image_sha256": "2c10c83a98cd5162974f1f6216012f9b9bfc23e7dc28cad0ffb36302468306d6",
+    "output_format": "glb",
+    "accepted_resolution_range": [32, 320]
+  },
+  "intended_size_tiles": [4.0, 6.0, 4.0],
+  "raw_fidelity": {
+    "directions": ["front", "rear", "left", "right", "three_quarter"],
+    "minimum_silhouette_iou": 0.88
+  },
+  "pipeline_policy": {
+    "path": "assets/manifests/stage4s_real_generated_shrine.json",
+    "sha256": "45ec3b83923717e3fcb8878122bf4cdf290f74dc67aa7d9142da240938730be2"
+  },
+  "candidates": [
+    {
+      "resolution": 48,
+      "status": "generated",
+      "path": "assets/source/generated/stage4t_triposr_shrine_mc48_raw.glb",
+      "sha256": "b797e1851c0e517190f95a981a5b9dab61fe889d9c87a6a680e9217090242d7b",
+      "provenance": {
+        "path": "assets/provenance/stage4t_triposr_shrine_mc48.json",
+        "sha256": "fe17bc2f61722a2d614661b93f2f7de221f11a481528df276a6846c199a4ce8c"
+      }
+    },
+    {
+      "resolution": 32,
+      "status": "generated",
+      "path": "assets/source/generated/stage4t_triposr_shrine_mc32_raw.glb",
+      "sha256": "da389a6595a8fb59e5bff19f2a480f1683d3c8aef7b4a590af396873c125fa2e",
+      "provenance": {
+        "path": "assets/provenance/stage4t_triposr_shrine_mc32.json",
+        "sha256": "a077e4207af413640dd8dbc8d8e56eb3a83b6b9bc3d7d144afdd9c5b5805542a"
+      }
+    },
+    {
+      "resolution": 24,
+      "status": "unsupported",
+      "reason": "official_generate_api_minimum_resolution_32"
+    },
+    {
+      "resolution": 16,
+      "status": "unsupported",
+      "reason": "official_generate_api_minimum_resolution_32"
+    }
+  ]
+}

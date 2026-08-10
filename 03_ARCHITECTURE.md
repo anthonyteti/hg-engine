@@ -700,3 +700,19 @@ model, ROM, and QA layers receive nothing. The real evidence exposes a boundary
 between geometry-only Stage 4O (best 177 faces) and the Stage 4P bootstrap
 envelope (80 faces), documented in
 `docs/knowledge/hgss-stage4s-real-generated-asset.md`.
+
+Stage 4T adds no preprocessing layer. It preserves two lower-resolution raw
+TripoSR outputs as immutable generator evidence and provides a read-only sweep
+analyzer:
+
+```text
+tracked MC64 / MC48 / MC32 raw GLBs
+  -> normalized five-view comparison
+  -> bounded topology inspection
+  -> unchanged Stage 4Q when eligible
+```
+
+MC48 stops at Stage 4Q's non-branching-boundary contract; MC32 stops at raw
+fidelity and has the same structural class. No candidate reaches R/O/P/F/J/I.
+The analyzer owns no generation, sanitation, reduction, attribute, model, or
+runtime algorithm. See `docs/knowledge/hgss-stage4t-generator-topology.md`.

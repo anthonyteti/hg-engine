@@ -404,6 +404,19 @@ pre-bootstrap reduction architecture and a generator/export path that produces
 simpler topology. See `docs/STAGE_4S_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4s-real-generated-asset.md`.
 
+### Completed blocked checkpoint: Stage 4T
+
+The fixed TripoSR extraction-resolution experiment did not provide a natural
+path into the existing factory. MC48 preserves the MC64 raw silhouette but has
+branching open-boundary topology rejected by Stage 4Q. MC32 has the same
+structural problem and fails raw fidelity. MC24/MC16 are below the official
+API's supported minimum.
+
+No compiler threshold or algorithm changed, and no candidate reached Stage 4O,
+Stage 4P, a model, ROM, or QA. Stage 4 asset infrastructure still has the
+specific generator-topology blocker. Do not automatically start another
+generator experiment or Stage 5. See `docs/STAGE_4T_TECHNICAL_REPORT.md`.
+
 ## Completed infrastructure checkpoint: Stage 3E2
 
 The revision-locked hybrid map-header layer has been proven for project IDs
