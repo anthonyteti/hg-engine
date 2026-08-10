@@ -726,3 +726,13 @@ geometry-analysis projection, appearance-discard policy, topology result, or
 Q/R/O/P/F/J/I artifact exists. The architecture remains unchanged until an
 official executable candidate can cross the immutable raw-hash boundary. See
 `docs/knowledge/hgss-stage4u-spar3d-generator.md`.
+
+Stage 4 is now bounded as the controlled static-asset/compiler infrastructure
+layer. Its deterministic parser, preprocessors, simplifiers, model storage,
+world integration, and QA paths are proven on project-authored fixtures. The
+external image-to-3D source boundary remains unproven: Stage 4H/S/T retain
+their exact TripoSR rejection/blocker evidence and Stage 4U retains its
+official-access blocker. Generator selection, generator-native appearance,
+and the required proof of one real generated landmark belong to Stage 6 Art
+Factory. This sequencing boundary does not reinterpret any failed Stage 4
+verdict as a pass.

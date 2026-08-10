@@ -539,6 +539,11 @@ stage4t-generator-topology-proof:
 	. .venv/bin/activate; python3 -m tools.pokeagent asset generator-topology assets/manifests/stage4t_triposr_topology_sweep.json --output build/stage4t/proof --json; test $$? -eq 1
 	. .venv/bin/activate; python3 -m unittest -v tests.test_pokeagent_stage4t_generator_topology
 
+.PHONY: stage5a-roster-audit
+stage5a-roster-audit:
+	. .venv/bin/activate; python3 -m tools.pokeagent.roster_inventory --output docs/data/hgengine_roster_inventory.json --revision $$(git rev-parse HEAD)
+	. .venv/bin/activate; python3 -m unittest -v tests.test_pokeagent_stage5a_roster_inventory
+
 ALL_CODE_OBJS := $(patsubst $(C_SUBDIR)/%.c,$(BUILD)/%.o,$(ALL_C_SRCS)) \
  $(patsubst $(ASM_SUBDIR)/%.s,$(BUILD)/%.o,$(ALL_ASM_SRCS)) \
  $(patsubst $(C_SUBDIR)/%.c,$(BUILD)/%.d,$(ALL_C_SRCS))

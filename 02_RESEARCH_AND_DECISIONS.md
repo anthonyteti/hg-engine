@@ -509,6 +509,13 @@ accept a license on the user's behalf, or substitute another generator.
 
 This result is an access blocker, not evidence that SPAR3D topology is
 compatible or incompatible. Preserve every Q/R/O/P/F/J/I contract unchanged.
-Retry the exact predeclared sweep only when an official execution route is
-already usable. See `docs/STAGE_4U_TECHNICAL_REPORT.md` and
+The project-level sequencing decision after Stage 4U is to stop generator
+research in Stage 4. Core asset/compiler infrastructure is proven for
+project-authored and controlled static assets; a real external image-to-3D
+landmark is not proven. TripoSR topology was unsuitable and SPAR3D had no
+authorized executable route. Preserve the Stage 4H rejection, Stage 4S/4T
+failures, and Stage 4U access blocker as historical results. Defer generator
+selection and the mandatory real generated-landmark proof to Stage 6 Art
+Factory; this deferral is not a technical pass for any of those stages. See
+`docs/STAGE_4U_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4u-spar3d-generator.md`.

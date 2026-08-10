@@ -426,10 +426,12 @@ the official model is gated, and no already-authorized local credential or
 weights are available. No unofficial service, alternate generator, license
 acceptance, or topology change was used.
 
-This does not establish SPAR3D topology or fidelity. Stage 4 asset
-infrastructure therefore retains a specific access blocker. Resume only the
-same predeclared sweep when an official route is already usable; do not begin
-Stage 5 automatically. See `docs/STAGE_4U_TECHNICAL_REPORT.md`.
+This does not establish SPAR3D topology or fidelity. Stage 4S/T/U remain
+failed or blocked exactly as reported. The project now closes Stage 4 research
+sequencing without declaring those experiments passed: controlled static
+asset/compiler infrastructure is proven, while real external image-to-3D
+generation is deferred to Stage 6 Art Factory. Do not resume Stage 4 generator
+tuning. See `docs/STAGE_4U_TECHNICAL_REPORT.md`.
 
 ## Completed infrastructure checkpoint: Stage 3E2
 
@@ -467,6 +469,11 @@ Tasks:
 - create validation metrics
 - build 5-10 approved modular assets
 - prove generated landmark conversion
+
+Hard acceptance boundary: select an authorized real generator/exporter and
+prove at least one immutable real generated landmark through the established
+asset pipeline and in-game visual QA. The Stage 4 deferral is not evidence for
+this requirement; Stage 4H/S/T/U remain the negative/access evidence baseline.
 
 Acceptance:
 
