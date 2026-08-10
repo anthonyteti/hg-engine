@@ -20,6 +20,9 @@
 #include "save.h"
 #include "script.h"
 #include "sound.h"
+#ifdef STAGE5BC_RUNTIME_PROOF
+#include "stage5b_runtime.h"
+#endif
 
 extern u32 word_to_store_form_at;
 // [preevo] = {species, form}, [postevo] = {species, form},
@@ -197,6 +200,9 @@ u16 LONG_CALL GetFormFromAdjustedForm(u32 mons_no)
  */
 u32 LONG_CALL PokeIconIndexGetByMonsNumber(u32 mons, u32 egg, u32 form_no)
 {
+#ifdef STAGE5BC_RUNTIME_PROOF
+    u32 originalMons = mons;
+#endif
     u32 pat = 7 + mons;
 
     if (egg == 1) {
@@ -255,6 +261,9 @@ u32 LONG_CALL PokeIconIndexGetByMonsNumber(u32 mons, u32 egg, u32 form_no)
         }
         pat = (7 + mons);
     }
+#ifdef STAGE5BC_RUNTIME_PROOF
+    Stage5BC_RecordIconIndex(originalMons, form_no, pat);
+#endif
     return pat;
 }
 
@@ -363,6 +372,9 @@ u32 LONG_CALL GetMonIconPalette(u32 mons, u32 form, u32 isegg)
 {
     u32 ret = 0;
     ReadFromNarcMemberByIdPair(&ret, ARC_CODE_ADDONS, CODE_ADDON_ICON_PALETTES, PokeIconPalNumGet(mons, form, isegg), sizeof(u8));
+#ifdef STAGE5BC_RUNTIME_PROOF
+    Stage5BC_RecordIconPalette(mons, form, ret);
+#endif
     return ret;
 }
 
@@ -1723,6 +1735,9 @@ u32 GrabCryNumSpeciesForm(u32 species, u32 form)
         }
     } else if (form == 0) // can just return species for the cry if it is base form
     {
+#ifdef STAGE5BC_RUNTIME_PROOF
+        Stage5BC_RecordCryRequest(species, form, species);
+#endif
         return species;
     } else {
         // need to grab form-adjusted species otherwise

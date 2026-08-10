@@ -14206,4 +14206,29 @@ const EncounterData __data[] =
         .fishSwarm = SPECIES_MAGIKARP,
     },
 
+#ifdef STAGE5BC_RUNTIME_PROOF
+    /* Opt-in Stage 5B-C encounter bank.  Metatile behavior 2 and the ordinary
+     * encounter engine select this 100% Victini table at level 20. */
+    [ENCDATA_UNUSED_142] = {
+        .rateWalk = 100,
+        .landSlots = {
+            .levels = { 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20 },
+            .speciesMorning = {
+                SPECIES_VICTINI, SPECIES_VICTINI, SPECIES_VICTINI, SPECIES_VICTINI,
+                SPECIES_VICTINI, SPECIES_VICTINI, SPECIES_VICTINI, SPECIES_VICTINI,
+                SPECIES_VICTINI, SPECIES_VICTINI, SPECIES_VICTINI, SPECIES_VICTINI,
+            },
+            .speciesDay = {
+                SPECIES_VICTINI, SPECIES_VICTINI, SPECIES_VICTINI, SPECIES_VICTINI,
+                SPECIES_VICTINI, SPECIES_VICTINI, SPECIES_VICTINI, SPECIES_VICTINI,
+                SPECIES_VICTINI, SPECIES_VICTINI, SPECIES_VICTINI, SPECIES_VICTINI,
+            },
+            .speciesNight = {
+                SPECIES_VICTINI, SPECIES_VICTINI, SPECIES_VICTINI, SPECIES_VICTINI,
+                SPECIES_VICTINI, SPECIES_VICTINI, SPECIES_VICTINI, SPECIES_VICTINI,
+                SPECIES_VICTINI, SPECIES_VICTINI, SPECIES_VICTINI, SPECIES_VICTINI,
+            },
+        },
+    },
+#endif
 };

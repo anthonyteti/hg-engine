@@ -109,10 +109,12 @@ struct PACKED TestBattleScenario {
 #define TEST_CASE_PASS          (-1)
 #define TEST_CASE_FAIL          (-2)
 #define TEST_CASE_KNOWN_FAILING (-3)
+#define TEST_BATTLE_READY       0x42545244
 
 #ifdef DEBUG_BATTLE_SCENARIOS
 struct TestBattleScenario *LONG_CALL TestBattle_GetCurrentScenario();
 void LONG_CALL SendValueThroughCommunicationSendHole(int value);
+int LONG_CALL ReadValueThroughCommunicationSendHole(void);
 BOOL LONG_CALL TestBattle_HasMoreExpectations();
 BOOL LONG_CALL TestBattle_HasMoreTests();
 BOOL LONG_CALL TestBattle_IsComplete();

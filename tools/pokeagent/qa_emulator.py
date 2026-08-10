@@ -85,6 +85,32 @@ class QAEmulatorAdapter:
             self.emu.input.keypad_rm_key(mask)
         self.wait(after_frames)
 
+    def touch(self, x: int, y: int, held_frames: int = 4, after_frames: int = 35) -> None:
+        self.emu.input.touch_set_pos(x, y)
+        try:
+            self.wait(held_frames)
+        finally:
+            self.emu.input.touch_release()
+        self.wait(after_frames)
+
+    def wait_memory(
+        self, symbol: str, value: int, offset: int = 0, width: int = 4,
+        mask: int | None = None, timeout_frames: int = 3600,
+    ) -> dict[str, int]:
+        observed = self.read_memory(symbol, offset, width)
+        for elapsed in range(timeout_frames + 1):
+            compared = observed if mask is None else observed & mask
+            if compared == value:
+                return {"observed": observed, "compared": compared, "elapsed_frames": elapsed}
+            if elapsed == timeout_frames:
+                break
+            self.wait(1)
+            observed = self.read_memory(symbol, offset, width)
+        raise QAExecutionError(
+            "memory_readiness_timeout", f"memory readiness condition did not appear for {symbol}",
+            expected={"value": value, "mask": mask}, observed={"value": observed},
+        )
+
     def hold(self, button: str, frames: int) -> None:
         if button not in self.held:
             self.emu.input.keypad_add_key(self._mask(button))
@@ -391,6 +417,10 @@ def _assert_semantic(adapter: QAEmulatorAdapter, step: dict[str, Any]) -> dict[s
         observed = adapter.read_memory(step["symbol"], step.get("offset", 0), step.get("width", 4))
         if "mask" in step:
             observed &= step["mask"]
+    elif kind == "memory_nonzero":
+        value = adapter.read_memory(step["symbol"], step.get("offset", 0), step.get("width", 4))
+        expected = True
+        observed = value != 0
     elif kind == "screenshot_valid":
         expected = {"exists": True, "valid_png": True}
         capture = adapter.screenshots.get(step["name"])
@@ -445,6 +475,10 @@ def execute_scenario(adapter: QAEmulatorAdapter, scenario: dict[str, Any]) -> di
                 adapter.wait(step["frames"])
             elif action == "press":
                 adapter.press(step["button"], step.get("held_frames", 4), step.get("after_frames", 35))
+            elif action == "touch":
+                adapter.touch(
+                    step["x"], step["y"], step.get("held_frames", 4), step.get("after_frames", 35),
+                )
             elif action == "hold":
                 adapter.hold(step["button"], step["frames"])
             elif action == "release":
@@ -468,6 +502,11 @@ def execute_scenario(adapter: QAEmulatorAdapter, scenario: dict[str, Any]) -> di
                     step["symbol"], step["value"], step.get("offset", 0), step.get("width", 4),
                 )
                 adapter.wait(step.get("after_frames", 30))
+            elif action == "wait_memory":
+                result = adapter.wait_memory(
+                    step["symbol"], step["value"], step.get("offset", 0), step.get("width", 4),
+                    step.get("mask"), step.get("timeout_frames", 3600),
+                )
             elif action is not None:
                 raise QAExecutionError("unknown_action", f"unsupported runtime action {action}")
             else:

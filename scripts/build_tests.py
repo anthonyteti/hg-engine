@@ -125,8 +125,9 @@ def main() -> None:
         try:
             with open("test_filter.txt", "r") as file:
                 for line in file:
-                    if len(line):
-                        filter_keywords.append(line)
+                    keyword = line.strip()
+                    if keyword:
+                        filter_keywords.append(keyword)
         except (IOError, UnicodeDecodeError):
             print("Could not read file: 'test_filter.txt'")
             raise

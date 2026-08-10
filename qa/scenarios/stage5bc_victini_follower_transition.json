@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "stage5bc_victini_follower_transition",
+  "fixture": "fixtures/stage5bc_victini_shared_world.json",
+  "build_target": "stage5bc-shared-runtime-proof",
+  "entry": {"mode": "new_game_controlled"},
+  "steps": [
+    {"assert": "map_id", "value": 540},
+    {"assert": "memory_value", "symbol": "gStage5BRuntimeState", "offset": 156, "width": 4, "value": 893535052},
+    {"action": "write_memory", "symbol": "gStage5BRuntimeState", "offset": 8, "width": 4, "value": 5},
+    {"action": "wait_memory", "symbol": "gStage5BRuntimeState", "offset": 12, "width": 4, "value": 5, "timeout_frames": 600},
+    {"assert": "memory_value", "symbol": "gStage5BRuntimeState", "offset": 124, "width": 4, "value": 544},
+    {"assert": "memory_value", "symbol": "gStage5BRuntimeState", "offset": 132, "width": 4, "value": 3044},
+    {"action": "move", "direction": "east", "tiles": 15},
+    {"assert": "position", "x": 31, "z": 16},
+    {"action": "capture", "name": "victini_follower_before_transition"},
+    {"assert": "native_transition", "direction": "east", "from_map_id": 540, "to_map_id": 541, "no_warp": true},
+    {"action": "wait_memory", "symbol": "gStage5BRuntimeState", "offset": 160, "width": 4, "value": 541, "timeout_frames": 600},
+    {"assert": "local_position", "x": 0, "z": 16},
+    {"assert": "memory_value", "symbol": "gStage5BRuntimeState", "offset": 124, "width": 4, "value": 544},
+    {"assert": "memory_value", "symbol": "gStage5BRuntimeState", "offset": 132, "width": 4, "value": 3044},
+    {"assert": "memory_value", "symbol": "gStage5BRuntimeState", "offset": 164, "width": 4, "value": 1},
+    {"action": "capture", "name": "victini_follower_after_transition"},
+    {"action": "move", "direction": "east", "tiles": 1},
+    {"assert": "memory_value", "symbol": "gStage5BRuntimeState", "offset": 164, "width": 4, "value": 1},
+    {"action": "capture", "name": "victini_follower_after_transition_movement"},
+    {"assert": "screenshot_valid", "name": "victini_follower_before_transition"},
+    {"assert": "screenshot_valid", "name": "victini_follower_after_transition"},
+    {"assert": "screenshot_valid", "name": "victini_follower_after_transition_movement"},
+    {"action": "wait", "frames": 600},
+    {"assert": "rom_running", "value": true}
+  ]
+}

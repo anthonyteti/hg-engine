@@ -520,11 +520,30 @@ def _validate_stage3e1_fixture(fixture: dict[str, Any]) -> None:
             "local_id", "graphics_id", "movement_type", "direction", "local_x", "local_z",
             "script_index", "marker_value", "dialogue", "marker_var",
         }
-        optional_npc = {"save_game", "warp_after_save"} if fixture["canonical_schema_version"] == 7 else set()
+        optional_npc = {
+            "save_game", "warp_after_save", "trainer_id", "trainer_completion_marker_value",
+            "trainer_prelaunch_marker_value",
+        } if fixture["canonical_schema_version"] == 7 else set()
         if not required_npc <= set(npc) or set(npc) - required_npc - optional_npc:
             raise WorldBuildError(f"Stage 3E1 {name} NPC/script proof is malformed")
         if npc["marker_var"] != 0x4000 or npc["script_index"] != 1:
             raise WorldBuildError(f"Stage 3E1 {name} NPC/script proof is malformed")
+        access_npc = spec.get("access_npc")
+        if access_npc is not None:
+            required_access = {
+                "kind", "local_id", "graphics_id", "movement_type", "direction",
+                "local_x", "local_z", "script_index", "destination_header",
+                "destination_x", "destination_z", "destination_direction",
+            }
+            if (
+                fixture["canonical_schema_version"] != 7
+                or not isinstance(access_npc, dict)
+                or set(access_npc) != required_access
+                or access_npc["kind"] != "pokecenter_access_warp"
+                or access_npc["local_id"] == npc["local_id"]
+                or access_npc["script_index"] != 1
+            ):
+                raise WorldBuildError(f"Stage 3E2 {name} access NPC is malformed")
     if fixture.get("player_start") != {"map": "west", "local_x": 16, "local_z": 16, "direction": 3}:
         raise WorldBuildError("Stage 3E1 controlled start must begin in the west member")
     if fixture.get("warps") != []:
@@ -951,6 +970,19 @@ def build_per(fixture: dict[str, Any], map_name: str | None = None) -> bytes:
         }
     else:
         warps = {(warp["x"], warp["z"]) for warp in fixture.get("warps", [])}
+    permission_regions = terrain.get("permission_regions", [])
+    for region in permission_regions:
+        required_region_keys = {"map", "x0", "z0", "x1", "z1", "permission_type"}
+        if not isinstance(region, dict) or set(region) != required_region_keys:
+            raise WorldBuildError("terrain permission regions require map/x0/z0/x1/z1/permission_type")
+        if region["map"] not in fixture.get("maps", {}):
+            raise WorldBuildError("terrain permission region references an unknown map")
+        if not all(isinstance(region[key], int) for key in ("x0", "z0", "x1", "z1", "permission_type")):
+            raise WorldBuildError("terrain permission region coordinates and permission must be integers")
+        if not (0 <= region["x0"] <= region["x1"] < 32 and 0 <= region["z0"] <= region["z1"] < 32):
+            raise WorldBuildError("terrain permission region exceeds the 32x32 map")
+        if not 0 <= region["permission_type"] <= 255:
+            raise WorldBuildError("terrain permission region permission must be a byte")
     # HGSS PER is row-major (Z, then X), with the permission byte immediately
     # followed by the walkability byte. PDSMS names these row/column loops
     # j/k; DSPRE stores them in its first/second rectangular-array indices.
@@ -960,7 +992,15 @@ def build_per(fixture: dict[str, Any], map_name: str | None = None) -> bytes:
             if fixture["schema_version"] not in (3, 6, 7):
                 is_border = terrain["block_border"] and is_border
             collision = terrain["blocked_collision"] if is_border or (x, z) in blocked else terrain["walkable_collision"]
-            permission = terrain.get("warp_permission_type", terrain["permission_type"]) if (x, z) in warps else terrain["permission_type"]
+            base_permission = terrain.get("permission_by_map", {}).get(map_name, terrain["permission_type"])
+            for region in permission_regions:
+                if (
+                    region["map"] == map_name
+                    and region["x0"] <= x <= region["x1"]
+                    and region["z0"] <= z <= region["z1"]
+                ):
+                    base_permission = region["permission_type"]
+            permission = terrain.get("warp_permission_type", base_permission) if (x, z) in warps else base_permission
             output.extend((permission, collision))
     return bytes(output)
 
@@ -1139,13 +1179,31 @@ def build_event(fixture: dict[str, Any], map_name: str | None = None) -> bytes:
         npc = spec["npc"]
         x = spec["cell"]["column"] * MAP_TILES + npc["local_x"]
         z = spec["cell"]["row"] * MAP_TILES + npc["local_z"]
+        access_npc = spec.get("access_npc")
         output = bytearray(struct.pack("<I", 0))
-        output += struct.pack("<I", 1)
+        output += struct.pack("<I", 1 + int(access_npc is not None))
+        # Standard scripts are reached through the generated local script
+        # wrapper below. Object-event script IDs are local unless they use the
+        # engine's dedicated global trainer-script range.
+        script_index = npc["script_index"]
+        if "trainer_id" in npc:
+            # HGSS object events identify ordinary trainers by the global
+            # std_trainer(trainer) script number, not by a map-local wrapper.
+            script_index = 3000 + npc["trainer_id"] - 1
         output += struct.pack(
             "<6Hh3HhhHHi",
             npc["local_id"], npc["graphics_id"], npc["movement_type"], 0, 0,
-            npc["script_index"], npc["direction"], 0, 0, 0, 0, 0, x, z, 0,
+            script_index, npc["direction"], 0, 0, 0, 0, 0, x, z, 0,
         )
+        if access_npc is not None:
+            access_x = spec["cell"]["column"] * MAP_TILES + access_npc["local_x"]
+            access_z = spec["cell"]["row"] * MAP_TILES + access_npc["local_z"]
+            output += struct.pack(
+                "<6Hh3HhhHHi",
+                access_npc["local_id"], access_npc["graphics_id"],
+                access_npc["movement_type"], 0, 0, access_npc["script_index"],
+                access_npc["direction"], 0, 0, 0, 0, 0, access_x, access_z, 0,
+            )
         map_warps = [warp for warp in fixture.get("warps", []) if warp["map"] == map_name]
         output += struct.pack("<I", len(map_warps))
         for warp in map_warps:
@@ -1264,7 +1322,26 @@ def _write_script_source(
     if fixture["schema_version"] in (6, 7):
         if map_name not in fixture["maps"]:
             raise WorldBuildError("Stage 3E1 script generation requires a declared map name")
-        npc = fixture["maps"][map_name]["npc"]
+        spec = fixture["maps"][map_name]
+        npc = spec["npc"]
+        access_npc = spec.get("access_npc", {})
+        if access_npc.get("kind") == "pokecenter_access_warp":
+            source.write_text(
+                ".nds\n.thumb\n\n"
+                '.include "armips/include/scriptmacros.s"\n\n'
+                f'.create "{_SCRIPT_OUTPUT_TOKEN}", 0\n\n'
+                f"scrdef {fixture['artifact_namespace']}_{map_name}_npc\n"
+                "scrdef_end\n\n"
+                f"{fixture['artifact_namespace']}_{map_name}_npc:\n"
+                "    setvar 16384, 51\n"
+                f"    warp {access_npc['destination_header']}, 0xFFFF, "
+                f"{access_npc['destination_x']}, {access_npc['destination_z']}, "
+                f"{access_npc['destination_direction']}\n"
+                "    end\n\n"
+                ".close\n",
+                encoding="utf-8",
+            )
+            return
         legacy_east = fixture["schema_version"] == 7 and map_name == "east"
         save_command = "    save_game_normal 0x800C\n" if npc.get("save_game", legacy_east) else ""
         warp_command = (
@@ -1272,6 +1349,26 @@ def _write_script_source(
             if npc.get("warp_after_save", legacy_east)
             else ""
         )
+        trainer_command = ""
+        dialogue_command = "    npc_msg 0\n    wait_button_or_walk_away\n    closemsg\n"
+        if "trainer_id" in npc:
+            dialogue_command = ""
+            prelaunch_command = (
+                f"    setvar 16384, {npc['trainer_prelaunch_marker_value']}\n"
+                if "trainer_prelaunch_marker_value" in npc else ""
+            )
+            completion_command = (
+                f"    setvar 16384, {npc['trainer_completion_marker_value']}\n"
+                if "trainer_completion_marker_value" in npc else ""
+            )
+            trainer_command = (
+                f"{prelaunch_command}"
+                f"    encounter_music {npc['trainer_id']}\n"
+                "    scrcmd_454\n"
+                f"    trainer_battle {npc['trainer_id']}, 0, 0, 0\n"
+                f"    settrainerflag {npc['trainer_id']}\n"
+                f"{completion_command}"
+            )
         source.write_text(
             ".nds\n.thumb\n\n"
             '.include "armips/include/scriptmacros.s"\n'
@@ -1284,9 +1381,8 @@ def _write_script_source(
             "    lockall\n"
             "    faceplayer\n"
             f"    setvar {npc['marker_var']}, {npc['marker_value']}\n"
-            "    npc_msg 0\n"
-            "    wait_button_or_walk_away\n"
-            "    closemsg\n"
+            f"{dialogue_command}"
+            f"{trainer_command}"
             f"{save_command}"
             "    releaseall\n"
             f"{warp_command}"
@@ -1378,6 +1474,32 @@ def _assemble_script_source(source: Path, output: Path, root: Path) -> None:
         _run_checked([str(root / "tools/armips"), str(invocation)], root)
     finally:
         invocation.unlink(missing_ok=True)
+
+
+def _preserve_common_bank_controlled_start(
+    fixture: dict[str, Any], output: Path, root: Path,
+) -> None:
+    """Patch only common-script entry 0, retaining all shared HGSS services."""
+    template = root / "build/a012/2_003"
+    if not template.is_file():
+        raise WorldBuildError(
+            "common-script-preserving controlled start requires the compiled build/a012/2_003 template"
+        )
+    data = bytearray(template.read_bytes())
+    if len(data) < 8:
+        raise WorldBuildError("compiled common-script template is truncated")
+    script0 = struct.unpack_from("<I", data, 0)[0] + 4
+    if not 0 <= script0 <= len(data) - 14:
+        raise WorldBuildError("compiled common-script entry 0 has an invalid offset")
+    start = fixture["player_start"]
+    spec = fixture["maps"][start["map"]]
+    x = spec["cell"]["column"] * MAP_TILES + start["local_x"]
+    z = spec["cell"]["row"] * MAP_TILES + start["local_z"]
+    warp = struct.pack(
+        "<7H", 176, spec["map_header"], 0xFFFF, x, z, start["direction"], 2,
+    )
+    data[script0:script0 + len(warp)] = warp
+    output.write_bytes(data)
 
 
 def _narc_btaf_count(data: bytes) -> int:
@@ -1826,7 +1948,12 @@ def generate_world(
             (components / f"2_{spec['script_header']:03d}").write_bytes(header)
             text_source = components / f"{stage_name}_{name}_dialogue.txt"
             text_path = components / f"7_{spec['text']:03d}"
-            text_source.write_text(spec["npc"]["dialogue"] + "\n", encoding="utf-8")
+            messages = [spec["npc"]["dialogue"]]
+            messages.extend(
+                "BATTLE TEST READY"
+                for _ in range(fixture.get("resources", {}).get("battle_test_message_count", 1) - 1)
+            )
+            text_source.write_text("\n".join(messages) + "\n", encoding="utf-8")
             _run_checked(
                 [str(root / "tools/msgenc"), "-e", "-k", "0x2A2A", "-c", "charmap.txt",
                  str(text_source), str(text_path)],
@@ -1843,6 +1970,8 @@ def generate_world(
     start_script_source = components / f"{stage_name}_start_script.s"
     _write_start_script_source(fixture, start_script_source, start_script_output)
     _assemble_script_source(start_script_source, start_script_output, root)
+    if fixture.get("resources", {}).get("preserve_common_script_bank"):
+        _preserve_common_bank_controlled_start(fixture, start_script_output, root)
 
     if fixture["schema_version"] not in (6, 7):
         text_source = components / f"{stage_name}_dialogue.txt"
@@ -2064,8 +2193,12 @@ def write_project_header_include(fixture_path: Path, output: Path) -> dict[str, 
     rows = []
     for header in headers:
         rows.append("    { " + ", ".join(f"0x{byte:02X}" for byte in header) + " },")
+    try:
+        fixture_label = fixture_path.resolve().relative_to(PROJECT_ROOT.resolve()).as_posix()
+    except ValueError:
+        fixture_label = fixture_path.as_posix()
     text = (
-        "/* Generated from fixtures/stage3e2_header_expansion_world.json; do not edit. */\n"
+        f"/* Generated from {fixture_label}; do not edit. */\n"
         "#ifndef GENERATED_PROJECT_MAP_HEADERS_H\n#define GENERATED_PROJECT_MAP_HEADERS_H\n\n"
         "#define PROJECT_MAP_HEADER_BASE 540u\n"
         f"#define PROJECT_MAP_HEADER_COUNT {len(headers)}u\n"

@@ -107775,17 +107775,23 @@
   "schema_version": 1,
   "selected_expanded_species_proof": {
     "id": 544,
-    "runtime_blocker": "generic harness recovered; ordinary wild/capture, trainer-NARC loading, party/PC icon UI, cry routing, and native follower transition remain unexecuted",
+    "runtime_blocker": "none within the applicable shared base-species runtime matrix; expanded Dex category/description content remains a separate content gap",
     "runtime_evidence": [
       "party identity, level, form, generated moves, calculated stats, typing, and ability",
       "Dex seen/caught storage APIs",
       "follower lookup, field rendering, and movement",
       "ordinary PC box deposit/withdraw with species/form/level/move preservation",
       "ordinary party and box battery-save persistence through hard reset and Continue",
-      "two-sided battle-test front/back rendering and move execution"
+      "two-sided battle-test front/back rendering and move execution",
+      "ordinary trainer-NARC load and field trainer battle",
+      "ordinary wild encounter, native capture construction, and encounter/capture Dex causality",
+      "party and retail PC icon UI resource selection and rendering",
+      "expanded cry route 544 -> pseudo-bank index 778 with playback invocation",
+      "native map transition with follower tag 3044 preserved and moving on arrival"
     ],
-    "runtime_status": "PARTIAL_EXECUTED",
+    "runtime_status": "COMPLETE_EXECUTED",
     "selection_reason": "first post-Gen-4 identity with direct data, complete render assets, cry, Dex number/name/sprite/seen-caught support, and follower mappings; expanded Dex category/description and the listed ordinary runtime paths remain unresolved",
+    "shared_runtime_architecture": "REPRESENTATIVE_PROVEN",
     "source_configuration": {
       "level": 20,
       "moves_from_engine_learnset": true,
@@ -107794,7 +107800,7 @@
     },
     "species": "SPECIES_VICTINI"
   },
-  "source_revision": "2dd676e4a1389bd126f76778d21da899c0eb1a30",
+  "source_revision": "bee4126deb92a435124751614843ad5cf673990a",
   "summary": {
     "battle_back_count": 1475,
     "battle_front_count": 1475,

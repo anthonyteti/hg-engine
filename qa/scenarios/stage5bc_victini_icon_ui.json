@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "stage5bc_victini_icon_ui",
+  "fixture": "fixtures/stage5bc_victini_shared_world.json",
+  "build_target": "stage5bc-shared-runtime-proof",
+  "entry": {"mode": "new_game_controlled"},
+  "steps": [
+    {"assert": "map_id", "value": 540},
+    {"assert": "memory_value", "symbol": "gStage5BRuntimeState", "offset": 16, "width": 4, "value": 544},
+    {"action": "write_memory", "symbol": "gStage5BRuntimeState", "offset": 8, "width": 4, "value": 6},
+    {"action": "wait_memory", "symbol": "gStage5BRuntimeState", "offset": 12, "width": 4, "value": 6, "timeout_frames": 600},
+    {"action": "press", "button": "x", "after_frames": 240},
+    {"action": "capture", "name": "victini_icon_menu_probe"},
+    {"action": "press", "button": "a", "after_frames": 600},
+    {"action": "wait_memory", "symbol": "gStage5BRuntimeState", "offset": 308, "width": 4, "value": 1, "timeout_frames": 1200},
+    {"assert": "memory_value", "symbol": "gStage5BRuntimeState", "offset": 312, "width": 4, "value": 544},
+    {"assert": "memory_value", "symbol": "gStage5BRuntimeState", "offset": 316, "width": 4, "value": 0},
+    {"action": "wait_memory", "symbol": "gStage5BRuntimeState", "offset": 324, "width": 4, "value": 1, "timeout_frames": 1200},
+    {"assert": "memory_value", "symbol": "gStage5BRuntimeState", "offset": 328, "width": 4, "value": 544},
+    {"assert": "memory_value", "symbol": "gStage5BRuntimeState", "offset": 332, "width": 4, "value": 0},
+    {"action": "capture", "name": "victini_party_icon"},
+    {"assert": "screenshot_valid", "name": "victini_icon_menu_probe"},
+    {"assert": "screenshot_valid", "name": "victini_party_icon"},
+    {"assert": "rom_running", "value": true}
+  ]
+}

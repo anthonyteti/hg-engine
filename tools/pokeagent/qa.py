@@ -33,11 +33,11 @@ BUTTONS = {"a", "b", "x", "y", "up", "down", "left", "right", "start", "select",
 DIRECTIONS = {"north", "east", "south", "west"}
 ACTIONS = {
     "wait", "press", "hold", "release", "move", "interact", "capture", "reset", "continue",
-    "write_memory",
+    "write_memory", "wait_memory", "touch",
 }
 ASSERTIONS = {
     "rom_running", "map_id", "matrix_id", "map_member", "position", "local_position",
-    "height", "event_counts", "warp_state", "marker", "memory_value", "screenshot_valid",
+    "height", "event_counts", "warp_state", "marker", "memory_value", "memory_nonzero", "screenshot_valid",
     "header_field", "resource_id", "bdhc_ready", "movement_succeeded", "collision_blocked",
     "native_transition",
 }
@@ -131,6 +131,23 @@ def _validate_action(step: dict[str, Any], index: int) -> None:
         if step.get("width", 4) not in (1, 2, 4):
             raise QAError("invalid_memory_width", f"step {index} memory width must be 1, 2, or 4")
         _require_int(step.get("after_frames", 30), "after_frames", 0, MAX_HOLD_FRAMES)
+    elif action == "wait_memory":
+        _reject_unknown(step, {"action", "symbol", "value", "offset", "width", "mask", "timeout_frames"}, f"step {index}")
+        if not isinstance(step.get("symbol"), str) or not SAFE_SYMBOL.fullmatch(step["symbol"]):
+            raise QAError("invalid_symbol", f"step {index} requires a safe linker symbol")
+        _require_int(step.get("value"), "value", 0, 2**32 - 1)
+        _require_int(step.get("offset", 0), "offset", 0, 4096)
+        if step.get("width", 4) not in (1, 2, 4):
+            raise QAError("invalid_memory_width", f"step {index} memory width must be 1, 2, or 4")
+        if "mask" in step:
+            _require_int(step["mask"], "mask", 0, 2**32 - 1)
+        _require_int(step.get("timeout_frames", 3600), "timeout_frames", 1, 12000)
+    elif action == "touch":
+        _reject_unknown(step, {"action", "x", "y", "held_frames", "after_frames"}, f"step {index}")
+        _require_int(step.get("x"), "x", 0, 255)
+        _require_int(step.get("y"), "y", 0, 191)
+        _require_int(step.get("held_frames", 4), "held_frames", 1, 120)
+        _require_int(step.get("after_frames", 35), "after_frames", 0, MAX_HOLD_FRAMES)
 
 
 def _validate_assertion(step: dict[str, Any], index: int) -> None:
@@ -164,12 +181,15 @@ def _validate_assertion(step: dict[str, Any], index: int) -> None:
         for name, value in step.items():
             if name != "assert":
                 _require_int(value, name, 0, 4096)
-    elif assertion in {"marker", "memory_value"}:
+    elif assertion in {"marker", "memory_value", "memory_nonzero"}:
         allowed = common | {"symbol", "value", "offset", "width", "mask"}
         _reject_unknown(step, allowed, f"step {index}")
         if not isinstance(step.get("symbol"), str) or not SAFE_SYMBOL.fullmatch(step["symbol"]):
             raise QAError("invalid_symbol", f"step {index} requires a safe linker symbol")
-        _require_int(step.get("value"), "value", -(2**31), 2**32 - 1)
+        if assertion != "memory_nonzero":
+            _require_int(step.get("value"), "value", -(2**31), 2**32 - 1)
+        elif "value" in step or "mask" in step:
+            raise QAError("invalid_nonzero_assertion", f"step {index} memory_nonzero does not accept value or mask")
         _require_int(step.get("offset", 0), "offset", 0, 4096)
         if step.get("width", 4) not in (1, 2, 4):
             raise QAError("invalid_memory_width", f"step {index} memory width must be 1, 2, or 4")

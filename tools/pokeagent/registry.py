@@ -975,7 +975,8 @@ def resolve_stage3e1_source(
     }
     for map_symbol in cells:
         map_spec = maps[map_symbol]
-        if not isinstance(map_spec, dict) or set(map_spec) != required_map:
+        allowed_map = required_map | ({"access_npc"} if schema_version == 7 else set())
+        if not isinstance(map_spec, dict) or not required_map <= set(map_spec) or set(map_spec) - allowed_map:
             raise RegistryError("invalid_map", f"{stage} map {map_symbol!r} has unsupported fields")
         cell = map_spec["cell"]
         if not isinstance(cell, dict) or set(cell) != {"row", "column"}:
@@ -991,6 +992,26 @@ def resolve_stage3e1_source(
         marker_symbol = npc.get("marker_variable")
         npc["marker_var"] = resolve(marker_symbol, "variables")
         npc.pop("marker_variable", None)
+        access_npc = map_spec.get("access_npc")
+        if access_npc is not None:
+            required_access = {
+                "kind", "local_id", "graphics_id", "movement_type", "direction",
+                "local_x", "local_z", "script_index", "destination_header",
+                "destination_x", "destination_z", "destination_direction",
+            }
+            if (
+                not isinstance(access_npc, dict)
+                or set(access_npc) != required_access
+                or access_npc.get("kind") != "pokecenter_access_warp"
+                or any(
+                    not isinstance(access_npc.get(key), int)
+                    for key in required_access - {"kind"}
+                )
+            ):
+                raise RegistryError(
+                    "invalid_access_npc",
+                    f"{stage} map {map_symbol!r} has a malformed Pokecenter access NPC",
+                )
         resolved_maps[alias] = {
             "cell": copy.deepcopy(cell),
             "map_header": resolve(map_spec["map_header"], "map_headers"),
@@ -1003,6 +1024,8 @@ def resolve_stage3e1_source(
             "identity_blocked_tile": copy.deepcopy(map_spec["identity_blocked_tile"]),
             "npc": npc,
         }
+        if "access_npc" in map_spec:
+            resolved_maps[alias]["access_npc"] = copy.deepcopy(access_npc)
     if [aliases_by_symbol[symbol] for symbol in cells] != ["west", "east"]:
         raise RegistryError("invalid_matrix_order", f"{stage} cells must be row-major west then east")
 
@@ -1011,6 +1034,26 @@ def resolve_stage3e1_source(
     model["area_data"] = resolve(model.get("area_data"), "area_data_banks", writable=False)
     header_template = resolve(source.get("header_template"), "map_headers", writable=False)
     start_script = resolve(source.get("resources", {}).get("start_script"), "common_scripts")
+    preserve_common_script_bank = source.get("resources", {}).get(
+        "preserve_common_script_bank", False
+    )
+    if not isinstance(preserve_common_script_bank, bool):
+        raise RegistryError(
+            "invalid_resource_policy",
+            f"{stage} preserve_common_script_bank must be boolean",
+        )
+    battle_test_message_count = source.get("resources", {}).get(
+        "battle_test_message_count", 1
+    )
+    if (
+        not isinstance(battle_test_message_count, int)
+        or isinstance(battle_test_message_count, bool)
+        or not 1 <= battle_test_message_count <= 256
+    ):
+        raise RegistryError(
+            "invalid_resource_policy",
+            f"{stage} battle_test_message_count must be an integer in 1..256",
+        )
     start = copy.deepcopy(source.get("player_start", {}))
     if start.get("map") not in aliases_by_symbol:
         raise RegistryError("unknown_reference", f"{stage} player start references an undeclared map")
@@ -1050,6 +1093,10 @@ def resolve_stage3e1_source(
         "world": {"matrix": resolved_matrix},
         "maps": resolved_maps,
         "slots": {"matrix": matrix_id, "matrix_probe": matrix_probe_id, "start_script": start_script},
+        "resources": {
+            "preserve_common_script_bank": preserve_common_script_bank,
+            "battle_test_message_count": battle_test_message_count,
+        },
         "model": model,
         "terrain": copy.deepcopy(source.get("terrain")),
         "player_start": start,

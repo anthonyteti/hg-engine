@@ -31120,6 +31120,7 @@ const TrainerData sTrainerData[] = {
         },
     },
 
+#ifndef STAGE5BC_RUNTIME_PROOF
     [737] = {
         .name = "Silver",
         .data = {
@@ -31159,6 +31160,31 @@ const TrainerData sTrainerData[] = {
             },
         },
     },
+#else
+    /* Opt-in replacement of the last existing trainer slot.  This keeps the
+     * ordinary trainer NARC member count unchanged in the proof build. */
+    [737] = {
+        .name = "Proof",
+        .data = {
+            .trainerType = TRAINER_DATA_TYPE_MOVES,
+            .trainerClass = TRAINERCLASS_YOUNGSTER,
+            .items = { ITEM_NONE, ITEM_NONE, ITEM_NONE, ITEM_NONE },
+            .aiFlags = F_EVALUATE_ATTACKS,
+            .battleType = SINGLE_BATTLE,
+        },
+        .party = {
+            {
+                .ivs = 31,
+                .abilitySlot = TRAINER_POKEMON_ABILITY_1,
+                .level = 5,
+                .species = SPECIES_VICTINI,
+                .item = ITEM_NONE,
+                .moves = { MOVE_CONFUSION, MOVE_FOCUS_ENERGY, MOVE_WORK_UP, MOVE_INCINERATE },
+                .ballSeal = 0,
+            },
+        },
+    },
+#endif
 
 };
 

@@ -2,15 +2,12 @@
 
 ## Finding
 
-The current fork can instantiate `SPECIES_VICTINI` (544) through ordinary
-Pokémon code and retain it through party and boxed battery-save serialization.
-The existing battle-test engine resolves its front/back graphics and moves,
-and field runtime resolves its data, Dex bits, follower sprite, and PC storage.
-
-Stage 5B remains partial because ordinary wild/capture, trainer-NARC, icon UI,
-cry routing, and native follower-transition paths have not all executed.
-Confidence is **confirmed for the explicitly listed live paths**, not for every
-expanded species or form.
+The current fork executes `SPECIES_VICTINI` (544) end to end through ordinary
+party, trainer-NARC, wild encounter, capture, Dex state, battle presentation,
+party/PC icon UI, expanded cry routing, follower transition, PC storage, and
+battery-save systems. Stage 5B-C therefore proves the shared expanded
+base-species runtime architecture for one representative. This does not prove
+every species/form or fill Victini's missing expanded Dex category/description.
 
 ## Generic recovery finding
 
@@ -25,10 +22,12 @@ The battle runner's ignored `test.sav` can now be provisioned reproducibly:
 make battle-test-save
 ```
 
-The command boots a locally built proof ROM, follows normal new-game behavior,
-calls the game's normal save routine, exports a raw 512 KiB battery save, and
-validates semantic readiness. It does not download or track a save. Missing or
-malformed saves produce an actionable error naming this command.
+The command executes the ordinary Stage 5B save/reset/Continue QA path,
+extracts its DeSmuME battery container into an ignored raw 512 KiB save, and
+validates semantic readiness. Clean AUTO builds explicitly install the
+Stage 5B-C proof world and preserved common-script bank. It does not download
+or track a save. Missing or malformed saves produce an actionable error naming
+this command.
 
 ## Evidence and reproduction
 
@@ -70,15 +69,30 @@ flags. Neither adds roster data or changes normal builds. Runtime state is
 asserted through exported semantic symbols; scenario JSON contains no raw
 revision address. Generated ROMs, saves, screenshots, and reports stay ignored.
 
-The inventory representative remains `PARTIAL_EXECUTED`. A representative
-pass increases confidence only in shared paths actually executed; it does not
-promote all 1,025 expanded base identities or any forms.
+The inventory representative is `COMPLETE_EXECUTED`, with shared runtime
+architecture `REPRESENTATIVE_PROVEN`. Victini's top-level content status stays
+`PARTIAL`; a representative pass does not promote all 1,025 expanded base
+identities or any forms.
+
+## Stage 5B-C closure evidence
+
+- trainer 737 serialized and loaded species 544, level 5, form 0, moves
+  93/116/529/513 through the ordinary trainer NARC;
+- encounter bank 142 produced ordinary level-20 base-form Victini battles;
+- encounter changed Dex state 0/0 -> 1/0 and native capture changed it to 1/1;
+- capture produced an ordinary species-544 party Pokémon with valid PID,
+  ability 162, and moves 93/116/529/513;
+- live cry routing observed 544 -> expanded pseudo-bank 778 and playback load;
+- party and retail PC UIs selected/rendered Victini icon resources/palettes;
+- native map 540 -> 541 transition retained follower species 544/tag 3044 and
+  continued movement;
+- the unchanged 73/73 party/box persistence matrix, Stage 4A controls,
+  known-good Color Change battle, and two-sided Victini battle all pass.
 
 ## Remaining unknowns
 
-- trainer and wild compiled-table expanded-ID resolution;
-- ordinary capture-created Victini and encounter/capture Dex-bit causality;
-- party and PC icon UI/palette rendering;
-- cry resolver/playback routing for pseudo-bank index 778;
-- follower continuity through a native map transition;
-- expanded Dex UI content beyond already-proven number/name/sprite/bit storage.
+- expanded Dex category/description content;
+- authenticity/quality of every expanded cry (routing is proven for Victini);
+- ordinary expanded evolution lines and evolution-form persistence;
+- regional-form and Mega runtime behavior;
+- per-species correctness beyond the one representative and static inventory.

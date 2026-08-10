@@ -4,6 +4,7 @@
 #include "item.h"
 #include "mega.h"
 #include "pokemon.h"
+#include "stage5b_runtime.h"
 #include "constants/ability.h"
 #include "constants/battle_script_constants.h"
 #include "constants/file.h"
@@ -79,6 +80,10 @@ u32 ServerBeforeAct_restoreOverlay = 0;
 
 void ServerBeforeAct(struct BattleSystem *bsys, struct BattleStruct *ctx) {
     u32 ovyId = OVERLAY_SERVERBEFOREACT, offset = 0x021FD900 | 1;
+
+#ifdef STAGE5BC_RUNTIME_PROOF
+    Stage5BC_RecordBattleDex(bsys->pokedex);
+#endif
 
     void (*internalFunc)(struct BattleSystem *bsys, struct BattleStruct *ctx);
 

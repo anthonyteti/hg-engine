@@ -2,6 +2,9 @@
 #include "../include/config.h"
 #include "../include/debug.h"
 #include "../include/sound.h"
+#ifdef STAGE5BC_RUNTIME_PROOF
+#include "../include/stage5b_runtime.h"
+#endif
 
 BOOL LONG_CALL GF_Snd_LoadSeq(int seqNo) {
     BOOL ret;
@@ -78,6 +81,9 @@ const u8 *NNS_SND_ARC_LOAD_ERROR_STRINGS[] =
 
 int LONG_CALL NNSi_SndArcLoadBank(int bankNo, u32 loadFlag, void *heap, BOOL bSetAddr, struct SNDBankData** pData)
 {
+#ifdef STAGE5BC_RUNTIME_PROOF
+    Stage5BC_RecordCryBank(bankNo);
+#endif
     const NNSSndArcBankInfo* bankInfo;
     const NNSSndArcWaveArcInfo* waveArcInfo;
     SNDBankData* bank = NULL;

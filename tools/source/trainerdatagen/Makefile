@@ -1,5 +1,5 @@
 CC := gcc
-CFLAGS := -std=c11 -O2 -Wall -Wextra -I../../..
+CFLAGS := -std=c11 -O2 -Wall -Wextra -I../../.. $(EXTRA_CFLAGS)
 TARGET := ../../../tools/trainerdatagen
 
 SRCS := trainer_data_gen.c

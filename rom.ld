@@ -126,6 +126,7 @@ sys_AllocMemoryLo = 0x0201AACC | 1;
 Heap_Alloc = 0x0201AA8C | 1;
 PlayerAvatar_GetXCoord = 0x0205C67C | 1;
 PlayerAvatar_GetZCoord = 0x0205C688 | 1;
+FollowMon_ChangeMon = 0x02069B74 | 1;
 HiddenItemScriptNoToFlagId = 0x0204055C | 1;
 HiddenItemScriptNoToHiddenItemIdx = 0x0204056C | 1;
 

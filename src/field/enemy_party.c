@@ -16,6 +16,9 @@
 #include "script.h"
 #include "trainer_data.h"
 #include "types.h"
+#ifdef STAGE5BC_RUNTIME_PROOF
+#include "stage5b_runtime.h"
+#endif
 
 #ifdef DEBUG_BATTLE_SCENARIOS
 #include "test_battle.h"
@@ -392,6 +395,10 @@ void MakeTrainerPokemonParty(struct BATTLE_PARAM *bp, int num, int heapID)
 
     for (i = 0; i < pokecount; i++) {
         PokeParty_Add(bp->poke_party[num], mons[partyOrder[i]]);
+#ifdef STAGE5BC_RUNTIME_PROOF
+        if (bp->trainer_id[num] == 737)
+            Stage5BC_RecordTrainer(bp->trainer_id[num], species, level, form_no, moves);
+#endif
         sys_FreeMemoryEz(mons[i]);
     }
 
@@ -471,6 +478,14 @@ BOOL LONG_CALL AddWildPartyPokemon(int inTarget, EncounterInfo *encounterInfo, s
 
     ChangeToBattleForm(encounterPartyPokemon);
 
+#ifdef STAGE5BC_RUNTIME_PROOF
+    u16 observedMoves[4];
+    u32 observedLevel = GetMonData(encounterPartyPokemon, MON_DATA_LEVEL, NULL);
+    u32 observedForm = GetMonData(encounterPartyPokemon, MON_DATA_FORM, NULL);
+    for (int i = 0; i < 4; i++)
+        observedMoves[i] = GetMonData(encounterPartyPokemon, MON_DATA_MOVE1 + i, NULL);
+    Stage5BC_RecordWild(species, observedLevel, observedForm, observedMoves);
+#endif
     return PokeParty_Add(encounterBattleParam->poke_party[inTarget], encounterPartyPokemon);
 }
 

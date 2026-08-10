@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "stage5bc_victini_wild_seen",
+  "fixture": "fixtures/stage5bc_victini_shared_world.json",
+  "build_target": "stage5bc-shared-runtime-proof",
+  "entry": {"mode": "new_game_controlled"},
+  "steps": [
+    {"assert": "memory_value", "symbol": "gStage5BRuntimeState", "offset": 276, "width": 4, "value": 0},
+    {"assert": "memory_value", "symbol": "gStage5BRuntimeState", "offset": 280, "width": 4, "value": 0},
+    {"action": "move", "direction": "east", "tiles": 15},
+    {"assert": "native_transition", "direction": "east", "from_map_id": 540, "to_map_id": 541, "no_warp": true},
+    {"action": "move", "direction": "east", "tiles": 7},
+    {"action": "hold", "button": "right", "frames": 180},
+    {"action": "release", "button": "right", "after_frames": 120},
+    {"action": "wait_memory", "symbol": "gStage5BRuntimeState", "offset": 204, "width": 4, "value": 1, "timeout_frames": 3600},
+    {"assert": "memory_value", "symbol": "gStage5BRuntimeState", "offset": 208, "width": 4, "value": 544},
+    {"action": "press", "button": "a", "after_frames": 180},
+    {"action": "press", "button": "a", "after_frames": 180},
+    {"action": "capture", "name": "victini_wild_seen_menu_state"},
+    {"assert": "screenshot_valid", "name": "victini_wild_seen_menu_state"},
+    {"action": "press", "button": "a", "after_frames": 180},
+    {"action": "press", "button": "right", "after_frames": 20},
+    {"action": "press", "button": "a", "after_frames": 600},
+    {"action": "capture", "name": "victini_wild_seen_progress"},
+    {"assert": "screenshot_valid", "name": "victini_wild_seen_progress"},
+    {"action": "wait_memory", "symbol": "gStage5BRuntimeState", "offset": 372, "width": 4, "value": 1, "timeout_frames": 1800},
+    {"assert": "memory_value", "symbol": "gStage5BRuntimeState", "offset": 376, "width": 4, "value": 0},
+    {"action": "capture", "name": "victini_wild_seen"},
+    {"assert": "screenshot_valid", "name": "victini_wild_seen"},
+    {"assert": "rom_running", "value": true}
+  ]
+}

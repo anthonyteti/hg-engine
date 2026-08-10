@@ -542,3 +542,17 @@ representatively proven. Keep expanded base-species and follower runtime
 partial because wild/capture, trainer-NARC loading, icon UI, cry routing, and a
 native follower map transition remain unexecuted. Source or compiled-table
 evidence still cannot replace those live paths.
+
+## Stage 5B-C decision: one representative closes shared base-species runtime
+
+Live Victini evidence now covers ordinary trainer-NARC loading, wild encounter,
+native capture construction, encounter/capture Dex causality, party and retail
+PC icon UIs, expanded cry routing, and native follower map transition in
+addition to the previously proven battle/storage paths. The shared expanded
+base-species runtime architecture may therefore be called representative-proven.
+
+Do not translate this architectural proof into per-species completeness.
+Victini remains content-level partial because expanded Dex category/description
+text is absent, and evolution, regional-form, Mega, cry-authenticity, and
+per-species correctness require their own bounded proofs. Next prove one
+expanded evolution line; do not begin forms or Megas yet.

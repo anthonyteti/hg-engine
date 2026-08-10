@@ -4,6 +4,9 @@
 //#include "wild_encounter.h"
 #include "types.h"
 #include "script.h"
+#ifdef STAGE5BC_RUNTIME_PROOF
+#include "encounter.h"
+#endif
 
 typedef struct BG_EVENT {
     u16 scr;
@@ -62,7 +65,11 @@ typedef struct MAP_EVENTS {
     COORD_EVENT *coord_events;
     u8 event_data[0x800];
     u8 script_header[0x100];
+#ifdef STAGE5BC_RUNTIME_PROOF
+    EncounterData wildEncounters;
+#else
     //ENC_DATA wildEncounters; // we'll get there when we get there
+#endif
 } MAP_EVENTS;
 
 

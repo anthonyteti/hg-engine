@@ -604,7 +604,16 @@ typedef struct FieldSystem {
     /* 0x40 */ FIELD_PLAYER_AVATAR *playerAvatar;
     /* 0x44 */ u8 unk44[0x8];
     /* 0x4C */ void *fog_data;
+#ifdef STAGE5BC_RUNTIME_PROOF
+    /* 0x50 */ u8 unk50[0x28];
+    /* 0x78 */ u16 unk78;
+    /* 0x7A */ u16 lastFacingDirection;
+    /* 0x7C */ u16 reverseTurnFrameSteps;
+    /* 0x7E */ u16 encounterInhibitSteps;
+    /* 0x80 */ u8 unk80[0x2C];
+#else
     /* 0x50 */ u8 unk50[0x5C];
+#endif
     /* 0xAC */ u32 unkAC;
     /* 0xB0 */ u8 unkB0[0x4];
     /* 0xB4 */ s64 unkB4;

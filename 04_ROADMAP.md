@@ -458,7 +458,7 @@ Proof sequence:
 
 Only after these pass should bulk roster generation begin.
 
-### Stage 5B partial checkpoint: Victini runtime matrix
+### Stage 5B complete: Victini shared runtime matrix
 
 The original opt-in proof established personal data, generated moves, party,
 Dex APIs, follower lookup/rendering/movement, and ordinary PC deposit. Stage
@@ -468,11 +468,15 @@ be provisioned through normal game save behavior. The rerun additionally
 proves two-sided battle-test front/back rendering and ordinary party and box
 battery persistence through hard reset/Continue.
 
-Stage 5B remains partial rather than progressing to evolution/forms/Megas.
-Ordinary wild encounter/capture, trainer-NARC loading, party/PC icon UI, cry
-routing, and native follower transition evidence remain. Address these shared
-runtime paths in one bounded follow-up; do not add roster content to force a
-representative pass.
+Stage 5B-C closes the remaining ordinary shared paths: trainer NARC, wild
+encounter, native capture, encounter/capture Dex causality, party/PC icon UIs,
+expanded cry routing, and native follower transition all execute for Victini.
+The shared expanded base-species architecture is representative-proven while
+Victini remains content-level partial due to missing expanded Dex text.
+
+Next prove one expanded evolution line end to end, including ordinary
+evolution and persistence. Do not infer regional-form or Mega support from
+Victini, and do not begin bulk roster normalization.
 
 
 ## Stage 6: Art factory

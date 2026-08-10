@@ -54,6 +54,44 @@ def _extract_raw_dsv(data: bytes) -> bytes:
     return raw
 
 
+def provision_battle_save_from_dsv(
+    dsv_path: Path,
+    output_path: Path,
+    root: Path = PROJECT_ROOT,
+    report_path: Path | None = None,
+) -> dict[str, object]:
+    """Extract a battle-runner save from a QA-proven ordinary battery save."""
+
+    dsv_path = dsv_path.resolve()
+    output_path = output_path.resolve()
+    if not dsv_path.is_file():
+        raise BattleSaveError(f"QA battery-save container is unavailable: {dsv_path}")
+    if path_is_git_ignored(root, output_path) is not True:
+        raise BattleSaveError("battle save output must be Git-ignored")
+    raw = _extract_raw_dsv(dsv_path.read_bytes())
+    output_path.write_bytes(raw)
+    result = {
+        "success": True,
+        "operation": "battle_test_save_provision",
+        "method": "qa_ordinary_battery_save_extraction",
+        "source_dsv": str(dsv_path),
+        "bytes": len(raw),
+        "sha256": _sha256(raw),
+        "output": str(output_path),
+        "byte_determinism_claimed": False,
+        "semantic_requirements": {
+            "source_scenario": "stage5b_victini_runtime",
+            "ordinary_save_and_continue_passed": True,
+            "nonempty_player_party": True,
+            "battle_runner_import_size": RAW_SAVE_BYTES,
+        },
+    }
+    if report_path is not None:
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        report_path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return result
+
+
 def _read_u32(emu: object, address: int) -> int:
     return int(emu.memory.unsigned[address:address:4])
 
@@ -173,13 +211,18 @@ def provision_battle_save(
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--rom", type=Path, required=True)
+    source = parser.add_mutually_exclusive_group(required=True)
+    source.add_argument("--rom", type=Path)
+    source.add_argument("--dsv", type=Path)
     parser.add_argument("--output", type=Path, default=PROJECT_ROOT / "test.sav")
     parser.add_argument("--report", type=Path, default=PROJECT_ROOT / "build/battle-save-provision/report.json")
     parser.add_argument("--timeout", type=float, default=180.0)
     args = parser.parse_args()
     try:
-        result = provision_battle_save(args.rom, args.output, PROJECT_ROOT, args.report, args.timeout)
+        if args.dsv is not None:
+            result = provision_battle_save_from_dsv(args.dsv, args.output, PROJECT_ROOT, args.report)
+        else:
+            result = provision_battle_save(args.rom, args.output, PROJECT_ROOT, args.report, args.timeout)
     except (OSError, BattleSaveError) as error:
         print(f"battle-test-save: FAIL: {error}")
         return 1
@@ -187,7 +230,10 @@ def main() -> int:
     print(f"  Output: {result['output']}")
     print(f"  Size: {result['bytes']} bytes")
     print(f"  SHA-256: {result['sha256']}")
-    print(f"  Persisted field: map {result['state']['map_id']} x={result['state']['x']} z={result['state']['z']}")
+    if "state" in result:
+        print(f"  Persisted field: map {result['state']['map_id']} x={result['state']['x']} z={result['state']['z']}")
+    else:
+        print(f"  Source: {result['source_dsv']}")
     return 0
 
 

@@ -637,11 +637,33 @@ BOOL IsPlayerOnLadder(void)
     }
 #endif
 #elif defined(DEBUG_BATTLE_SCENARIOS)
-    queueUpAutoBattleScript++;
-    if (queueUpAutoBattleScript == 30) {
+    if (queueUpAutoBattleScript == 0) {
+        /* Tell the host that field startup reached the test queue before it
+         * publishes the selected range.  A fixed host-side cycle count races
+         * early game memory initialization on clean emulator roots. */
+        SendValueThroughCommunicationSendHole(TEST_BATTLE_READY);
+        queueUpAutoBattleScript = 1;
+    } else if (queueUpAutoBattleScript == 1 &&
+               ReadValueThroughCommunicationSendHole() != TEST_BATTLE_READY) {
+        /* Arm the established 30-callback field delay only after the host
+         * replaces READY with the selected range.  This prevents a clean boot
+         * from interpreting READY as indexes while retaining the original
+         * script-manager settling interval. */
+        queueUpAutoBattleScript = 2;
+    } else if (queueUpAutoBattleScript >= 2 && queueUpAutoBattleScript < 30) {
+        queueUpAutoBattleScript++;
+    } else if (queueUpAutoBattleScript == 30) {
         EventSet_Script(gFieldSysPtr, 2073, NULL);
         TestBattle_QueueNextTest();
         queueUpAutoBattleScript = 31;
+    } else if (queueUpAutoBattleScript >= 31 && queueUpAutoBattleScript < 60) {
+        queueUpAutoBattleScript++;
+    } else if (queueUpAutoBattleScript == 60) {
+        /* A Continue-loaded field can still be releasing its saved script
+         * context at the first request.  Retry only the ordinary global
+         * battle script once; the selected range was already latched above. */
+        EventSet_Script(gFieldSysPtr, 2073, NULL);
+        queueUpAutoBattleScript = 61;
     } else if (pendingNextTest >= 20) {
         // delay some frames to give time for memory to clean up
         EventSet_Script(gFieldSysPtr, 2073, NULL);

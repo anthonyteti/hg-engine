@@ -3,6 +3,7 @@ import json
 import os
 import pathlib
 import re
+import shutil
 import signal
 import subprocess
 import sys
@@ -19,6 +20,7 @@ g_EmulatorCommunicationSendHoleAddress = 0x02FFF81C
 TEST_CASE_PASS = -1
 TEST_CASE_FAIL = -2
 TEST_CASE_KNOWN_FAILING = -3
+TEST_BATTLE_READY = 0x42545244
 
 
 # https://stackoverflow.com/questions/287871/how-do-i-print-colored-text-to-the-terminal
@@ -60,6 +62,7 @@ known_failing_test_case_names: list[str] = list()
 current_test_case = 0
 return_value = 0
 last_activity_time = time.monotonic()
+harness_ready_seen = False
 TEST_START_INDEX = 0
 TEST_END_INDEX = 0
 TOTAL_NUMBER_OF_TESTS = 0
@@ -126,11 +129,32 @@ def get_idle_timeout_seconds(partition_count: int) -> int:
 
 
 def read_communication_hole_value():
-    return emu_memory.signed[g_EmulatorCommunicationSendHoleAddress]
+    return emu_memory.signed[
+        g_EmulatorCommunicationSendHoleAddress:g_EmulatorCommunicationSendHoleAddress:4
+    ]
 
 
 def write_communication_hole_value(value: int):
     emu_memory.write_long(g_EmulatorCommunicationSendHoleAddress, value)
+
+
+def read_linked_symbol_u32(object_path: pathlib.Path, symbol: str) -> Union[int, None]:
+    """Read a linked debug symbol when available for actionable timeout reports."""
+
+    result = subprocess.run(
+        ["arm-none-eabi-nm", "-n", str(object_path)],
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+    )
+    if result.returncode != 0:
+        return None
+    for line in result.stdout.splitlines():
+        fields = line.split()
+        if len(fields) == 3 and fields[2] == symbol:
+            address = int(fields[0], 16)
+            return int(emu_memory.unsigned[address:address:4])
+    return None
 
 
 def has_finished_testing() -> bool:
@@ -144,10 +168,15 @@ def callback_function_when_game_put_thing_into_communication_hole(address, size)
     global current_test_case
     global return_value
     global last_activity_time
+    global harness_ready_seen
 
     last_activity_time = time.monotonic()
 
     value = read_communication_hole_value()
+
+    if value == TEST_BATTLE_READY:
+        harness_ready_seen = True
+        return
 
     if value == TEST_CASE_FAIL:
         line = f"{bcolors.FAIL}[Fail] {test_case_names[current_test_case]}{bcolors.ENDC}"
@@ -395,8 +424,23 @@ def run_single_partition(args) -> int:
         write_result_payload(result_file, payload)
         return 1
 
-    emu.open("test.nds")
-    emu.backup.import_file(str(battle_save))
+    runtime_root = pathlib.Path("build", "battle_tests", "runtime")
+    runtime_root.mkdir(parents=True, exist_ok=True)
+    runtime_rom = runtime_root / "battle-tests.nds"
+    runtime_dsv = runtime_root / "battle-tests.dsv"
+    runtime_dsv.unlink(missing_ok=True)
+    shutil.copyfile("test.nds", runtime_rom)
+    emu.open(str(runtime_rom))
+    if not emu.backup.import_file(str(battle_save)):
+        message = "Battle save fixture could not be imported by the emulator"
+        print(f"{bcolors.FAIL}{message}{bcolors.ENDC}", flush=True)
+        payload = mark_result_error(
+            get_result_payload(partition_count, partition_index),
+            "battle_save_import_failed",
+            message,
+        )
+        write_result_payload(result_file, payload)
+        return 1
 
     window = None
     if args.video:
@@ -405,10 +449,56 @@ def run_single_partition(args) -> int:
     if ci:
         print(f"##[group]{test_case_names[0]}")
 
-    for i in range(120):
-        del i
+    # Boot the ordinary title/Continue path from the provisioned battery save.
+    # The old DEBUG_AUTO_CONTINUE_GAME byte patch raced early startup and could
+    # enter an invalid state without ever reaching the field callback.
+    for _ in range(3200):
         emu.cycle(False)
 
+    from desmume.controls import Keys, keymask
+
+    a_mask = keymask(Keys.KEY_A)
+    ready_deadline = time.monotonic() + idle_timeout_seconds
+    ready_cycle = 0
+    while not harness_ready_seen and read_communication_hole_value() != TEST_BATTLE_READY:
+        if time.monotonic() > ready_deadline:
+            message = (
+                "Battle-test harness did not reach semantic field readiness. "
+                "Recreate test.sav with: make battle-test-save"
+            )
+            print(f"{bcolors.FAIL}{message}{bcolors.ENDC}", flush=True)
+            payload = mark_result_error(
+                get_result_payload(partition_count, partition_index),
+                "battle_harness_not_ready",
+                message,
+            )
+            readiness_capture = pathlib.Path("build", "battle_tests", "not_ready.png")
+            emu.screenshot().save(str(readiness_capture))
+            payload["readiness_screenshot"] = str(readiness_capture)
+            write_result_payload(result_file, payload)
+            return 1
+        if ready_cycle % 84 == 0:
+            emu.input.keypad_add_key(a_mask)
+        elif ready_cycle % 84 == 4:
+            emu.input.keypad_rm_key(a_mask)
+        emu.cycle(False)
+        ready_cycle += 1
+
+    emu.input.keypad_rm_key(a_mask)
+
+    # The final title-screen A tap can also reach the first field frame and
+    # open a follower/NPC interaction.  Close any such ordinary field dialog
+    # before publishing the test range; the game-side queue deliberately waits
+    # for this host handshake and therefore cannot race this cleanup.
+    b_mask = keymask(Keys.KEY_B)
+    emu.input.keypad_add_key(b_mask)
+    for _ in range(4):
+        emu.cycle(False)
+    emu.input.keypad_rm_key(b_mask)
+    for _ in range(120):
+        emu.cycle(False)
+
+    last_activity_time = time.monotonic()
     write_communication_hole_value(TEST_START_INDEX + (TEST_END_INDEX << 16))
 
     # Run the emulation as fast as possible until testing complete
@@ -436,6 +526,14 @@ def run_single_partition(args) -> int:
             timeout_capture = pathlib.Path("build", "battle_tests", "timeout.png")
             emu.screenshot().save(str(timeout_capture))
             payload["timeout_screenshot"] = str(timeout_capture)
+            payload["harness_diagnostics"] = {
+                "communication": read_communication_hole_value(),
+                "queue_state": read_linked_symbol_u32(pathlib.Path("build/linked.o"), "queueUpAutoBattleScript"),
+                "test_state": read_linked_symbol_u32(pathlib.Path("build/linked.o"), "gTestBattleState"),
+                "test_end": read_linked_symbol_u32(pathlib.Path("build/linked.o"), "gTestEndIndex"),
+                "range_overridden": read_linked_symbol_u32(pathlib.Path("build/linked.o"), "overridden"),
+            }
+            print(f"Harness diagnostics: {payload['harness_diagnostics']}", flush=True)
             write_result_payload(result_file, payload)
             return 1
 

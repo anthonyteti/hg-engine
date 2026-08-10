@@ -118,7 +118,13 @@ CFLAGS =  -I$(shell pwd)/include -mthumb -mno-thumb-interwork -mcpu=arm946e-s -m
 ARMIPS_FLAGS = -equ DEBUG_BATTLE_SCENARIOS 0
 
 ifeq ($(AUTO_TEST),Y)
-    CFLAGS += -DDEBUG_BATTLE_SCENARIOS -DDEBUG_AUTO_CONTINUE_GAME -Werror
+    # The ignored battle-runner save is produced by the ordinary Stage 5B QA
+    # world.  A clean AUTO_TEST build must therefore include that test-only
+    # map/header fixture rather than relying on stale incremental outputs.
+    STAGE3E2_HEADER := Y
+    STAGE5B_RUNTIME_PROOF := Y
+    STAGE5BC_RUNTIME_PROOF := Y
+    CFLAGS += -DDEBUG_BATTLE_SCENARIOS -Werror
     ARMIPS_FLAGS = -equ DEBUG_BATTLE_SCENARIOS 1
 endif
 
@@ -131,11 +137,17 @@ ifeq ($(STAGE5B_RUNTIME_PROOF),Y)
     CFLAGS += -DSTAGE5B_RUNTIME_PROOF -Werror
 endif
 
+ifeq ($(STAGE5BC_RUNTIME_PROOF),Y)
+    CFLAGS += -DSTAGE5BC_RUNTIME_PROOF -Werror
+    TRAINERDATAGEN_EXTRA_CFLAGS := -DSTAGE5BC_RUNTIME_PROOF
+endif
+
 ifeq ($(BATTLE_SAVE_PROVISION),Y)
     CFLAGS += -DBATTLE_SAVE_PROVISION -Werror
 endif
 
 WORLD_INSTALL_ARGS :=
+PROJECT_HEADER_FIXTURE := fixtures/stage3e2_header_expansion_world.json
 ifeq ($(STAGE3A_HEIGHT),Y)
     WORLD_INSTALL_ARGS := --fixture fixtures/stage3a_height_proof_map.json --output build/stage3a/generated
 endif
@@ -158,6 +170,10 @@ ifeq ($(STAGE3E2_HEADER),Y)
 endif
 ifeq ($(STAGE5B_RUNTIME_PROOF),Y)
     WORLD_INSTALL_ARGS := --fixture fixtures/stage5b_victini_world.json --output build/stage5b/generated
+endif
+ifeq ($(STAGE5BC_RUNTIME_PROOF),Y)
+    WORLD_INSTALL_ARGS := --fixture fixtures/stage5bc_victini_shared_world.json --output build/stage5bc/generated
+    PROJECT_HEADER_FIXTURE := fixtures/stage5bc_victini_shared_world.json
 endif
 ifeq ($(STAGE4B_ASSET),Y)
     WORLD_INSTALL_ARGS := --fixture fixtures/stage4b_asset_world.json --output build/stage4b/generated
@@ -223,8 +239,8 @@ ASM_OBJS := $(patsubst $(ASM_SUBDIR)/%.s,$(BUILD)/%.o,$(ASM_SRCS))
 OBJS     := $(C_OBJS) $(ASM_OBJS)
 
 ifeq ($(STAGE3E2_HEADER),Y)
-$(PROJECT_HEADER_INCLUDE): fixtures/stage3e2_header_expansion_world.json world/registry.json tools/pokeagent/world.py tools/pokeagent/registry.py tools/pokeagent/cli.py $(VENV_ACTIVATE)
-	$(PYTHON) -m tools.pokeagent map headers --fixture fixtures/stage3e2_header_expansion_world.json --output $@
+$(PROJECT_HEADER_INCLUDE): $(PROJECT_HEADER_FIXTURE) world/registry.json tools/pokeagent/world.py tools/pokeagent/registry.py tools/pokeagent/cli.py $(VENV_ACTIVATE)
+	$(PYTHON) -m tools.pokeagent map headers --fixture $(PROJECT_HEADER_FIXTURE) --output $@
 
 $(OBJS): $(PROJECT_HEADER_INCLUDE)
 endif
@@ -321,7 +337,7 @@ $(SPECIESDATAGEN): $(wildcard tools/source/speciesdatagen/*.c) data/Species.c in
 TOOLS += $(SPECIESDATAGEN)
 
 $(TRAINERDATAGEN): $(wildcard tools/source/trainerdatagen/*.c) data/Trainers.c include/trainer_data.h include/constants/trainerclass.h include/constants/pokemon.h
-	cd tools/source/trainerdatagen ; $(MAKE)
+	cd tools/source/trainerdatagen ; $(MAKE) EXTRA_CFLAGS="$(TRAINERDATAGEN_EXTRA_CFLAGS)"
 
 TOOLS += $(TRAINERDATAGEN)
 
@@ -397,7 +413,7 @@ all: $(OUTPUT) $(OVERLAY_OUTPUTS) $(TOOLS) $(BASE)/arm9.bin
 	$(MAKE) move_narc
 	$(ARMIPS) armips/global.s $(ARMIPS_FLAGS)
 	$(NARCHIVE) create $(FILESYS)/a/0/2/8 $(BUILD)/a028/ -nf
-ifeq ($(STAGE2_MAP),Y)
+ifneq ($(filter Y,$(STAGE2_MAP) $(AUTO_TEST)),)
 	$(PYTHON) -m tools.pokeagent map install $(WORLD_INSTALL_ARGS)
 endif
 	@echo "Making ROM..."
@@ -464,12 +480,19 @@ stage5b-runtime-proof:
 	$(MAKE) clean
 	$(MAKE) STAGE2_MAP=Y STAGE3E2_HEADER=Y STAGE5B_RUNTIME_PROOF=Y
 
+.PHONY: stage5bc-shared-runtime-proof
+stage5bc-shared-runtime-proof:
+	$(MAKE) -C tools/source/trainerdatagen clean
+	$(MAKE) clean
+	$(MAKE) STAGE2_MAP=Y STAGE3E2_HEADER=Y STAGE5B_RUNTIME_PROOF=Y STAGE5BC_RUNTIME_PROOF=Y
+	$(MAKE) -C tools/source/trainerdatagen clean
+
 .PHONY: battle-test-save
 battle-test-save:
-	$(MAKE) clean
-	$(MAKE) BATTLE_SAVE_PROVISION=Y
+	. .venv/bin/activate; python3 -m tools.pokeagent qa run \
+		qa/scenarios/stage5b_victini_runtime.json --build --timeout 600
 	. .venv/bin/activate; python3 -m tools.pokeagent.battle_save \
-		--rom test.nds \
+		--dsv build/qa/stage5b_victini_runtime/desmume-config/desmume/test.dsv \
 		--output test.sav
 
 .PHONY: stage4b-asset-proof
