@@ -127,6 +127,10 @@ ifeq ($(STAGE2_MAP),Y)
     ARMIPS_FLAGS = -equ DEBUG_BATTLE_SCENARIOS 1
 endif
 
+ifeq ($(STAGE5B_RUNTIME_PROOF),Y)
+    CFLAGS += -DSTAGE5B_RUNTIME_PROOF -Werror
+endif
+
 WORLD_INSTALL_ARGS :=
 ifeq ($(STAGE3A_HEIGHT),Y)
     WORLD_INSTALL_ARGS := --fixture fixtures/stage3a_height_proof_map.json --output build/stage3a/generated
@@ -447,6 +451,11 @@ stage3e1-narc-append-proof:
 stage3e2-header-expansion-proof:
 	$(MAKE) clean
 	$(MAKE) STAGE2_MAP=Y STAGE3E2_HEADER=Y
+
+.PHONY: stage5b-runtime-proof
+stage5b-runtime-proof:
+	$(MAKE) clean
+	$(MAKE) STAGE2_MAP=Y STAGE3E2_HEADER=Y STAGE5B_RUNTIME_PROOF=Y
 
 .PHONY: stage4b-asset-proof
 stage4b-asset-proof:

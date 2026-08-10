@@ -31,7 +31,10 @@ SAFE_CAPTURE = re.compile(r"^[a-z][a-z0-9_-]{0,63}$")
 SAFE_SYMBOL = re.compile(r"^[A-Za-z_][A-Za-z0-9_]{0,95}$")
 BUTTONS = {"a", "b", "x", "y", "up", "down", "left", "right", "start", "select", "l", "r"}
 DIRECTIONS = {"north", "east", "south", "west"}
-ACTIONS = {"wait", "press", "hold", "release", "move", "interact", "capture", "reset", "continue"}
+ACTIONS = {
+    "wait", "press", "hold", "release", "move", "interact", "capture", "reset", "continue",
+    "write_memory",
+}
 ASSERTIONS = {
     "rom_running", "map_id", "matrix_id", "map_member", "position", "local_position",
     "height", "event_counts", "warp_state", "marker", "memory_value", "screenshot_valid",
@@ -119,6 +122,15 @@ def _validate_action(step: dict[str, Any], index: int) -> None:
         if "expected_map_id" in step:
             _require_int(step["expected_map_id"], "expected_map_id", 0, 65535)
         _require_int(step.get("timeout_frames", 7200), "timeout_frames", 60, 12000)
+    elif action == "write_memory":
+        _reject_unknown(step, {"action", "symbol", "value", "offset", "width", "after_frames"}, f"step {index}")
+        if not isinstance(step.get("symbol"), str) or not SAFE_SYMBOL.fullmatch(step["symbol"]):
+            raise QAError("invalid_symbol", f"step {index} requires a safe linker symbol")
+        _require_int(step.get("value"), "value", 0, 2**32 - 1)
+        _require_int(step.get("offset", 0), "offset", 0, 4096)
+        if step.get("width", 4) not in (1, 2, 4):
+            raise QAError("invalid_memory_width", f"step {index} memory width must be 1, 2, or 4")
+        _require_int(step.get("after_frames", 30), "after_frames", 0, MAX_HOLD_FRAMES)
 
 
 def _validate_assertion(step: dict[str, Any], index: int) -> None:

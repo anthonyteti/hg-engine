@@ -76,7 +76,7 @@ def _symbols(root: Path, require_stage3e2: bool = False) -> dict[str, int]:
     found: dict[str, int] = {}
     for line in result.stdout.splitlines():
         fields = line.split()
-        if len(fields) == 3 and fields[2] in wanted:
+        if len(fields) == 3 and (fields[2] in wanted or fields[2].startswith("gStage")):
             found[fields[2]] = int(fields[0], 16)
     missing = wanted - found.keys()
     if missing:

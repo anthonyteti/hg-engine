@@ -356,6 +356,7 @@ u32 LONG_CALL PCModifiedFlags_GetIndexOfNthModifiedBox(u32 flags, u8 last);
 
 
 void *LONG_CALL SaveBlock2_get(void);
+void *SaveArray_Get(SaveData *saveData, int id);
 struct SAVE_MISC_DATA *LONG_CALL Sav2_Misc_get(void *saveData);
 struct ScriptState *LONG_CALL SavArray_Flags_get(void *saveData);
 struct PlayerProfile *LONG_CALL Sav2_PlayerData_GetProfileAddr(void *saveData);

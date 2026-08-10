@@ -28,6 +28,7 @@ SCENARIOS = (
     ROOT / "qa/scenarios/stage4e_triangle_asset.json",
     ROOT / "qa/scenarios/stage4f_glb_asset.json",
     ROOT / "qa/scenarios/stage4g_simplified_asset.json",
+    ROOT / "qa/scenarios/stage5b_victini_runtime.json",
 )
 
 
@@ -113,6 +114,9 @@ class FakeAdapter:
         self.screenshots[name] = value
         return value
     def read_memory(self, symbol, offset, width): return self.memory[symbol]
+    def write_memory(self, symbol, value, offset, width):
+        self.memory[symbol] = value
+        self.calls.append(("write_memory", symbol, value, offset, width))
 
 
 class QASchemaTests(unittest.TestCase):
@@ -235,6 +239,14 @@ class QAExecutionTests(unittest.TestCase):
         self.assertIn(("hold", "left"), adapter.calls)
         self.assertIn(("release", "left"), adapter.calls)
         self.assertEqual(adapter.frame, 15)
+
+    def test_write_memory_executes_through_semantic_symbol(self) -> None:
+        result, adapter = self.execute([
+            {"action": "write_memory", "symbol": "gMarker", "offset": 0, "width": 4, "value": 544},
+            {"assert": "memory_value", "symbol": "gMarker", "offset": 0, "width": 4, "value": 544},
+        ])
+        self.assertTrue(result["success"])
+        self.assertIn(("write_memory", "gMarker", 544, 0, 4), adapter.calls)
 
     def test_screenshot_artifact_metadata_is_assertable(self) -> None:
         result, _ = self.execute([

@@ -107775,8 +107775,14 @@
   "schema_version": 1,
   "selected_expanded_species_proof": {
     "id": 544,
-    "runtime_blocker": "no existing deterministic QA route exercises battle, party, PC, save/reset/Continue, trainer, wild, and follower paths without adding gameplay content",
-    "runtime_status": "NOT_EXECUTED",
+    "runtime_blocker": "battle runner lacks ignored test.sav; shared controlled-entry route blocks trainer, wild/capture, icon UI, transition, and hard-reset/Continue completion",
+    "runtime_evidence": [
+      "party identity, level, form, generated moves, calculated stats, typing, and ability",
+      "Dex seen/caught storage APIs",
+      "follower lookup, field rendering, and movement",
+      "ordinary PC box deposit with species/form/level/move preservation"
+    ],
+    "runtime_status": "PARTIAL_EXECUTED",
     "selection_reason": "first post-Gen-4 identity with direct data, complete render assets, cry, Dex number/name/sprite/seen-caught support, and follower mappings; expanded Dex category/description and runtime paths remain unresolved",
     "source_configuration": {
       "level": 20,
@@ -107786,7 +107792,7 @@
     },
     "species": "SPECIES_VICTINI"
   },
-  "source_revision": "123b7e6e73d48f193d0c9d75b422885c8be1ccd8",
+  "source_revision": "2dd676e4a1389bd126f76778d21da899c0eb1a30",
   "summary": {
     "battle_back_count": 1475,
     "battle_front_count": 1475,

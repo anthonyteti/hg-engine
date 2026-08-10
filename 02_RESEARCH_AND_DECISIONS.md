@@ -519,3 +519,17 @@ selection and the mandatory real generated-landmark proof to Stage 6 Art
 Factory; this deferral is not a technical pass for any of those stages. See
 `docs/STAGE_4U_TECHNICAL_REPORT.md` and
 `docs/knowledge/hgss-stage4u-spar3d-generator.md`.
+
+## Stage 5B decision: runtime evidence must remain capability-specific
+
+Keep the Victini proof opt-in and use ordinary party, Dex, follower, PC, and
+battle-test APIs. Live field evidence confirms Victini data, Dex operations,
+follower resolution/rendering/movement, and PC deposit; it does not justify
+promoting trainer, wild, battle presentation, icon UI, cry playback, or
+battery-save paths that did not execute. A representative species can increase
+confidence in shared paths, but cannot promote every expanded identity.
+
+Do not patch Victini to bypass missing test infrastructure. Restore the
+repository's ignored battle `test.sav` fixture and the generic controlled-entry
+route, then rerun the same matrix. Until then Stage 5B and all storage/follower
+classifications remain partial.

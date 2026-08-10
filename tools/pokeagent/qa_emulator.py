@@ -264,6 +264,17 @@ class QAEmulatorAdapter:
         address = self.symbols[symbol] + offset
         return {1: _read_u8, 2: _read_u16, 4: _read_u32}[width](self.emu, address)
 
+    def write_memory(self, symbol: str, value: int, offset: int, width: int) -> None:
+        if symbol not in self.symbols:
+            raise QAExecutionError("unknown_runtime_symbol", f"runtime symbol is unavailable: {symbol}")
+        address = self.symbols[symbol] + offset
+        if width == 1:
+            self.emu.memory.write_byte(address, value)
+        elif width == 2:
+            self.emu.memory.write_short(address, value)
+        else:
+            self.emu.memory.write_long(address, value)
+
     def snapshot(self) -> dict[str, object]:
         snapshot: dict[str, object] = {
             "frame": self.frame,
@@ -452,6 +463,11 @@ def execute_scenario(adapter: QAEmulatorAdapter, scenario: dict[str, Any]) -> di
                 adapter.reset()
             elif action == "continue":
                 adapter.continue_game(step.get("expected_map_id"), step.get("timeout_frames", 7200))
+            elif action == "write_memory":
+                adapter.write_memory(
+                    step["symbol"], step["value"], step.get("offset", 0), step.get("width", 4),
+                )
+                adapter.wait(step.get("after_frames", 30))
             elif action is not None:
                 raise QAExecutionError("unknown_action", f"unsupported runtime action {action}")
             else:

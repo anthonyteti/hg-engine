@@ -736,3 +736,20 @@ official-access blocker. Generator selection, generator-native appearance,
 and the required proof of one real generated landmark belong to Stage 6 Art
 Factory. This sequencing boundary does not reinterpret any failed Stage 4
 verdict as a pass.
+
+Stage 5B adds an opt-in runtime validation seam, not roster functionality:
+
+```text
+existing Victini source/data/assets
+  -> STAGE5B_RUNTIME_PROOF fixture hook
+  -> ordinary party / Dex / follower / PC APIs
+  -> semantic exported proof state
+  -> declarative QA assertions and ignored screenshots
+```
+
+The hook is absent from normal builds. QA writes are bounded and symbol-based;
+revision addresses remain centralized in the emulator adapter. Battle proof
+uses the existing battle-test compiler/runner. Runtime claims are recorded per
+executed subsystem, so compiled assets and source widths cannot silently stand
+in for missing live evidence. See
+`docs/knowledge/hgengine-expanded-species-runtime.md`.

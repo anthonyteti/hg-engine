@@ -9,6 +9,10 @@
 #include "../include/save.h"
 #include "../include/script.h"
 
+#ifdef STAGE5B_RUNTIME_PROOF
+#include "../include/stage5b_runtime.h"
+#endif
+
 #ifdef DEBUG_BATTLE_SCENARIOS
 #include "../include/test_battle.h"
 #endif // DEBUG_BATTLE_SCENARIOS
@@ -588,6 +592,9 @@ BOOL IsPlayerOnLadder(void)
 {
     if (gFieldSysPtr == NULL)
         return TRUE;
+#ifdef STAGE5B_RUNTIME_PROOF
+    Stage5B_RuntimeTick();
+#endif
     u32 collision = GetMetatileBehaviorAt(gFieldSysPtr, gFieldSysPtr->location->x, gFieldSysPtr->location->z);
     u32 mapId = gFieldSysPtr->location->mapId;
 #ifdef STAGE2_MAP_TEST

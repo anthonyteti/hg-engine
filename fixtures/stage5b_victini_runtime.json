@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "id": "stage5b_victini_runtime",
+  "proof_only": true,
+  "build_flag": "STAGE5B_RUNTIME_PROOF=Y",
+  "world_fixture": "fixtures/stage3e2_header_expansion_world.json",
+  "species": {
+    "constant": "SPECIES_VICTINI",
+    "engine_id": 544,
+    "level": 20,
+    "form": 0,
+    "ivs": 31,
+    "personality": 0,
+    "ot_id": 84606977,
+    "current_hp": 37,
+    "base_stats": [100, 100, 100, 100, 100, 100],
+    "types": [14, 10],
+    "ability": 162,
+    "moves": [93, 116, 529, 513]
+  },
+  "storage": {
+    "phase_variable": 16385,
+    "box_variable": 16386,
+    "slot_variable": 16387,
+    "save_array": 41
+  },
+  "evolution": "NOT_APPLICABLE"
+}
