@@ -478,6 +478,16 @@ Next prove one expanded evolution line end to end, including ordinary
 evolution and persistence. Do not infer regional-form or Mega support from
 Victini, and do not begin bulk roster normalization.
 
+### Stage 5C complete: representative expanded level evolution
+
+One unchanged Popplio individual executes the existing level-17 Brionne and
+level-34 Primarina evolutions through normal Rare Candy use. PID/form/party
+identity, recalculated data, icon/follower refresh, Brionne and Primarina party
+persistence, and boxed Primarina persistence all survive ordinary battery
+save, hard reset, and Continue. This proves one expanded plain-level evolution
+line only. Next select one bounded non-level evolution-method proof; do not
+begin regional forms, Megas, or bulk normalization automatically.
+
 
 ## Stage 6: Art factory
 

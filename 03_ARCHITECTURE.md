@@ -785,3 +785,20 @@ boots from consuming the readiness marker as test indexes. Normal builds omit
 all Stage 5B-C trainer/wild substitutions, observations, maps, and symbols.
 The architecture proves one representative shared path; it does not add roster
 content or alter normal Pokémon serialization.
+
+Stage 5C adds an independent opt-in evolution observation seam:
+
+```text
+existing Popplio evolution source
+  -> ordinary Bag / Rare Candy level-up
+  -> unchanged GetMonEvolution + evolution cutscene
+  -> icon/follower identity refresh
+  -> ordinary party and box battery saves
+  -> semantic QA observations
+```
+
+`STAGE5C_EVOLUTION_PROOF` seeds only the starting individual and Bag items.
+It never writes level or evolved species. Proof bookkeeping uses isolated
+persistent variables rather than HGSS temporary script variables, while the
+normal build omits the entire seam. One representative level line cannot stand
+in for non-level methods, regional forms, or Mega Evolution.

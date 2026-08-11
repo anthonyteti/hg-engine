@@ -33,7 +33,7 @@ BEGIN_TEST {
         { ACTION_NONE, 0 },
     } },
     .expectations = {
-        { .expectationType = EXPECTATION_TYPE_MESSAGE, .expectationValue.message = "The opposing Victini is getting pumped!" },
         { .expectationType = EXPECTATION_TYPE_MESSAGE, .expectationValue.message = "Victini used Incinerate!" },
+        { .expectationType = EXPECTATION_TYPE_MESSAGE, .expectationValue.message = "The opposing Victini is getting pumped!" },
     },
 } END_TEST

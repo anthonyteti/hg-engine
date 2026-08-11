@@ -11,6 +11,9 @@
 #include "../include/constants/item.h"
 #include "../include/constants/moves.h"
 #include "../include/constants/species.h"
+#ifdef STAGE5C_EVOLUTION_PROOF
+#include "../include/stage5c_runtime.h"
+#endif
 
 extern const u16 sButtonFrameTileOffsets[];
 extern const u8 sButtonRects[][4];
@@ -141,6 +144,11 @@ void LONG_CALL sub_0207AFC4(struct PartyMenu *wk)
  */
 int PartyMenu_ItemUseFunc_LevelUpLearnMovesLoop_Case6(struct PartyMenu *wk) {
     struct PartyPokemon *mon = Party_GetMonByIndex(wk->args->party, wk->partyMonIndex);
+#ifdef STAGE5C_EVOLUTION_PROOF
+    Stage5C_RecordLevelCheckpoint(
+        GetMonData(mon, MON_DATA_SPECIES, NULL),
+        GetMonData(mon, MON_DATA_LEVEL, NULL));
+#endif
     wk->args->species = GetMonEvolution(wk->args->party, mon, EVOCTX_LEVELUP, EVO_NONE, (int *)&wk->args->evoMethod);
     if (wk->args->species != SPECIES_NONE) {
         wk->args->selectedAction = 0x9;

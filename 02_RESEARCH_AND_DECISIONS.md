@@ -556,3 +556,17 @@ Victini remains content-level partial because expanded Dex category/description
 text is absent, and evolution, regional-form, Mega, cry-authenticity, and
 per-species correctness require their own bounded proofs. Next prove one
 expanded evolution line; do not begin forms or Megas yet.
+
+## Stage 5C decision: evolution proof preserves one Pokémon identity
+
+Use the existing Popplio -> Brionne -> Primarina `EVO_LEVEL` definitions and
+the ordinary Bag/Rare Candy/evolution-cutscene path. A proof hook may seed the
+initial level-16 Popplio and observe semantic boundaries, but it must not write
+levels, evolved species, or invoke evolution directly. PID and the other stable
+identity fields must survive both transitions and battery persistence.
+
+HGSS variables `0x4000..0x401F` are temporary and are not valid proof-state
+storage across ordinary menus/evolution. Keep opt-in proof bookkeeping in
+unused persistent save variables and omit it from normal builds. A passing
+representative level line establishes shared level-evolution architecture, not
+all evolution methods, regional forms, Megas, or content completeness.

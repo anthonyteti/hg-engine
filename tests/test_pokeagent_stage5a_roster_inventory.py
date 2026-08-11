@@ -63,6 +63,18 @@ class Stage5ARosterInventoryTests(unittest.TestCase):
         self.assertEqual(len(proof["runtime_evidence"]), 11)
         self.assertIn("expanded Dex category/description", proof["runtime_blocker"])
 
+    def test_representative_evolution_annotation_does_not_promote_content_status(self) -> None:
+        proof = self.inventory["expanded_evolution_runtime"]
+        self.assertEqual(proof["status"], "REPRESENTATIVE_PROVEN")
+        self.assertEqual(
+            proof["representative_line"],
+            ["SPECIES_POPPLIO", "SPECIES_BRIONNE", "SPECIES_PRIMARINA"],
+        )
+        for name in proof["representative_line"]:
+            record = _record(self.inventory, name)
+            self.assertEqual(record["representative_evolution_status"], "COMPLETE_EXECUTED")
+            self.assertEqual(record["status"], "PARTIAL")
+
     def test_storage_widths_cover_base_species_and_bound_forms(self) -> None:
         limits = self.inventory["limits"]
         self.assertLess(limits["highest_base_species_id"], 2 ** limits["wild_runtime_species_bits"])

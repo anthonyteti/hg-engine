@@ -156,6 +156,15 @@ class QASchemaTests(unittest.TestCase):
                 validate_scenario_data(scenario, ROOT)
             self.assertEqual(error.exception.code, code)
 
+    def test_long_bounded_evolution_plan_accepts_512_steps_only(self) -> None:
+        scenario = base_scenario()
+        scenario["steps"] = [{"action": "wait", "frames": 1}] * 512
+        self.assertEqual(len(validate_scenario_data(scenario, ROOT)["steps"]), 512)
+        scenario["steps"].append({"action": "wait", "frames": 1})
+        with self.assertRaises(QAError) as error:
+            validate_scenario_data(scenario, ROOT)
+        self.assertEqual(error.exception.code, "invalid_steps")
+
     def test_malformed_fixture_reference_is_rejected(self) -> None:
         scenario = base_scenario(); scenario["fixture"] = "../rom.nds"
         with self.assertRaises(QAError) as error:

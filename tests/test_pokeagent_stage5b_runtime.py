@@ -62,6 +62,10 @@ class Stage5BRuntimeProofTests(unittest.TestCase):
         self.assertEqual(source.count(".ability = ABILITY_VICTORY_STAR"), 2)
         self.assertIn("Victini used Incinerate!", source)
         self.assertIn("The opposing Victini is getting pumped!", source)
+        self.assertLess(
+            source.index('expectationValue.message = "Victini used Incinerate!"'),
+            source.index('expectationValue.message = "The opposing Victini is getting pumped!"'),
+        )
 
 
 if __name__ == "__main__":

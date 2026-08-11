@@ -142,6 +142,10 @@ ifeq ($(STAGE5BC_RUNTIME_PROOF),Y)
     TRAINERDATAGEN_EXTRA_CFLAGS := -DSTAGE5BC_RUNTIME_PROOF
 endif
 
+ifeq ($(STAGE5C_EVOLUTION_PROOF),Y)
+    CFLAGS += -DSTAGE5C_EVOLUTION_PROOF -Werror
+endif
+
 ifeq ($(BATTLE_SAVE_PROVISION),Y)
     CFLAGS += -DBATTLE_SAVE_PROVISION -Werror
 endif
@@ -174,6 +178,10 @@ endif
 ifeq ($(STAGE5BC_RUNTIME_PROOF),Y)
     WORLD_INSTALL_ARGS := --fixture fixtures/stage5bc_victini_shared_world.json --output build/stage5bc/generated
     PROJECT_HEADER_FIXTURE := fixtures/stage5bc_victini_shared_world.json
+endif
+ifeq ($(STAGE5C_EVOLUTION_PROOF),Y)
+    WORLD_INSTALL_ARGS := --fixture fixtures/stage5b_victini_world.json --output build/stage5c/generated
+    PROJECT_HEADER_FIXTURE := fixtures/stage5b_victini_world.json
 endif
 ifeq ($(STAGE4B_ASSET),Y)
     WORLD_INSTALL_ARGS := --fixture fixtures/stage4b_asset_world.json --output build/stage4b/generated
@@ -486,6 +494,11 @@ stage5bc-shared-runtime-proof:
 	$(MAKE) clean
 	$(MAKE) STAGE2_MAP=Y STAGE3E2_HEADER=Y STAGE5B_RUNTIME_PROOF=Y STAGE5BC_RUNTIME_PROOF=Y
 	$(MAKE) -C tools/source/trainerdatagen clean
+
+.PHONY: stage5c-evolution-proof
+stage5c-evolution-proof:
+	$(MAKE) clean
+	$(MAKE) STAGE2_MAP=Y STAGE3E2_HEADER=Y STAGE5C_EVOLUTION_PROOF=Y
 
 .PHONY: battle-test-save
 battle-test-save:

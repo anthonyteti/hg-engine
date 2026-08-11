@@ -22,7 +22,10 @@ from .rom import (
 
 
 QA_SCHEMA_VERSION = 1
-MAX_STEPS = 256
+# Long, continuous save/reset proofs may need hundreds of ordinary UI inputs.
+# Keep the declarative plan bounded while allowing one uninterrupted identity
+# to cross multiple persistence checkpoints.
+MAX_STEPS = 512
 MAX_WAIT_FRAMES = 3600
 MAX_HOLD_FRAMES = 600
 MAX_MOVE_TILES = 96

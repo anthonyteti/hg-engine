@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "proof_only": true,
+  "build_flag": "STAGE5C_EVOLUTION_PROOF",
+  "representative_line": [
+    {"constant": "SPECIES_POPPLIO", "engine_id": 778, "form": 0},
+    {"constant": "SPECIES_BRIONNE", "engine_id": 779, "form": 0},
+    {"constant": "SPECIES_PRIMARINA", "engine_id": 780, "form": 0}
+  ],
+  "source_evolutions": [
+    {"source": 778, "method": "EVO_LEVEL", "method_id": 4, "parameter": 17, "target": 779},
+    {"source": 779, "method": "EVO_LEVEL", "method_id": 4, "parameter": 34, "target": 780}
+  ],
+  "trigger": {
+    "item": "ITEM_RARE_CANDY",
+    "ordinary_bag_path": true,
+    "direct_level_write": false,
+    "direct_species_write": false
+  },
+  "identity": {
+    "pid": 84672513,
+    "ot_id": 84675089,
+    "ivs_word": 1073741823,
+    "same_individual_required": true
+  },
+  "states": {
+    "initial_popplio": {
+      "level": 16,
+      "experience": 2535,
+      "stats": [46, 27, 27, 24, 27, 27],
+      "types": [11, 11],
+      "ability": 67,
+      "moves": [577, 453, 611, 196]
+    },
+    "persisted_brionne": {
+      "level": 17,
+      "experience": 3120,
+      "stats": [52, 33, 33, 29, 36, 37],
+      "types": [11, 11],
+      "ability": 67,
+      "moves": [577, 453, 611, 196]
+    },
+    "persisted_primarina": {
+      "level": 34,
+      "experience": 33084,
+      "stats": [108, 65, 65, 61, 90, 94],
+      "types": [11, 9],
+      "ability": 67,
+      "moves": [577, 453, 611, 196]
+    }
+  },
+  "presentation": {
+    "follower_sprite_tags": [3278, 3279, 3280],
+    "party_icon_refresh_required": true,
+    "follower_refresh_required": true
+  },
+  "persistence": {
+    "brionne_party_battery_save": true,
+    "primarina_party_battery_save": true,
+    "primarina_box_battery_save": true,
+    "savestate_accepted": false
+  }
+}

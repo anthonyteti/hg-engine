@@ -290,6 +290,11 @@ def build_inventory(root: Path = ROOT, revision: str | None = None) -> dict[str,
             }
         )
 
+    evolution_proof_species = {"SPECIES_POPPLIO", "SPECIES_BRIONNE", "SPECIES_PRIMARINA"}
+    for record in records:
+        if record["species"] in evolution_proof_species:
+            record["representative_evolution_status"] = "COMPLETE_EXECUTED"
+
     status_counts = Counter(record["status"] for record in records)
     generation_rows = []
     for generation, first, last in GENERATION_RANGES:
@@ -378,6 +383,12 @@ def build_inventory(root: Path = ROOT, revision: str | None = None) -> dict[str,
                 "native map transition with follower tag 3044 preserved and moving on arrival",
             ],
             "runtime_blocker": "none within the applicable shared base-species runtime matrix; expanded Dex category/description content remains a separate content gap",
+        },
+        "expanded_evolution_runtime": {
+            "representative_line": ["SPECIES_POPPLIO", "SPECIES_BRIONNE", "SPECIES_PRIMARINA"],
+            "source_methods": ["EVO_LEVEL:17", "EVO_LEVEL:34"],
+            "status": "REPRESENTATIVE_PROVEN",
+            "scope": "ordinary level-triggered base-species evolution, identity-dependent presentation refresh, and party/box battery persistence for one executed line",
         },
         "records": records,
     }

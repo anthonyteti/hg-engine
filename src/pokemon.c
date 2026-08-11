@@ -23,6 +23,9 @@
 #ifdef STAGE5BC_RUNTIME_PROOF
 #include "stage5b_runtime.h"
 #endif
+#ifdef STAGE5C_EVOLUTION_PROOF
+#include "stage5c_runtime.h"
+#endif
 
 extern u32 word_to_store_form_at;
 // [preevo] = {species, form}, [postevo] = {species, form},
@@ -64,6 +67,9 @@ BOOL LONG_CALL GetOtherFormPic(MON_PIC *picdata, u16 mons_no, u8 dir, u8 col, u8
 
 void SetPartyPokemonParamsForEvoCutscene(struct PartyPokemon *mon, u16 *targetSpecies, BOOL clearEvoStructure)
 {
+#ifdef STAGE5C_EVOLUTION_PROOF
+    u32 sourceSpecies = GetMonData(mon, MON_DATA_SPECIES, NULL);
+#endif
     u32 form = 0;
     if (gEvolutionSceneOverride[0][0] == *targetSpecies) {
         form = gEvolutionSceneOverride[0][1];
@@ -71,6 +77,9 @@ void SetPartyPokemonParamsForEvoCutscene(struct PartyPokemon *mon, u16 *targetSp
         form = gEvolutionSceneOverride[1][1];
     }
     SetMonData(mon, MON_DATA_SPECIES, targetSpecies);
+#ifdef STAGE5C_EVOLUTION_PROOF
+    Stage5C_RecordSpeciesMutation(sourceSpecies, *targetSpecies);
+#endif
     if (form) {
         SetMonData(mon, MON_DATA_FORM, &form);
     }
@@ -202,6 +211,8 @@ u32 LONG_CALL PokeIconIndexGetByMonsNumber(u32 mons, u32 egg, u32 form_no)
 {
 #ifdef STAGE5BC_RUNTIME_PROOF
     u32 originalMons = mons;
+#elif defined(STAGE5C_EVOLUTION_PROOF)
+    u32 originalMons = mons;
 #endif
     u32 pat = 7 + mons;
 
@@ -263,6 +274,8 @@ u32 LONG_CALL PokeIconIndexGetByMonsNumber(u32 mons, u32 egg, u32 form_no)
     }
 #ifdef STAGE5BC_RUNTIME_PROOF
     Stage5BC_RecordIconIndex(originalMons, form_no, pat);
+#elif defined(STAGE5C_EVOLUTION_PROOF)
+    Stage5C_RecordIconIndex(originalMons, form_no, pat);
 #endif
     return pat;
 }
@@ -374,6 +387,8 @@ u32 LONG_CALL GetMonIconPalette(u32 mons, u32 form, u32 isegg)
     ReadFromNarcMemberByIdPair(&ret, ARC_CODE_ADDONS, CODE_ADDON_ICON_PALETTES, PokeIconPalNumGet(mons, form, isegg), sizeof(u8));
 #ifdef STAGE5BC_RUNTIME_PROOF
     Stage5BC_RecordIconPalette(mons, form, ret);
+#elif defined(STAGE5C_EVOLUTION_PROOF)
+    Stage5C_RecordIconPalette(mons, form, ret);
 #endif
     return ret;
 }
@@ -1243,6 +1258,9 @@ BOOL LONG_CALL CanUseItemOnMonInParty(struct Party *party, u16 itemID, s32 party
  */
 u16 LONG_CALL GetMonEvolution(struct Party *party, struct PartyPokemon *pokemon, u8 context, u16 usedItem, int *method_ret)
 {
+#ifdef STAGE5C_EVOLUTION_PROOF
+    u32 sourceSpecies = GetMonData(pokemon, MON_DATA_SPECIES, NULL);
+#endif
     u32 ovyId, target, offset;
     u16 (*internalFunc)(struct Party *, struct PartyPokemon *, u8, u16, int *);
 
@@ -1258,6 +1276,10 @@ u16 LONG_CALL GetMonEvolution(struct Party *party, struct PartyPokemon *pokemon,
     internalFunc = (u16(*)(struct Party *, struct PartyPokemon *, u8, u16, int *))(offset);
     target = internalFunc(party, pokemon, context, usedItem, method_ret);
     UnloadOverlayByID(ovyId);
+
+#ifdef STAGE5C_EVOLUTION_PROOF
+    Stage5C_RecordEvolutionCheck(sourceSpecies, target, method_ret == NULL ? 0 : *method_ret, context);
+#endif
 
     return target;
 }

@@ -1,4 +1,17 @@
 {
+  "expanded_evolution_runtime": {
+    "representative_line": [
+      "SPECIES_POPPLIO",
+      "SPECIES_BRIONNE",
+      "SPECIES_PRIMARINA"
+    ],
+    "scope": "ordinary level-triggered base-species evolution, identity-dependent presentation refresh, and party/box battery persistence for one executed line",
+    "source_methods": [
+      "EVO_LEVEL:17",
+      "EVO_LEVEL:34"
+    ],
+    "status": "REPRESENTATIVE_PROVEN"
+  },
   "generation_coverage": [
     {
       "complete": 151,
@@ -56887,6 +56900,7 @@
       "generation": 7,
       "id": 778,
       "kind": "species",
+      "representative_evolution_status": "COMPLETE_EXECUTED",
       "species": "SPECIES_POPPLIO",
       "status": "PARTIAL"
     },
@@ -56960,6 +56974,7 @@
       "generation": 7,
       "id": 779,
       "kind": "species",
+      "representative_evolution_status": "COMPLETE_EXECUTED",
       "species": "SPECIES_BRIONNE",
       "status": "PARTIAL"
     },
@@ -57033,6 +57048,7 @@
       "generation": 7,
       "id": 780,
       "kind": "species",
+      "representative_evolution_status": "COMPLETE_EXECUTED",
       "species": "SPECIES_PRIMARINA",
       "status": "PARTIAL"
     },
@@ -107800,7 +107816,7 @@
     },
     "species": "SPECIES_VICTINI"
   },
-  "source_revision": "bee4126deb92a435124751614843ad5cf673990a",
+  "source_revision": "afea033480ea2d510dc17218fe1cd92caf3b08ab",
   "summary": {
     "battle_back_count": 1475,
     "battle_front_count": 1475,
