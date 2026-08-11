@@ -26,6 +26,9 @@
 #ifdef STAGE5C_EVOLUTION_PROOF
 #include "stage5c_runtime.h"
 #endif
+#ifdef STAGE5D_REGIONAL_FORM_PROOF
+#include "stage5d_runtime.h"
+#endif
 
 extern u32 word_to_store_form_at;
 // [preevo] = {species, form}, [postevo] = {species, form},
@@ -62,6 +65,10 @@ BOOL LONG_CALL GetOtherFormPic(MON_PIC *picdata, u16 mons_no, u8 dir, u8 col, u8
             ret = TRUE;
         }
     }
+#ifdef STAGE5D_REGIONAL_FORM_PROOF
+    if (ret)
+        Stage5D_RecordPic(mons_no, form_no, dir, picdata->arc_no, picdata->index_chr, picdata->index_pal);
+#endif
     return ret;
 }
 
@@ -69,6 +76,9 @@ void SetPartyPokemonParamsForEvoCutscene(struct PartyPokemon *mon, u16 *targetSp
 {
 #ifdef STAGE5C_EVOLUTION_PROOF
     u32 sourceSpecies = GetMonData(mon, MON_DATA_SPECIES, NULL);
+#elif defined(STAGE5D_REGIONAL_FORM_PROOF)
+    u32 sourceSpecies = GetMonData(mon, MON_DATA_SPECIES, NULL);
+    u32 sourceForm = GetMonData(mon, MON_DATA_FORM, NULL);
 #endif
     u32 form = 0;
     if (gEvolutionSceneOverride[0][0] == *targetSpecies) {
@@ -79,6 +89,8 @@ void SetPartyPokemonParamsForEvoCutscene(struct PartyPokemon *mon, u16 *targetSp
     SetMonData(mon, MON_DATA_SPECIES, targetSpecies);
 #ifdef STAGE5C_EVOLUTION_PROOF
     Stage5C_RecordSpeciesMutation(sourceSpecies, *targetSpecies);
+#elif defined(STAGE5D_REGIONAL_FORM_PROOF)
+    Stage5D_RecordSpeciesMutation(sourceSpecies, sourceForm, *targetSpecies, form);
 #endif
     if (form) {
         SetMonData(mon, MON_DATA_FORM, &form);
@@ -213,6 +225,8 @@ u32 LONG_CALL PokeIconIndexGetByMonsNumber(u32 mons, u32 egg, u32 form_no)
     u32 originalMons = mons;
 #elif defined(STAGE5C_EVOLUTION_PROOF)
     u32 originalMons = mons;
+#elif defined(STAGE5D_REGIONAL_FORM_PROOF)
+    u32 originalMons = mons;
 #endif
     u32 pat = 7 + mons;
 
@@ -276,6 +290,8 @@ u32 LONG_CALL PokeIconIndexGetByMonsNumber(u32 mons, u32 egg, u32 form_no)
     Stage5BC_RecordIconIndex(originalMons, form_no, pat);
 #elif defined(STAGE5C_EVOLUTION_PROOF)
     Stage5C_RecordIconIndex(originalMons, form_no, pat);
+#elif defined(STAGE5D_REGIONAL_FORM_PROOF)
+    Stage5D_RecordIconIndex(originalMons, form_no, pat);
 #endif
     return pat;
 }
@@ -389,6 +405,8 @@ u32 LONG_CALL GetMonIconPalette(u32 mons, u32 form, u32 isegg)
     Stage5BC_RecordIconPalette(mons, form, ret);
 #elif defined(STAGE5C_EVOLUTION_PROOF)
     Stage5C_RecordIconPalette(mons, form, ret);
+#elif defined(STAGE5D_REGIONAL_FORM_PROOF)
+    Stage5D_RecordIconPalette(mons, form, ret);
 #endif
     return ret;
 }
@@ -1260,6 +1278,9 @@ u16 LONG_CALL GetMonEvolution(struct Party *party, struct PartyPokemon *pokemon,
 {
 #ifdef STAGE5C_EVOLUTION_PROOF
     u32 sourceSpecies = GetMonData(pokemon, MON_DATA_SPECIES, NULL);
+#elif defined(STAGE5D_REGIONAL_FORM_PROOF)
+    u32 sourceSpecies = GetMonData(pokemon, MON_DATA_SPECIES, NULL);
+    u32 sourceForm = GetMonData(pokemon, MON_DATA_FORM, NULL);
 #endif
     u32 ovyId, target, offset;
     u16 (*internalFunc)(struct Party *, struct PartyPokemon *, u8, u16, int *);
@@ -1279,6 +1300,14 @@ u16 LONG_CALL GetMonEvolution(struct Party *party, struct PartyPokemon *pokemon,
 
 #ifdef STAGE5C_EVOLUTION_PROOF
     Stage5C_RecordEvolutionCheck(sourceSpecies, target, method_ret == NULL ? 0 : *method_ret, context);
+#elif defined(STAGE5D_REGIONAL_FORM_PROOF)
+    Stage5D_RecordEvolutionCheck(
+        sourceSpecies,
+        sourceForm,
+        target,
+        gEvolutionSceneOverride[1][1],
+        method_ret == NULL ? 0 : *method_ret,
+        context);
 #endif
 
     return target;

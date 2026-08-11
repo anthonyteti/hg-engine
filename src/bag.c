@@ -17,6 +17,9 @@
 #ifdef STAGE5C_EVOLUTION_PROOF
 #include "../include/stage5c_runtime.h"
 #endif
+#ifdef STAGE5D_REGIONAL_FORM_PROOF
+#include "../include/stage5d_runtime.h"
+#endif
 
 #ifdef DEBUG_BATTLE_SCENARIOS
 #include "../include/test_battle.h"
@@ -605,6 +608,9 @@ BOOL IsPlayerOnLadder(void)
 #endif
 #ifdef STAGE5C_EVOLUTION_PROOF
     Stage5C_RuntimeTick();
+#endif
+#ifdef STAGE5D_REGIONAL_FORM_PROOF
+    Stage5D_RuntimeTick();
 #endif
     u32 collision = GetMetatileBehaviorAt(gFieldSysPtr, gFieldSysPtr->location->x, gFieldSysPtr->location->z);
     u32 mapId = gFieldSysPtr->location->mapId;

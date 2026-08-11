@@ -14,6 +14,9 @@
 #ifdef STAGE5C_EVOLUTION_PROOF
 #include "../include/stage5c_runtime.h"
 #endif
+#ifdef STAGE5D_REGIONAL_FORM_PROOF
+#include "../include/stage5d_runtime.h"
+#endif
 
 extern const u16 sButtonFrameTileOffsets[];
 extern const u8 sButtonRects[][4];
@@ -147,6 +150,11 @@ int PartyMenu_ItemUseFunc_LevelUpLearnMovesLoop_Case6(struct PartyMenu *wk) {
 #ifdef STAGE5C_EVOLUTION_PROOF
     Stage5C_RecordLevelCheckpoint(
         GetMonData(mon, MON_DATA_SPECIES, NULL),
+        GetMonData(mon, MON_DATA_LEVEL, NULL));
+#elif defined(STAGE5D_REGIONAL_FORM_PROOF)
+    Stage5D_RecordLevelCheckpoint(
+        GetMonData(mon, MON_DATA_SPECIES, NULL),
+        GetMonData(mon, MON_DATA_FORM, NULL),
         GetMonData(mon, MON_DATA_LEVEL, NULL));
 #endif
     wk->args->species = GetMonEvolution(wk->args->party, mon, EVOCTX_LEVELUP, EVO_NONE, (int *)&wk->args->evoMethod);

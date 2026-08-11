@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "proof_only": true,
+  "build_flag": "STAGE5D_REGIONAL_FORM_PROOF",
+  "representative_line": [
+    {"constant": "SPECIES_ZORUA_HISUIAN", "identity_id": 1335, "base_species": 620, "form": 1},
+    {"constant": "SPECIES_ZOROARK_HISUIAN", "identity_id": 1336, "base_species": 621, "form": 1}
+  ],
+  "source_evolution": {
+    "source_identity": 1335,
+    "method": "EVO_LEVEL",
+    "method_id": 4,
+    "parameter": 30,
+    "packed_target": "MON_WITH_FORM(SPECIES_ZOROARK, 1)",
+    "target_base_species": 621,
+    "target_form": 1,
+    "target_identity": 1336
+  },
+  "runtime_storage": {
+    "party": "base_species_plus_MON_DATA_FORM",
+    "box": "base_species_plus_MON_DATA_FORM",
+    "trainer_wild": "u16_low_11_species_high_5_form",
+    "selected_serialized_path": "wild_encounter"
+  },
+  "trigger": {
+    "item": "ITEM_RARE_CANDY",
+    "ordinary_bag_path": true,
+    "direct_level_write": false,
+    "direct_species_write": false
+  },
+  "identity": {
+    "pid": 84738049,
+    "ot_id": 84740625,
+    "same_individual_required": true
+  },
+  "source_data": {
+    "zorua_hisuian": {
+      "level": 29,
+      "types": [0, 7],
+      "ability": 149,
+      "base_stats": [35, 60, 40, 85, 40, 70]
+    },
+    "zoroark_hisuian": {
+      "level": 30,
+      "types": [0, 7],
+      "ability": 149,
+      "base_stats": [55, 100, 60, 125, 60, 110]
+    }
+  },
+  "presentation": {
+    "follower_sprite_tags": [3835, 3836],
+    "party_icon_refresh_required": true,
+    "battle_form_sprite_required": true,
+    "follower_refresh_required": true
+  },
+  "persistence": {
+    "zorua_box_battery_save": true,
+    "zoroark_party_battery_save": true,
+    "zoroark_box_battery_save": true,
+    "savestate_accepted": false
+  }
+}

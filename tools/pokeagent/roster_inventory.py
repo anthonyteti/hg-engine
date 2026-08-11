@@ -291,9 +291,12 @@ def build_inventory(root: Path = ROOT, revision: str | None = None) -> dict[str,
         )
 
     evolution_proof_species = {"SPECIES_POPPLIO", "SPECIES_BRIONNE", "SPECIES_PRIMARINA"}
+    regional_form_proof_species = {"SPECIES_ZORUA_HISUIAN", "SPECIES_ZOROARK_HISUIAN"}
     for record in records:
         if record["species"] in evolution_proof_species:
             record["representative_evolution_status"] = "COMPLETE_EXECUTED"
+        if record["species"] in regional_form_proof_species:
+            record["representative_regional_form_status"] = "COMPLETE_EXECUTED"
 
     status_counts = Counter(record["status"] for record in records)
     generation_rows = []
@@ -389,6 +392,14 @@ def build_inventory(root: Path = ROOT, revision: str | None = None) -> dict[str,
             "source_methods": ["EVO_LEVEL:17", "EVO_LEVEL:34"],
             "status": "REPRESENTATIVE_PROVEN",
             "scope": "ordinary level-triggered base-species evolution, identity-dependent presentation refresh, and party/box battery persistence for one executed line",
+        },
+        "expanded_regional_form_runtime": {
+            "representative": "SPECIES_ZORUA_HISUIAN",
+            "evolved_target": "SPECIES_ZOROARK_HISUIAN",
+            "runtime_representation": "base species plus alternate form 1",
+            "source_method": "EVO_LEVEL:30",
+            "status": "REPRESENTATIVE_PROVEN",
+            "scope": "regional personal data, icon/follower/battle presentation, wild form-bit decoding, lineage-preserving evolution, and party/box battery persistence for one executed Hisuian line",
         },
         "records": records,
     }

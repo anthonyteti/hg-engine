@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "stage5d_hisuian_wild_form",
+  "fixture": "fixtures/stage5d_hisuian_world.json",
+  "build_target": "stage5d-regional-form-proof",
+  "entry": {"mode": "new_game_controlled"},
+  "steps": [
+    {"assert": "map_id", "value": 540},
+    {"assert": "memory_value", "symbol": "gStage5DRuntimeState", "offset": 20, "width": 4, "value": 620},
+    {"assert": "memory_value", "symbol": "gStage5DRuntimeState", "offset": 24, "width": 4, "value": 1},
+    {"action": "move", "target": {"x": 31, "z": 16}},
+    {"assert": "native_transition", "direction": "east", "from_map_id": 540, "to_map_id": 541, "no_warp": true},
+    {"action": "move", "direction": "east", "tiles": 7},
+    {"action": "hold", "button": "right", "frames": 180},
+    {"action": "release", "button": "right", "after_frames": 120},
+    {"action": "wait_memory", "symbol": "gStage5DRuntimeState", "offset": 288, "width": 4, "value": 1, "timeout_frames": 3600},
+    {"assert": "memory_value", "symbol": "gStage5DRuntimeState", "offset": 292, "width": 4, "value": 620},
+    {"assert": "memory_value", "symbol": "gStage5DRuntimeState", "offset": 296, "width": 4, "value": 1},
+    {"assert": "memory_value", "symbol": "gStage5DRuntimeState", "offset": 300, "width": 4, "value": 1335},
+    {"assert": "memory_value", "symbol": "gStage5DRuntimeState", "offset": 304, "width": 4, "value": 29},
+    {"action": "press", "button": "a", "after_frames": 180},
+    {"action": "press", "button": "a", "after_frames": 180},
+    {"action": "capture", "name": "hisuian_zorua_wild_front_player_back"},
+    {"assert": "memory_nonzero", "symbol": "gStage5DRuntimeState", "offset": 272, "width": 4},
+    {"assert": "memory_value", "symbol": "gStage5DRuntimeState", "offset": 276, "width": 4, "value": 1335},
+    {"assert": "memory_nonzero", "symbol": "gStage5DRuntimeState", "offset": 280, "width": 4},
+    {"assert": "memory_value", "symbol": "gStage5DRuntimeState", "offset": 284, "width": 4, "value": 1335},
+    {"assert": "screenshot_valid", "name": "hisuian_zorua_wild_front_player_back"},
+    {"assert": "rom_running", "value": true}
+  ]
+}

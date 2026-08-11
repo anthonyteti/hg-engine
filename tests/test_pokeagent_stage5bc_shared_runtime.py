@@ -113,7 +113,7 @@ class Stage5BCSharedRuntimeTests(unittest.TestCase):
         trainers = (ROOT / "data/Trainers.c").read_text(encoding="utf-8")
         encounters = (ROOT / "data/Encounters.c").read_text(encoding="utf-8")
         self.assertIn("ifeq ($(STAGE5BC_RUNTIME_PROOF),Y)", makefile)
-        self.assertIn("#ifdef STAGE5BC_RUNTIME_PROOF", encounters)
+        self.assertIn("#if defined(STAGE5BC_RUNTIME_PROOF)", encounters)
         self.assertIn("#ifndef STAGE5BC_RUNTIME_PROOF", trainers)
         self.assertIn("[737]", trainers)
         self.assertIn(".species = SPECIES_VICTINI", trainers)

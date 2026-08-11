@@ -19,6 +19,9 @@
 #ifdef STAGE5BC_RUNTIME_PROOF
 #include "stage5b_runtime.h"
 #endif
+#ifdef STAGE5D_REGIONAL_FORM_PROOF
+#include "stage5d_runtime.h"
+#endif
 
 #ifdef DEBUG_BATTLE_SCENARIOS
 #include "test_battle.h"
@@ -485,6 +488,13 @@ BOOL LONG_CALL AddWildPartyPokemon(int inTarget, EncounterInfo *encounterInfo, s
     for (int i = 0; i < 4; i++)
         observedMoves[i] = GetMonData(encounterPartyPokemon, MON_DATA_MOVE1 + i, NULL);
     Stage5BC_RecordWild(species, observedLevel, observedForm, observedMoves);
+#elif defined(STAGE5D_REGIONAL_FORM_PROOF)
+    u16 observedMoves[4];
+    u32 observedLevel = GetMonData(encounterPartyPokemon, MON_DATA_LEVEL, NULL);
+    u32 observedForm = GetMonData(encounterPartyPokemon, MON_DATA_FORM, NULL);
+    for (int i = 0; i < 4; i++)
+        observedMoves[i] = GetMonData(encounterPartyPokemon, MON_DATA_MOVE1 + i, NULL);
+    Stage5D_RecordWild(species, observedLevel, observedForm, observedMoves);
 #endif
     return PokeParty_Add(encounterBattleParam->poke_party[inTarget], encounterPartyPokemon);
 }

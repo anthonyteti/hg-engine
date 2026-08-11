@@ -12,6 +12,14 @@
     ],
     "status": "REPRESENTATIVE_PROVEN"
   },
+  "expanded_regional_form_runtime": {
+    "evolved_target": "SPECIES_ZOROARK_HISUIAN",
+    "representative": "SPECIES_ZORUA_HISUIAN",
+    "runtime_representation": "base species plus alternate form 1",
+    "scope": "regional personal data, icon/follower/battle presentation, wild form-bit decoding, lineage-preserving evolution, and party/box battery persistence for one executed Hisuian line",
+    "source_method": "EVO_LEVEL:30",
+    "status": "REPRESENTATIVE_PROVEN"
+  },
   "generation_coverage": [
     {
       "complete": 151,
@@ -97564,6 +97572,7 @@
       "generation": 5,
       "id": 1335,
       "kind": "form",
+      "representative_regional_form_status": "COMPLETE_EXECUTED",
       "species": "SPECIES_ZORUA_HISUIAN",
       "status": "PARTIAL"
     },
@@ -97637,6 +97646,7 @@
       "generation": 5,
       "id": 1336,
       "kind": "form",
+      "representative_regional_form_status": "COMPLETE_EXECUTED",
       "species": "SPECIES_ZOROARK_HISUIAN",
       "status": "PARTIAL"
     },
@@ -107816,7 +107826,7 @@
     },
     "species": "SPECIES_VICTINI"
   },
-  "source_revision": "afea033480ea2d510dc17218fe1cd92caf3b08ab",
+  "source_revision": "WORKTREE",
   "summary": {
     "battle_back_count": 1475,
     "battle_front_count": 1475,

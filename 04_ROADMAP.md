@@ -485,8 +485,21 @@ level-34 Primarina evolutions through normal Rare Candy use. PID/form/party
 identity, recalculated data, icon/follower refresh, Brionne and Primarina party
 persistence, and boxed Primarina persistence all survive ordinary battery
 save, hard reset, and Continue. This proves one expanded plain-level evolution
-line only. Next select one bounded non-level evolution-method proof; do not
-begin regional forms, Megas, or bulk normalization automatically.
+line only. Do not enumerate the other generic evolution methods as independent
+proof stages: test them only when a production species or a discovered
+compatibility gap requires one. The next distinct architectural risk is
+regional-form runtime representation, lineage, presentation, and persistence,
+beginning with Hisuian Zorua -> Hisuian Zoroark in Stage 5D.
+
+### Stage 5D complete: representative regional-form runtime
+
+The existing base-species-plus-form representation resolves Hisuian personal
+data and icon/follower/battle assets, survives party and box battery saves, and
+preserves form 1 and PID through ordinary Zorua -> Zoroark evolution. The wild
+`u16` form-bit path also decodes identity 1335 correctly. This is one
+representative line, not proof of all regional identities or form-Dex content.
+The next distinct representative mechanic is one existing Mega Evolution
+end-to-end (Stage 5E).
 
 
 ## Stage 6: Art factory

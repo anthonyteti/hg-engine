@@ -75,6 +75,16 @@ class Stage5ARosterInventoryTests(unittest.TestCase):
             self.assertEqual(record["representative_evolution_status"], "COMPLETE_EXECUTED")
             self.assertEqual(record["status"], "PARTIAL")
 
+    def test_representative_regional_form_annotation_does_not_promote_content_status(self) -> None:
+        proof = self.inventory["expanded_regional_form_runtime"]
+        self.assertEqual(proof["status"], "REPRESENTATIVE_PROVEN")
+        self.assertEqual(proof["representative"], "SPECIES_ZORUA_HISUIAN")
+        self.assertEqual(proof["evolved_target"], "SPECIES_ZOROARK_HISUIAN")
+        for name in (proof["representative"], proof["evolved_target"]):
+            record = _record(self.inventory, name)
+            self.assertEqual(record["representative_regional_form_status"], "COMPLETE_EXECUTED")
+            self.assertEqual(record["status"], "PARTIAL")
+
     def test_storage_widths_cover_base_species_and_bound_forms(self) -> None:
         limits = self.inventory["limits"]
         self.assertLess(limits["highest_base_species_id"], 2 ** limits["wild_runtime_species_bits"])

@@ -570,3 +570,24 @@ storage across ordinary menus/evolution. Keep opt-in proof bookkeeping in
 unused persistent save variables and omit it from normal builds. A passing
 representative level line establishes shared level-evolution architecture, not
 all evolution methods, regional forms, Megas, or content completeness.
+
+Sequencing decision: do not spend successive stages enumerating trade, item,
+friendship, time, location, move-known, gender, or party-composition triggers.
+Stage 5C proves the common expanded evolution record mutation and persistence
+path for `EVO_LEVEL` only; specialized methods become targeted regressions when
+real content requires them. The next separate risk is regional-form identity
+and regional-lineage preservation, so Stage 5D uses the existing Hisuian Zorua
+line without changing its data.
+
+## Stage 5D decision: persistent regional forms use base species plus form
+
+The live Hisuian Zorua proof confirms base species 620/form 1 -> adjusted
+identity 1335 and ordinary level-30 evolution -> base species 621/form 1 ->
+identity 1336. Personal data, icon, follower, battle presentation, wild form
+bits, party storage, box storage, and battery persistence all preserve that
+lineage and the original PID. The proof required no roster/evolution-data fix.
+
+Treat this as representative regional architecture evidence only. Do not
+promote every regional record, infer form-specific Dex content, or enumerate
+unneeded generic evolution methods. The next distinct risk is one existing
+Mega Evolution end-to-end.

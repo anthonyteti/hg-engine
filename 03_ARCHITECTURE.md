@@ -802,3 +802,15 @@ It never writes level or evolved species. Proof bookkeeping uses isolated
 persistent variables rather than HGSS temporary script variables, while the
 normal build omits the entire seam. One representative level line cannot stand
 in for non-level methods, regional forms, or Mega Evolution.
+
+Stage 5 sequencing now treats additional generic evolution methods as
+content-driven regression cases, not architecture stages. Stage 5D introduces
+an independent opt-in observer for the distinct representation boundary where
+base species plus a stored form must resolve to adjusted personal, icon,
+follower, battle, evolution, and persistence identities.
+
+Stage 5D confirms that boundary for Hisuian Zorua/Zoroark. Party and box use
+base species plus form 1; wild data packs the same pair; adjusted identities
+1335/1336 select form-specific data and assets; and evolution carries both
+target base species and target form. Temporary battle forms such as Mega
+Evolution remain outside this persistent regional-form contract.

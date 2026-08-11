@@ -14206,7 +14206,7 @@ const EncounterData __data[] =
         .fishSwarm = SPECIES_MAGIKARP,
     },
 
-#ifdef STAGE5BC_RUNTIME_PROOF
+#if defined(STAGE5BC_RUNTIME_PROOF)
     /* Opt-in Stage 5B-C encounter bank.  Metatile behavior 2 and the ordinary
      * encounter engine select this 100% Victini table at level 20. */
     [ENCDATA_UNUSED_142] = {
@@ -14227,6 +14227,40 @@ const EncounterData __data[] =
                 SPECIES_VICTINI, SPECIES_VICTINI, SPECIES_VICTINI, SPECIES_VICTINI,
                 SPECIES_VICTINI, SPECIES_VICTINI, SPECIES_VICTINI, SPECIES_VICTINI,
                 SPECIES_VICTINI, SPECIES_VICTINI, SPECIES_VICTINI, SPECIES_VICTINI,
+            },
+        },
+    },
+#elif defined(STAGE5D_REGIONAL_FORM_PROOF)
+    /* Opt-in Stage 5D encounter bank.  The ordinary wild serializer carries
+     * base species 620 in the low 11 bits and regional form 1 in the high
+     * form bits; the native encounter constructor decodes both. */
+    [ENCDATA_UNUSED_142] = {
+        .rateWalk = 100,
+        .landSlots = {
+            .levels = { 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29 },
+            .speciesMorning = {
+                MON_WITH_FORM(SPECIES_ZORUA, 1), MON_WITH_FORM(SPECIES_ZORUA, 1),
+                MON_WITH_FORM(SPECIES_ZORUA, 1), MON_WITH_FORM(SPECIES_ZORUA, 1),
+                MON_WITH_FORM(SPECIES_ZORUA, 1), MON_WITH_FORM(SPECIES_ZORUA, 1),
+                MON_WITH_FORM(SPECIES_ZORUA, 1), MON_WITH_FORM(SPECIES_ZORUA, 1),
+                MON_WITH_FORM(SPECIES_ZORUA, 1), MON_WITH_FORM(SPECIES_ZORUA, 1),
+                MON_WITH_FORM(SPECIES_ZORUA, 1), MON_WITH_FORM(SPECIES_ZORUA, 1),
+            },
+            .speciesDay = {
+                MON_WITH_FORM(SPECIES_ZORUA, 1), MON_WITH_FORM(SPECIES_ZORUA, 1),
+                MON_WITH_FORM(SPECIES_ZORUA, 1), MON_WITH_FORM(SPECIES_ZORUA, 1),
+                MON_WITH_FORM(SPECIES_ZORUA, 1), MON_WITH_FORM(SPECIES_ZORUA, 1),
+                MON_WITH_FORM(SPECIES_ZORUA, 1), MON_WITH_FORM(SPECIES_ZORUA, 1),
+                MON_WITH_FORM(SPECIES_ZORUA, 1), MON_WITH_FORM(SPECIES_ZORUA, 1),
+                MON_WITH_FORM(SPECIES_ZORUA, 1), MON_WITH_FORM(SPECIES_ZORUA, 1),
+            },
+            .speciesNight = {
+                MON_WITH_FORM(SPECIES_ZORUA, 1), MON_WITH_FORM(SPECIES_ZORUA, 1),
+                MON_WITH_FORM(SPECIES_ZORUA, 1), MON_WITH_FORM(SPECIES_ZORUA, 1),
+                MON_WITH_FORM(SPECIES_ZORUA, 1), MON_WITH_FORM(SPECIES_ZORUA, 1),
+                MON_WITH_FORM(SPECIES_ZORUA, 1), MON_WITH_FORM(SPECIES_ZORUA, 1),
+                MON_WITH_FORM(SPECIES_ZORUA, 1), MON_WITH_FORM(SPECIES_ZORUA, 1),
+                MON_WITH_FORM(SPECIES_ZORUA, 1), MON_WITH_FORM(SPECIES_ZORUA, 1),
             },
         },
     },
