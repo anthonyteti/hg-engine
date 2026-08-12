@@ -42,6 +42,14 @@ battle, redesigned commands, native Mega request, Mega Altaria identity 1108,
 move execution, battle completion, reversion to Altaria 334/form 0, return to
 field, and 600 stable frames.
 
+The integrated ROM contains the Stage 6G theme resources as part of the same
+134-resource transaction. Because title/Continue, Pokédex, PC, and shop require
+different controlled save/world fixtures, their established focused runtime
+routes were rerun as a companion review matrix rather than fabricating one
+impossible field sequence: title/Continue passed 6/6, Pokédex #1025 passed
+6/6, PC/storage passed 7/7, and shop/dialogue passed 5/5. These runs compile
+from the same canonical Stage 6G source packed into the integrated ROM.
+
 The AI visual pass found and corrected two evidence defects before the human
 gate: an early blank start-menu capture and a field capture taken before the
 battle overlay had fully released presentation state. The final scenario
