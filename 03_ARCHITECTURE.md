@@ -833,3 +833,55 @@ add a mapping or transformation rule. `STAGE5E_MEGA_PROOF` also owns the
 isolated world/opponent and is absent from normal builds. Mega forms remain
 battle-temporary identities and must not be treated as ordinary follower or
 save-level roster records.
+
+Stage 5F adds a deterministic interpretation layer to the roster inventory:
+
+```text
+source constants/data/assets
+  -> historical Stage 5A capability booleans and audit status
+  -> project scope + semantic form family requirements
+  -> production readiness / reason codes / content truth
+  -> focused static and representative runtime evidence
+```
+
+The historical status remains immutable evidence; production readiness is a
+parallel field. Base, persistent regional, temporary Mega, Gigantamax,
+battle-mode, cosmetic, size/totem/lord, item/weather, and filler/reserved
+families have different required and not-applicable capabilities. This prevents
+an intentionally follower-less Mega or reserved filler slot from masquerading
+as unfinished production content.
+
+Dex content remains canonical in `data/Species.c`. Existing speciesdatagen
+emits identity-indexed rows for descriptions (message member 803) and category
+text (816/823); Stage 5F compares all 1,025 implemented base entries to those
+generated rows and exercises five expanded-generation UI representatives.
+`STAGE5F_DEX_PROOF` only seeds ordinary seen/caught data and enables the
+National Dex for the isolated UI fixture. It adds no roster record or normal-
+build behavior.
+
+Cry readiness is split into safe routing and provenance/authenticity. Forms
+inherit the base route; required base species must have a safe route, but an
+existing expanded WAV with unverified authentic provenance remains explicitly
+unverified rather than being called missing or authentic. The production
+classifier treats this as optional debt, never as proof that audio was sourced
+lawfully or canon-authentically.
+
+The Stage 6 Presentation Factory will sit above existing deterministic asset,
+world, Pokémon, and QA layers. Its planned architecture is:
+
+```text
+visual/presentation bible
+  -> complete UI reality model
+  -> UI resource compiler + declarative UI semantics
+  -> battle/core/remaining UI surfaces + semantic visual QA
+  -> environment module factory + catalog/variants
+  -> authorized generated-landmark Stage 4 pipeline kill gate
+  -> integrated presentation ROM + human review
+```
+
+A persistent Stage 6 orchestration state will track current/completed/blocked
+substages and human gates. Every Stage 6A-L unit must specify objective,
+evidence, pass/fail, commit, next-stage, and human-review rules. Technical
+passes may checkpoint and continue automatically; early visual direction and
+final presentation remain explicit human creative gates. No Stage 6 runtime or
+asset implementation belongs to Stage 5F.

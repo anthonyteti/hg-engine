@@ -10,6 +10,8 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
+from tools.pokeagent.roster_readiness import apply_production_readiness
+
 
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA_VERSION = 1
@@ -107,12 +109,15 @@ def _form_mapping(root: Path) -> dict[str, str]:
     )
 
 
-def _national_dex_names(root: Path) -> set[str]:
+def _national_dex_numbers(root: Path) -> dict[str, int]:
     text = _read(root, POKEDEX_SORT)
     match = re.search(r"sPokedexSort_NationalNum\[\]\s*=\s*\{(.*?)\};", text, re.DOTALL)
     if not match:
         raise InventoryError("National Dex sort table not found")
-    return set(re.findall(r"SPECIES_[A-Z0-9_]+", match.group(1)))
+    names = re.findall(r"SPECIES_[A-Z0-9_]+", match.group(1))
+    if len(names) != 1025 or len(names) != len(set(names)):
+        raise InventoryError("National Dex sort table must contain 1,025 unique base species")
+    return {name: number for number, name in enumerate(names, start=1)}
 
 
 def _mega_species(root: Path) -> set[str]:
@@ -176,7 +181,7 @@ def build_inventory(root: Path = ROOT, revision: str | None = None) -> dict[str,
     evolution_records = _indexed_names(_read(root, EVOLUTION_DATA))
     follower_records = set(re.findall(r"MON_FOLLOWER_ENTRY\((SPECIES_[A-Z0-9_]+)", _read(root, FOLLOWER_TABLE)))
     follower_properties = _indexed_names(_read(root, FOLLOWER_PROPERTIES))
-    dex_names = _national_dex_names(root)
+    dex_numbers = _national_dex_numbers(root)
     mega_base_species = _mega_species(root)
     learnsets = json.loads(_read(root, LEARNSETS))
     if not isinstance(learnsets, dict):
@@ -202,7 +207,7 @@ def build_inventory(root: Path = ROOT, revision: str | None = None) -> dict[str,
             cry = cry_id is not None and (cry_id <= 493 or (root / CRIES / f"{cry_id}.wav").is_file())
         capabilities: dict[str, bool] = {
             "identity": True,
-            "national_dex_identity": bool(not form and name in dex_names),
+            "national_dex_identity": bool(not form and name in dex_numbers),
             "species_data": name in species_records,
             "base_stats": name in species_records,
             "typing": name in species_records,
@@ -224,12 +229,15 @@ def build_inventory(root: Path = ROOT, revision: str | None = None) -> dict[str,
             "cry": cry,
             "follower_mapping": name in follower_records,
             "follower_properties": name in follower_properties,
-            "pokedex_number": bool((not form and name in dex_names) or (form and base_name in dex_names)),
+            "pokedex_number": bool((not form and name in dex_numbers) or (form and base_name in dex_numbers)),
             "pokedex_name": name in species_records,
+            # Retain the Stage 5A boolean contract as historical audit evidence.
+            # Stage 5F production readiness separately validates the actual
+            # Species.c -> speciesdatagen -> message-archive Dex text path.
             "pokedex_category": bool(base_id is not None and base_id <= 493),
             "pokedex_description": bool(base_id is not None and base_id <= 493),
             "pokedex_sprite": assets["battle_front"],
-            "pokedex_seen_caught": bool((not form and name in dex_names) or (form and base_name in dex_names)),
+            "pokedex_seen_caught": bool((not form and name in dex_numbers) or (form and base_name in dex_numbers)),
             "pokedex_form_handling": bool(not form or base_name),
             "trainer_storage": identity_id <= 0xFFFF,
             "wild_storage": stored_species_id is not None and stored_species_id <= 0x7FF,
@@ -269,7 +277,7 @@ def build_inventory(root: Path = ROOT, revision: str | None = None) -> dict[str,
             "battle_assets": str(SPRITES / name.removeprefix("SPECIES_").lower()),
             "cry": "src/pokemon.c; armips/asm/cries.s; sound/cries" if cry else "unresolved",
             "follower": f"{FOLLOWER_TABLE}; {FOLLOWER_PROPERTIES}",
-            "pokedex": f"{POKEDEX_SORT}; include/pokedex_archive_data.h; armips/asm/pokedex.s; no tracked expanded category/description source",
+            "pokedex": f"{POKEDEX_SORT}; {SPECIES_DATA}; tools/source/speciesdatagen/species_data_gen.c; include/pokedex_archive_data.h; armips/asm/pokedex.s",
             "storage": "include/pokemon.h; include/trainer_data.h; include/encounter.h",
             "form": str(FORM_MAP),
             "mega": str(MEGA_TABLE),
@@ -284,6 +292,7 @@ def build_inventory(root: Path = ROOT, revision: str | None = None) -> dict[str,
                 "kind": "placeholder" if placeholder else ("form" if form else "species"),
                 "generation": _generation(identity_id, base_id),
                 "base_species": base_name if form else None,
+                "national_dex_number": dex_numbers.get(name) if not form else None,
                 "status": status,
                 "capabilities": capabilities,
                 "evidence": evidence,
@@ -414,6 +423,14 @@ def build_inventory(root: Path = ROOT, revision: str | None = None) -> dict[str,
         },
         "records": records,
     }
+    inventory["production_readiness"] = apply_production_readiness(root, inventory)
+    inventory["method"]["production_classification"] = (
+        "Stage 5A audit status is preserved; production readiness applies family-specific required/optional/not-applicable capabilities, the project #905 scope, actual Species.c Dex text, and Stages 5B-5E shared runtime evidence"
+    )
+    inventory["selected_expanded_species_proof"]["runtime_blocker"] = "none; Stage 5F confirms expanded Dex text already exists in the canonical Species.c message-generation path"
+    inventory["selected_expanded_species_proof"]["selection_reason"] = (
+        "first post-Gen-4 identity with complete static resources and an executed representative shared-runtime proof; Stage 5F separately validates the production Dex content path"
+    )
     return inventory
 
 

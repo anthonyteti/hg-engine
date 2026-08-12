@@ -61,7 +61,9 @@ class Stage5ARosterInventoryTests(unittest.TestCase):
         self.assertEqual(proof["runtime_status"], "COMPLETE_EXECUTED")
         self.assertEqual(proof["shared_runtime_architecture"], "REPRESENTATIVE_PROVEN")
         self.assertEqual(len(proof["runtime_evidence"]), 11)
-        self.assertIn("expanded Dex category/description", proof["runtime_blocker"])
+        self.assertIn("none", proof["runtime_blocker"])
+        self.assertEqual(victini["production"]["readiness"], "READY")
+        self.assertEqual(victini["production"]["content"]["dex"], "READY")
 
     def test_representative_evolution_annotation_does_not_promote_content_status(self) -> None:
         proof = self.inventory["expanded_evolution_runtime"]

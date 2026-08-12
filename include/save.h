@@ -370,6 +370,7 @@ void *LONG_CALL SaveData_GetDexPtr(void *saveData);
 void *LONG_CALL SaveData_GetPlayerPartyPtr(void *saveData);
 u32 LONG_CALL Pokedex_CountDexOwned(void *dexSaveData);
 u32 LONG_CALL Pokedex_CountJohtoDexOwned(void *dexSaveData);
+void LONG_CALL Pokedex_SetNatDexFlag(void *dexSaveData);
 HallOfFame * LONG_CALL LoadHallOfFame(void *saveData, u32 heapId, int *ret_p);
 void LONG_CALL Save_HOF_RecordParty(HallOfFame *hof, struct Party *party, struct RTCDate *date);
 

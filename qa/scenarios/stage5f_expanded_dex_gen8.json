@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": "stage5f_expanded_dex_gen8",
+  "fixture": "fixtures/stage5b_victini_world.json",
+  "build_target": "stage5f-dex-proof",
+  "entry": {"mode": "new_game_controlled"},
+  "steps": [
+    {"assert": "map_id", "value": 540},
+    {"assert": "memory_value", "symbol": "gStage5FRuntimeState", "offset": 24, "width": 4, "value": 860},
+    {"assert": "memory_value", "symbol": "gStage5FRuntimeState", "offset": 44, "width": 4, "value": 1},
+    {"assert": "memory_value", "symbol": "gStage5FRuntimeState", "offset": 64, "width": 4, "value": 1},
+    {"action": "press", "button": "x", "after_frames": 240},
+    {"action": "press", "button": "a", "after_frames": 600},
+    {"action": "touch", "x": 128, "y": 177, "after_frames": 300},
+    {"action": "touch", "x": 241, "y": 119, "after_frames": 420},
+    {"action": "press", "button": "left", "after_frames": 120},
+    {"action": "press", "button": "left", "after_frames": 420},
+    {"action": "capture", "name": "stage5f_dex_gen8_grookey"},
+    {"assert": "screenshot_valid", "name": "stage5f_dex_gen8_grookey"},
+    {"assert": "rom_running", "value": true}
+  ]
+}

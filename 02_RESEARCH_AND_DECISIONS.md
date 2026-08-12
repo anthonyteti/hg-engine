@@ -608,3 +608,61 @@ should use the deterministic inventory plus Stage 5B-E runtime evidence to
 plan and implement actual roster/content gaps, distinguishing missing
 functionality from missing content, authenticity gaps, and merely unexecuted
 architecturally covered cases.
+
+## Stage 5F decision: semantic readiness replaces flat-status planning
+
+Keep every Stage 5A `COMPLETE`/`PARTIAL`/`DATA_ONLY`/`ASSET_ONLY`/`UNKNOWN`
+label as historical audit evidence. Do not use that flat status to plan
+production. Stage 5F adds a parallel deterministic layer with project scope,
+semantic form family, readiness, required/optional/not-applicable gaps, reason
+codes, and Stages 5B-E shared-runtime evidence.
+
+The project's production base roster is National Dex #1-905. Scope is resolved
+through `sPokedexSort_NationalNum`, not raw engine IDs, because internal IDs
+494-543 are reserved. All 905 scoped base
+species have required data, battle/icon/follower assets, safe cry routing, and
+the already-proven shared party/box/save/trainer/wild runtime paths. Identities
+with National Dex numbers 906-1025 remain available engine capability but are
+not silently opted into this game's production roster.
+
+The claimed 532-entry expanded-Dex gap was not a source/content gap. It was a
+Stage 5A audit heuristic that equated `id > 493` with missing category and
+description. `data/Species.c` already contains nonempty category/description
+records for all 1,025 implemented bases; speciesdatagen emits them into message
+members 803, 816, and 823. Preserve that existing canonical source rather than
+copying 532 records into a redundant project database. Validate source-to-
+generated equivalence and representative live UI rendering instead.
+
+Cries require two truths. Runtime routing is ready for every required base
+species. The retail #1-493 route comes from the user-supplied base ROM, while
+the 532 later source WAV routes are present and credited but are classified
+`ROUTED_SOURCE_PRESENT_UNVERIFIED`; do not claim canon-authentic provenance
+without stronger evidence. This is nonblocking debt because there are zero
+missing/fallback routes for required production bases.
+
+Evaluate persistent regional forms by storage/presentation mappings and Mega
+forms by temporary battle/reversion requirements. Ordinary followers and
+persistent Dex/save identity are not applicable to Megas. Gigantamax is out of
+game scope; Alcremie filler records are reserved; the later Legends: Z-A Mega
+identity block is not selected by the through-Legends:-Arceus content boundary.
+Trainer form data independently decodes the same
+packed species/form representation and reaches the existing CreateMon/form
+lookup boundary, so it is architecturally covered without another runtime
+matrix.
+
+Stage 5 closes with nonblocking content/provenance debt, not another mechanics
+proof. The next activity is Stage 6 Presentation Factory.
+
+## Stage 6 decision: presentation is one gated autonomous program
+
+Stage 6 supersedes the narrower “Art Factory” plan. It owns visual direction,
+the complete UI reality audit/resource factory/declarative engine, battle and
+menu UI proofs, semantic UI QA, environment modules and catalog, the deferred
+real-generated-landmark kill gate, and an integrated presentation ROM.
+
+Run Stages 6A-L under one master orchestration prompt with persistent state,
+explicit evidence/pass/fail/commit/next/human-review rules, automatic technical
+checkpoints, and recovery policy. Human interruption is principally for the
+initial visual-direction decision and final integrated presentation review;
+external/legal/creative blockers may also stop safely. Stage 5F documents this
+contract but must not implement any Stage 6 subsystem.

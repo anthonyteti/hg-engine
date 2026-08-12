@@ -154,6 +154,10 @@ ifeq ($(STAGE5E_MEGA_PROOF),Y)
     CFLAGS += -DSTAGE5E_MEGA_PROOF -Werror
 endif
 
+ifeq ($(STAGE5F_DEX_PROOF),Y)
+    CFLAGS += -DSTAGE5F_DEX_PROOF -Werror
+endif
+
 ifeq ($(BATTLE_SAVE_PROVISION),Y)
     CFLAGS += -DBATTLE_SAVE_PROVISION -Werror
 endif
@@ -198,6 +202,10 @@ endif
 ifeq ($(STAGE5E_MEGA_PROOF),Y)
     WORLD_INSTALL_ARGS := --fixture fixtures/stage5e_mega_world.json --output build/stage5e/generated
     PROJECT_HEADER_FIXTURE := fixtures/stage5e_mega_world.json
+endif
+ifeq ($(STAGE5F_DEX_PROOF),Y)
+    WORLD_INSTALL_ARGS := --fixture fixtures/stage5b_victini_world.json --output build/stage5f/generated
+    PROJECT_HEADER_FIXTURE := fixtures/stage5b_victini_world.json
 endif
 ifeq ($(STAGE4B_ASSET),Y)
     WORLD_INSTALL_ARGS := --fixture fixtures/stage4b_asset_world.json --output build/stage4b/generated
@@ -525,6 +533,17 @@ stage5d-regional-form-proof:
 stage5e-mega-proof:
 	$(MAKE) clean
 	$(MAKE) STAGE2_MAP=Y STAGE3E2_HEADER=Y STAGE5E_MEGA_PROOF=Y
+
+.PHONY: stage5f-dex-proof
+stage5f-dex-proof:
+	$(MAKE) clean
+	$(MAKE) STAGE2_MAP=Y STAGE3E2_HEADER=Y STAGE5F_DEX_PROOF=Y
+
+.PHONY: stage5f-roster-readiness
+stage5f-roster-readiness:
+	. .venv/bin/activate; python3 -m tools.pokeagent.roster_inventory --output docs/data/hgengine_roster_inventory.json --revision $$(git rev-parse HEAD)
+	. .venv/bin/activate; python3 -m tools.pokeagent.roster_readiness --output build/reports/stage5f-dex-archive-validation.json
+	. .venv/bin/activate; python3 -m unittest -v tests.test_pokeagent_stage5a_roster_inventory tests.test_pokeagent_stage5f_roster_readiness
 
 .PHONY: battle-test-save
 battle-test-save:

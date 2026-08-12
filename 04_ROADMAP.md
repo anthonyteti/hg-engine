@@ -472,7 +472,9 @@ Stage 5B-C closes the remaining ordinary shared paths: trainer NARC, wild
 encounter, native capture, encounter/capture Dex causality, party/PC icon UIs,
 expanded cry routing, and native follower transition all execute for Victini.
 The shared expanded base-species architecture is representative-proven while
-Victini remains content-level partial due to missing expanded Dex text.
+Victini retains its historical audit-level `PARTIAL` label. Stage 5F later
+confirmed that this label was caused by a conservative Stage 5A heuristic:
+the expanded Dex text already exists in the canonical source/generator path.
 
 Next prove one expanded evolution line end to end, including ordinary
 evolution and persistence. Do not infer regional-form or Mega support from
@@ -516,29 +518,136 @@ inventory and Stage 5B-E evidence. It must separate missing functionality,
 missing data/content, incomplete identities/forms, cosmetic/authenticity gaps,
 and unexecuted cases already covered by shared architecture.
 
+### Stage 5F complete: semantic roster/content closure
 
-## Stage 6: Art factory
+Stage 5F preserves the historical flat audit statuses and adds production
+scope, form-family requirements, readiness, reason codes, truthful cry
+provenance classes, and the Stage 5B-E representative evidence. The #905
+production roster contains 905 base species, resolved by National Dex order
+rather than the engine's reserved-ID-shifted constants; all 905 have the required static
+data/assets and safe shared runtime paths. All 1,025 implemented base records
+already carry nonempty category/description content through `Species.c` and
+speciesdatagen; five ordinary expanded-generation Dex views confirm the live
+archive/UI path. Gen 5+ cry routing is complete but source authenticity remains
+explicitly unverified nonblocking debt.
 
-Tasks:
+Persistent regional forms and scoped temporary Megas have no required static
+gaps. Gigantamax is out of game scope, filler identities are reserved, and
+other special forms are classified by semantic family instead of being
+mislabelled for intentionally absent follower/Dex behavior. Stage 5 foundation
+work is complete with nonblocking content/provenance debt. Do not add another
+representative Pokémon-mechanic stage.
 
-- define visual bible
-- create one environment kit
-- automate DS asset constraints
-- add asset manifests
-- create validation metrics
-- build 5-10 approved modular assets
-- prove generated landmark conversion
 
-Hard acceptance boundary: select an authorized real generator/exporter and
-prove at least one immutable real generated landmark through the established
-asset pipeline and in-game visual QA. The Stage 4 deferral is not evidence for
-this requirement; Stage 4H/S/T/U remain the negative/access evidence baseline.
+## Stage 6: Presentation Factory
 
-Acceptance:
+Purpose: give the LLM high-level deterministic control over essentially the
+complete game UI and the reusable environment-art system before the real game
+vertical slice.
 
-A model can request a new building variant and the pipeline produces a DS-safe candidate plus a screenshot without manual Blender cleanup for the normal case.
+Stage 6 is intended to execute under one autonomous master prompt. It will
+maintain a persistent state file, automatically checkpoint successful
+technical substages, define recovery behavior, and interrupt the user mainly
+for the early visual-direction approval, final integrated presentation
+approval, or a genuine external/legal/creative blocker. Each substage must
+declare `OBJECTIVE`, `REQUIRED_EVIDENCE`, `PASS_CONDITIONS`, `FAIL_CONDITIONS`,
+`COMMIT_RULE`, `NEXT_STAGE_RULE`, and `HUMAN_REVIEW_RULE`.
 
-Human review remains allowed for art direction.
+Conceptual orchestration state:
+
+```yaml
+stage: 6
+status: in_progress
+current:
+  id: 6F
+completed: [6A, 6B, 6C, 6D, 6E]
+blocked: []
+human_review:
+  visual_direction: approved
+  final_presentation: pending
+```
+
+### Stage 6A — Visual Direction & Presentation Bible
+
+Define visual language, HGSS/DS readability rules, regional environment
+language, palette and typography principles, UI aesthetics, spacing,
+iconography, sprite/image hierarchy, texture density, asset budgets, and
+biome/environment principles. This is the early human creative gate.
+
+### Stage 6B — Complete UI Reality Audit
+
+Inventory title/Continue, dialogue, start menu, party, summary, Bag, PC,
+Pokédex, profile, Town Map, shops, save/options, naming, battle HUD,
+HP/status, move and target selection, Mega control, capture/evolution, touch
+regions, fonts, and transitions. Classify each as `RESOURCE_ONLY`,
+`LAYOUT_DATA`, `CODE_DRIVEN`, `OVERLAY_CODE`, `ENGINE_PATCH_REQUIRED`, or
+`UNKNOWN`.
+
+### Stage 6C — UI Resource Factory
+
+Compile project-owned deterministic source assets into DS graphics, palettes,
+tilemaps, sprites, fonts, icons, and UI manifests without repetitive GUI work.
+
+### Stage 6D — Declarative UI Engine
+
+Create high-level primitives such as `Window`, `Panel`, `Text`, `Sprite`,
+`PokemonSprite`, `PokemonIcon`, `ItemIcon`, bars/meters, `Cursor`, `Button`,
+`TouchButton`, lists/grids/tabs, scrolling, modals, portraits, and animation.
+Bind them to semantic values such as `player.name`, `party[0].species`,
+`battle.player.active.hp`, `bag.current_pocket`, and `pokedex.seen_count`, with
+declarative navigation/touch behavior rather than arbitrary DS addresses.
+
+### Stage 6E — Battle UI Proof
+
+Prove full redesign control for the battle HUD, HP/status, Fight/move UI,
+PP/type display, switch/bag/run, Mega control, and target selection while
+preserving battle behavior.
+
+### Stage 6F — Core Menu UI
+
+Prove party, Pokémon summary, Bag, and player/start-menu surfaces.
+
+### Stage 6G — Remaining Game UI
+
+Expand to PC, Pokédex, shops, save/options, Town Map, title/Continue,
+dialogue, naming, capture/evolution, and remaining important screens. The end
+state is full high-level LLM authorship, not a global reskin.
+
+### Stage 6H — UI Automated QA
+
+Validate opening/exiting, navigation reachability, touch targets, selection,
+semantic bindings, text overflow, bounds/overlap, sprite/icon identity,
+VRAM/OAM budgets, animation stability, and screenshot review. Pixel-perfect
+comparison is supporting evidence, not the primary signal.
+
+### Stage 6I — Environment Art Kit
+
+Build DS-safe terrain, slopes, paths, cliffs, water edges, stairs, bridges,
+vegetation, rocks, architecture, props, fences, lamps, signs, market pieces,
+and utility modules.
+
+### Stage 6J — Procedural Variants & Asset Catalog
+
+Provide controlled variants and catalog every approved asset by identity,
+source, category, biome tags, footprint, bounds, rotations, collision,
+textures, DS budget, status, and visual metadata. World planning requests
+catalog identities rather than Nitro internals.
+
+### Stage 6K — Unique Landmark / Real Generated 3D Kill Gate
+
+Run art direction -> concept -> authorized real generator/exporter -> immutable
+raw output -> Stage 4 preprocessing -> DS compilation -> ROM -> visual QA.
+At least one real generated landmark must pass. Stage 4H/S/T/U remain negative
+and access evidence, never retroactive success.
+
+### Stage 6L — Integrated Presentation QA
+
+Combine the new UI, environment kit, representative custom world, and generated
+landmark in one ROM. Run automated QA first and a final human presentation
+review second. Stage 6 passes only when Stage 7 no longer needs ordinary manual
+UI or environment editing.
+
+Do not begin Stage 6 implementation during Stage 5F.
 
 ## Stage 7: Game vertical slice
 

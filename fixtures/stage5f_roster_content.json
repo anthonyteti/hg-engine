@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "id": "stage5f_roster_content_closure",
+  "scope": {
+    "base_species_last_national_dex": 905,
+    "gigantamax": "OUT_OF_SCOPE_FOR_GAME",
+    "mega": "TEMPORARY_BATTLE_FORM",
+    "expanded_cry_authenticity": "ROUTED_SOURCE_PRESENT_UNVERIFIED"
+  },
+  "dex_representatives": [
+    {"generation": 5, "species": "SPECIES_VICTINI", "id": 544},
+    {"generation": 6, "species": "SPECIES_CHESPIN", "id": 700},
+    {"generation": 7, "species": "SPECIES_ROWLET", "id": 772},
+    {"generation": 8, "species": "SPECIES_GROOKEY", "id": 860},
+    {"generation": 9, "species": "SPECIES_SPRIGATITO", "id": 956}
+  ],
+  "dex_text_source": "data/Species.c",
+  "dex_generator": "tools/source/speciesdatagen/species_data_gen.c",
+  "message_archives": {"description": 803, "category_primary": 816, "category_secondary": 823}
+}
