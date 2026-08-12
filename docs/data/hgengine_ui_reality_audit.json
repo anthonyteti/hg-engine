@@ -1,0 +1,4811 @@
+{
+  "audited_project_revision": "9e9b76c6cac9e6fd0dc035d834388a1f4cf6a7eb",
+  "retail_reference": {
+    "repository": "https://github.com/pret/pokeheartgold",
+    "revision": "90e85d4e027f5e04800e7e015b3207094061402c",
+    "role": "Function and resource-name reference for the same USA HeartGold retail base; local fork binaries and project source remain authoritative."
+  },
+  "schema_version": 1,
+  "screens": [
+    {
+      "bindings": [
+        "bag.current_pocket",
+        "bag.selected_item",
+        "bag.items",
+        "bag.quantity",
+        "player.money"
+      ],
+      "classification": [
+        "MIXED",
+        "OVERLAY_CODE"
+      ],
+      "confidence": "MEDIUM",
+      "existing_hooks": [
+        "Bag_Init",
+        "Bag_Main",
+        "Bag_Exit",
+        "BagView"
+      ],
+      "id": "bag",
+      "input_ownership": {
+        "input": "D-pad/A/B and touch pocket/list controls",
+        "navigation": [
+          "change_pocket",
+          "select_item",
+          "open_action",
+          "back"
+        ],
+        "surface_touch": "overlay_touch_regions",
+        "touch": "Overlay-owned touch regions"
+      },
+      "name": "Bag pockets and item list",
+      "navigation": [
+        "change_pocket",
+        "select_item",
+        "open_action",
+        "back"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "src/bag.c",
+          "base/overlay/overlay_0015.bin",
+          "data/graphics/bag"
+        ],
+        "module": "OVY_15 Bag application plus ARM9 bag/bag_view data",
+        "overlay": 15,
+        "reference_evidence": [
+          "src/bag.c",
+          "src/bag_view.c",
+          "asm/overlay_15.s",
+          "src/launch_application.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Top/bottom BG tilemaps with pocket/list/description regions",
+        "font_route": "item data/message banks through system font",
+        "hardcoded_coordinates": "Pocket wheel, list, descriptions, buttons and touch regions in OVY_15",
+        "palette": "Bag BG/OAM and item icon palettes",
+        "sprites_oam": "Pocket wheel, cursor, item icons and arrows",
+        "tilemap": "Archive screen members plus dynamic list windows",
+        "window_usage": "Item names, quantities, descriptions and action menus"
+      },
+      "resource_archives": [
+        "Bag archive opened by OVY_15",
+        "itemtool/itemdata/item_icon",
+        "message banks 10/40"
+      ],
+      "resource_constraints": [
+        "multiple use contexts",
+        "existing item-capacity debt is out of Stage 6 scope"
+      ],
+      "runtime_evidence": [
+        "stage6b_bag_reference"
+      ],
+      "strategy": "bag_layout_and_resource_adapter",
+      "system": "bag",
+      "system_strategy": "Bag overlay adapter with generated resource/layout tables; retain BagView and item-use semantics.",
+      "target_stage": "6F",
+      "touch_handling": "overlay_touch_regions",
+      "transition": "bag_state_machine"
+    },
+    {
+      "bindings": [
+        "bag.selected_item",
+        "bag.item_description",
+        "bag.available_actions"
+      ],
+      "classification": [
+        "MIXED",
+        "OVERLAY_CODE"
+      ],
+      "confidence": "MEDIUM",
+      "existing_hooks": [
+        "Bag_Init",
+        "Bag_Main",
+        "Bag_Exit",
+        "BagView"
+      ],
+      "id": "bag_item_action",
+      "input_ownership": {
+        "input": "D-pad/A/B and touch pocket/list controls",
+        "navigation": [
+          "use",
+          "give",
+          "toss",
+          "cancel"
+        ],
+        "surface_touch": "overlay_touch_regions",
+        "touch": "Overlay-owned touch regions"
+      },
+      "name": "Bag item detail/use",
+      "navigation": [
+        "use",
+        "give",
+        "toss",
+        "cancel"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "src/bag.c",
+          "base/overlay/overlay_0015.bin",
+          "data/graphics/bag"
+        ],
+        "module": "OVY_15 Bag application plus ARM9 bag/bag_view data",
+        "overlay": 15,
+        "reference_evidence": [
+          "src/bag.c",
+          "src/bag_view.c",
+          "asm/overlay_15.s",
+          "src/launch_application.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Top/bottom BG tilemaps with pocket/list/description regions",
+        "font_route": "item data/message banks through system font",
+        "hardcoded_coordinates": "Pocket wheel, list, descriptions, buttons and touch regions in OVY_15",
+        "palette": "Bag BG/OAM and item icon palettes",
+        "sprites_oam": "Pocket wheel, cursor, item icons and arrows",
+        "tilemap": "Archive screen members plus dynamic list windows",
+        "window_usage": "Item names, quantities, descriptions and action menus"
+      },
+      "resource_archives": [
+        "Bag archive opened by OVY_15",
+        "itemtool/itemdata/item_icon",
+        "message banks 10/40"
+      ],
+      "resource_constraints": [
+        "multiple use contexts",
+        "existing item-capacity debt is out of Stage 6 scope"
+      ],
+      "runtime_evidence": [
+        "Stage5C_Rare_Candy_path"
+      ],
+      "strategy": "shared_modal_plus_bag_adapter",
+      "system": "bag",
+      "system_strategy": "Bag overlay adapter with generated resource/layout tables; retain BagView and item-use semantics.",
+      "target_stage": "6F",
+      "touch_handling": "overlay_touch_regions",
+      "transition": "bag_action_state"
+    },
+    {
+      "bindings": [
+        "bag.battle_items",
+        "bag.selected_item",
+        "battle.item_usable"
+      ],
+      "classification": [
+        "MIXED",
+        "OVERLAY_CODE"
+      ],
+      "confidence": "MEDIUM",
+      "existing_hooks": [
+        "Bag_Init",
+        "Bag_Main",
+        "Bag_Exit",
+        "BagView"
+      ],
+      "id": "battle_bag",
+      "input_ownership": {
+        "input": "D-pad/A/B and touch pocket/list controls",
+        "navigation": [
+          "select_pocket",
+          "select_item",
+          "use",
+          "cancel"
+        ],
+        "surface_touch": "bag_overlay_touch",
+        "touch": "Overlay-owned touch regions"
+      },
+      "name": "Battle Bag",
+      "navigation": [
+        "select_pocket",
+        "select_item",
+        "use",
+        "cancel"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "src/bag.c",
+          "base/overlay/overlay_0015.bin",
+          "data/graphics/bag"
+        ],
+        "module": "OVY_15 Bag application plus ARM9 bag/bag_view data",
+        "overlay": 15,
+        "reference_evidence": [
+          "src/bag.c",
+          "src/bag_view.c",
+          "asm/overlay_15.s",
+          "src/launch_application.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Top/bottom BG tilemaps with pocket/list/description regions",
+        "font_route": "item data/message banks through system font",
+        "hardcoded_coordinates": "Pocket wheel, list, descriptions, buttons and touch regions in OVY_15",
+        "palette": "Bag BG/OAM and item icon palettes",
+        "sprites_oam": "Pocket wheel, cursor, item icons and arrows",
+        "tilemap": "Archive screen members plus dynamic list windows",
+        "window_usage": "Item names, quantities, descriptions and action menus"
+      },
+      "resource_archives": [
+        "Bag archive opened by OVY_15",
+        "itemtool/itemdata/item_icon",
+        "message banks 10/40"
+      ],
+      "resource_constraints": [
+        "multiple use contexts",
+        "existing item-capacity debt is out of Stage 6 scope"
+      ],
+      "runtime_evidence": [
+        "Stage5B_capture_path"
+      ],
+      "strategy": "bag_adapter_battle_mode",
+      "system": "bag",
+      "system_strategy": "Bag overlay adapter with generated resource/layout tables; retain BagView and item-use semantics.",
+      "target_stage": "6E",
+      "touch_handling": "bag_overlay_touch",
+      "transition": "battle_to_bag_child_app"
+    },
+    {
+      "bindings": [
+        "battle.available_actions",
+        "battle.selection",
+        "battle.mega_eligible"
+      ],
+      "classification": [
+        "MIXED",
+        "OVERLAY_CODE"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "Battle_Init",
+        "Battle_Main",
+        "Battle_Exit",
+        "BattleInput",
+        "BattleHpBar",
+        "Stage5E Mega observer"
+      ],
+      "id": "battle_commands",
+      "input_ownership": {
+        "input": "Native battle input state machine with D-pad/A/B and touch",
+        "navigation": [
+          "fight",
+          "bag",
+          "pokemon",
+          "run"
+        ],
+        "surface_touch": "explicit_main_menu_hitboxes",
+        "touch": "Explicit main/fight/two-option/target/playback hitbox tables"
+      },
+      "name": "Battle main commands",
+      "navigation": [
+        "fight",
+        "bag",
+        "pokemon",
+        "run"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "src/battle",
+          "base/overlay/overlay_0012.bin",
+          "base/root/a/0/0/7",
+          "base/root/a/0/0/8"
+        ],
+        "module": "OVY_12 battle with OVY_6/7/8/10/75 support and project extension",
+        "overlay": 12,
+        "reference_evidence": [
+          "src/battle/battle_input.c",
+          "src/battle/battle_hp_bar.c",
+          "src/battle/battle_command.c",
+          "src/battle/battle_controller_player.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Battle scene BG plus command/message/HUD layers on both engines",
+        "font_route": "BattleSystem_BufferMessage -> formatter -> battle windows",
+        "hardcoded_coordinates": "HUD/menu/touch/target geometry across battle code and data tables",
+        "palette": "Battle BG/OAM, Pokemon, type/status and command palettes",
+        "sprites_oam": "Pokemon, HP bars, status, cursors, fingers, command and effect sprites",
+        "tilemap": "Archive command/HUD screens and code-built windows",
+        "window_usage": "battle messages, names, levels, HP, moves, PP and prompts"
+      },
+      "resource_archives": [
+        "a/0/0/7 battle command UI",
+        "a/0/0/8 HUD/UI",
+        "Pokemon sprites/icons",
+        "battle message banks"
+      ],
+      "resource_constraints": [
+        "many battle modes",
+        "OAM/VRAM pressure",
+        "native Mega request path",
+        "message timing"
+      ],
+      "runtime_evidence": [
+        "Stage5E_native_activation"
+      ],
+      "strategy": "generated_command_layout_and_hitboxes",
+      "system": "battle",
+      "system_strategy": "Battle-specific declarative layout/resources compiled into existing data and bounded adapter hooks; never replace battle controller semantics.",
+      "target_stage": "6E",
+      "touch_handling": "explicit_main_menu_hitboxes",
+      "transition": "battle_input_main_menu"
+    },
+    {
+      "bindings": [
+        "battle.player.moves",
+        "battle.selected_move",
+        "battle.move.pp",
+        "battle.move.type"
+      ],
+      "classification": [
+        "MIXED",
+        "OVERLAY_CODE"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "Battle_Init",
+        "Battle_Main",
+        "Battle_Exit",
+        "BattleInput",
+        "BattleHpBar",
+        "Stage5E Mega observer"
+      ],
+      "id": "battle_fight_menu",
+      "input_ownership": {
+        "input": "Native battle input state machine with D-pad/A/B and touch",
+        "navigation": [
+          "select_move",
+          "confirm",
+          "cancel",
+          "toggle_mega"
+        ],
+        "surface_touch": "explicit_fight_menu_hitboxes",
+        "touch": "Explicit main/fight/two-option/target/playback hitbox tables"
+      },
+      "name": "Move selection/Fight",
+      "navigation": [
+        "select_move",
+        "confirm",
+        "cancel",
+        "toggle_mega"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "src/battle",
+          "base/overlay/overlay_0012.bin",
+          "base/root/a/0/0/7",
+          "base/root/a/0/0/8"
+        ],
+        "module": "OVY_12 battle with OVY_6/7/8/10/75 support and project extension",
+        "overlay": 12,
+        "reference_evidence": [
+          "src/battle/battle_input.c",
+          "src/battle/battle_hp_bar.c",
+          "src/battle/battle_command.c",
+          "src/battle/battle_controller_player.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Battle scene BG plus command/message/HUD layers on both engines",
+        "font_route": "BattleSystem_BufferMessage -> formatter -> battle windows",
+        "hardcoded_coordinates": "HUD/menu/touch/target geometry across battle code and data tables",
+        "palette": "Battle BG/OAM, Pokemon, type/status and command palettes",
+        "sprites_oam": "Pokemon, HP bars, status, cursors, fingers, command and effect sprites",
+        "tilemap": "Archive command/HUD screens and code-built windows",
+        "window_usage": "battle messages, names, levels, HP, moves, PP and prompts"
+      },
+      "resource_archives": [
+        "a/0/0/7 battle command UI",
+        "a/0/0/8 HUD/UI",
+        "Pokemon sprites/icons",
+        "battle message banks"
+      ],
+      "resource_constraints": [
+        "many battle modes",
+        "OAM/VRAM pressure",
+        "native Mega request path",
+        "message timing"
+      ],
+      "runtime_evidence": [
+        "Stage5E_move_execution"
+      ],
+      "strategy": "generated_move_cards_and_hitboxes",
+      "system": "battle",
+      "system_strategy": "Battle-specific declarative layout/resources compiled into existing data and bounded adapter hooks; never replace battle controller semantics.",
+      "target_stage": "6E",
+      "touch_handling": "explicit_fight_menu_hitboxes",
+      "transition": "battle_input_fight_menu"
+    },
+    {
+      "bindings": [
+        "battle.enemy.active.species",
+        "battle.enemy.active.form",
+        "battle.enemy.active.name",
+        "battle.enemy.active.level",
+        "battle.enemy.active.hp",
+        "battle.enemy.active.status"
+      ],
+      "classification": [
+        "MIXED",
+        "OVERLAY_CODE"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "Battle_Init",
+        "Battle_Main",
+        "Battle_Exit",
+        "BattleInput",
+        "BattleHpBar",
+        "Stage5E Mega observer"
+      ],
+      "id": "battle_hud_enemy",
+      "input_ownership": {
+        "input": "Native battle input state machine with D-pad/A/B and touch",
+        "navigation": [
+          "none_display"
+        ],
+        "surface_touch": "none",
+        "touch": "Explicit main/fight/two-option/target/playback hitbox tables"
+      },
+      "name": "Enemy Pokemon HUD",
+      "navigation": [
+        "none_display"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "src/battle",
+          "base/overlay/overlay_0012.bin",
+          "base/root/a/0/0/7",
+          "base/root/a/0/0/8"
+        ],
+        "module": "OVY_12 battle with OVY_6/7/8/10/75 support and project extension",
+        "overlay": 12,
+        "reference_evidence": [
+          "src/battle/battle_input.c",
+          "src/battle/battle_hp_bar.c",
+          "src/battle/battle_command.c",
+          "src/battle/battle_controller_player.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Battle scene BG plus command/message/HUD layers on both engines",
+        "font_route": "BattleSystem_BufferMessage -> formatter -> battle windows",
+        "hardcoded_coordinates": "HUD/menu/touch/target geometry across battle code and data tables",
+        "palette": "Battle BG/OAM, Pokemon, type/status and command palettes",
+        "sprites_oam": "Pokemon, HP bars, status, cursors, fingers, command and effect sprites",
+        "tilemap": "Archive command/HUD screens and code-built windows",
+        "window_usage": "battle messages, names, levels, HP, moves, PP and prompts"
+      },
+      "resource_archives": [
+        "a/0/0/7 battle command UI",
+        "a/0/0/8 HUD/UI",
+        "Pokemon sprites/icons",
+        "battle message banks"
+      ],
+      "resource_constraints": [
+        "many battle modes",
+        "OAM/VRAM pressure",
+        "native Mega request path",
+        "message timing"
+      ],
+      "runtime_evidence": [
+        "Stage5B_trainer_wild"
+      ],
+      "strategy": "generated_HUD_descriptor_and_resources",
+      "system": "battle",
+      "system_strategy": "Battle-specific declarative layout/resources compiled into existing data and bounded adapter hooks; never replace battle controller semantics.",
+      "target_stage": "6E",
+      "touch_handling": "none",
+      "transition": "battle_HP_bar_animation"
+    },
+    {
+      "bindings": [
+        "battle.player.active.species",
+        "battle.player.active.form",
+        "battle.player.active.name",
+        "battle.player.active.level",
+        "battle.player.active.hp",
+        "battle.player.active.max_hp",
+        "battle.player.active.status"
+      ],
+      "classification": [
+        "MIXED",
+        "OVERLAY_CODE"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "Battle_Init",
+        "Battle_Main",
+        "Battle_Exit",
+        "BattleInput",
+        "BattleHpBar",
+        "Stage5E Mega observer"
+      ],
+      "id": "battle_hud_player",
+      "input_ownership": {
+        "input": "Native battle input state machine with D-pad/A/B and touch",
+        "navigation": [
+          "none_display"
+        ],
+        "surface_touch": "none",
+        "touch": "Explicit main/fight/two-option/target/playback hitbox tables"
+      },
+      "name": "Player Pokemon HUD",
+      "navigation": [
+        "none_display"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "src/battle",
+          "base/overlay/overlay_0012.bin",
+          "base/root/a/0/0/7",
+          "base/root/a/0/0/8"
+        ],
+        "module": "OVY_12 battle with OVY_6/7/8/10/75 support and project extension",
+        "overlay": 12,
+        "reference_evidence": [
+          "src/battle/battle_input.c",
+          "src/battle/battle_hp_bar.c",
+          "src/battle/battle_command.c",
+          "src/battle/battle_controller_player.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Battle scene BG plus command/message/HUD layers on both engines",
+        "font_route": "BattleSystem_BufferMessage -> formatter -> battle windows",
+        "hardcoded_coordinates": "HUD/menu/touch/target geometry across battle code and data tables",
+        "palette": "Battle BG/OAM, Pokemon, type/status and command palettes",
+        "sprites_oam": "Pokemon, HP bars, status, cursors, fingers, command and effect sprites",
+        "tilemap": "Archive command/HUD screens and code-built windows",
+        "window_usage": "battle messages, names, levels, HP, moves, PP and prompts"
+      },
+      "resource_archives": [
+        "a/0/0/7 battle command UI",
+        "a/0/0/8 HUD/UI",
+        "Pokemon sprites/icons",
+        "battle message banks"
+      ],
+      "resource_constraints": [
+        "many battle modes",
+        "OAM/VRAM pressure",
+        "native Mega request path",
+        "message timing"
+      ],
+      "runtime_evidence": [
+        "Stage5B_and_Stage5E_battles"
+      ],
+      "strategy": "generated_HUD_descriptor_and_resources",
+      "system": "battle",
+      "system_strategy": "Battle-specific declarative layout/resources compiled into existing data and bounded adapter hooks; never replace battle controller semantics.",
+      "target_stage": "6E",
+      "touch_handling": "none",
+      "transition": "battle_HP_bar_animation"
+    },
+    {
+      "bindings": [
+        "battle.player.active.mega_eligible",
+        "battle.player.active.mega_requested",
+        "battle.player.active.mega_active",
+        "battle.side.mega_used"
+      ],
+      "classification": [
+        "MIXED",
+        "ENGINE_PATCH_REQUIRED"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "Battle_Init",
+        "Battle_Main",
+        "Battle_Exit",
+        "BattleInput",
+        "BattleHpBar",
+        "Stage5E Mega observer"
+      ],
+      "id": "battle_mega",
+      "input_ownership": {
+        "input": "Native battle input state machine with D-pad/A/B and touch",
+        "navigation": [
+          "toggle_mega_request",
+          "select_move"
+        ],
+        "surface_touch": "fight_menu_extension",
+        "touch": "Explicit main/fight/two-option/target/playback hitbox tables"
+      },
+      "name": "Mega Evolution control",
+      "navigation": [
+        "toggle_mega_request",
+        "select_move"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "src/battle",
+          "base/overlay/overlay_0012.bin",
+          "base/root/a/0/0/7",
+          "base/root/a/0/0/8"
+        ],
+        "module": "OVY_12 battle with OVY_6/7/8/10/75 support and project extension",
+        "overlay": 12,
+        "reference_evidence": [
+          "src/battle/battle_input.c",
+          "src/battle/battle_hp_bar.c",
+          "src/battle/battle_command.c",
+          "src/battle/battle_controller_player.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Battle scene BG plus command/message/HUD layers on both engines",
+        "font_route": "BattleSystem_BufferMessage -> formatter -> battle windows",
+        "hardcoded_coordinates": "HUD/menu/touch/target geometry across battle code and data tables",
+        "palette": "Battle BG/OAM, Pokemon, type/status and command palettes",
+        "sprites_oam": "Pokemon, HP bars, status, cursors, fingers, command and effect sprites",
+        "tilemap": "Archive command/HUD screens and code-built windows",
+        "window_usage": "battle messages, names, levels, HP, moves, PP and prompts"
+      },
+      "resource_archives": [
+        "a/0/0/7 battle command UI",
+        "a/0/0/8 HUD/UI",
+        "Pokemon sprites/icons",
+        "battle message banks"
+      ],
+      "resource_constraints": [
+        "many battle modes",
+        "OAM/VRAM pressure",
+        "native Mega request path",
+        "message timing"
+      ],
+      "runtime_evidence": [
+        "Stage5E_MEGA_RUNTIME_PASSED"
+      ],
+      "strategy": "declarative_control_with_existing_Stage5E_native_adapter",
+      "system": "battle",
+      "system_strategy": "Battle-specific declarative layout/resources compiled into existing data and bounded adapter hooks; never replace battle controller semantics.",
+      "target_stage": "6E",
+      "touch_handling": "fight_menu_extension",
+      "transition": "native_mega_request_then_battle_transform"
+    },
+    {
+      "bindings": [
+        "battle.message",
+        "battle.message_args"
+      ],
+      "classification": [
+        "MIXED",
+        "OVERLAY_CODE"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "Battle_Init",
+        "Battle_Main",
+        "Battle_Exit",
+        "BattleInput",
+        "BattleHpBar",
+        "Stage5E Mega observer"
+      ],
+      "id": "battle_messages",
+      "input_ownership": {
+        "input": "Native battle input state machine with D-pad/A/B and touch",
+        "navigation": [
+          "advance_when_allowed"
+        ],
+        "surface_touch": "battle_input_owned",
+        "touch": "Explicit main/fight/two-option/target/playback hitbox tables"
+      },
+      "name": "Battle messages",
+      "navigation": [
+        "advance_when_allowed"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "src/battle",
+          "base/overlay/overlay_0012.bin",
+          "base/root/a/0/0/7",
+          "base/root/a/0/0/8"
+        ],
+        "module": "OVY_12 battle with OVY_6/7/8/10/75 support and project extension",
+        "overlay": 12,
+        "reference_evidence": [
+          "src/battle/battle_input.c",
+          "src/battle/battle_hp_bar.c",
+          "src/battle/battle_command.c",
+          "src/battle/battle_controller_player.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Battle scene BG plus command/message/HUD layers on both engines",
+        "font_route": "BattleSystem_BufferMessage -> formatter -> battle windows",
+        "hardcoded_coordinates": "HUD/menu/touch/target geometry across battle code and data tables",
+        "palette": "Battle BG/OAM, Pokemon, type/status and command palettes",
+        "sprites_oam": "Pokemon, HP bars, status, cursors, fingers, command and effect sprites",
+        "tilemap": "Archive command/HUD screens and code-built windows",
+        "window_usage": "battle messages, names, levels, HP, moves, PP and prompts"
+      },
+      "resource_archives": [
+        "a/0/0/7 battle command UI",
+        "a/0/0/8 HUD/UI",
+        "Pokemon sprites/icons",
+        "battle message banks"
+      ],
+      "resource_constraints": [
+        "many battle modes",
+        "OAM/VRAM pressure",
+        "native Mega request path",
+        "message timing"
+      ],
+      "runtime_evidence": [
+        "all_battle_regressions"
+      ],
+      "strategy": "declarative_battle_message_window",
+      "system": "battle",
+      "system_strategy": "Battle-specific declarative layout/resources compiled into existing data and bounded adapter hooks; never replace battle controller semantics.",
+      "target_stage": "6E",
+      "touch_handling": "battle_input_owned",
+      "transition": "battle_message_queue"
+    },
+    {
+      "bindings": [
+        "battle.move.name",
+        "battle.move.pp",
+        "battle.move.max_pp",
+        "battle.move.type"
+      ],
+      "classification": [
+        "MIXED",
+        "OVERLAY_CODE"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "Battle_Init",
+        "Battle_Main",
+        "Battle_Exit",
+        "BattleInput",
+        "BattleHpBar",
+        "Stage5E Mega observer"
+      ],
+      "id": "battle_move_detail",
+      "input_ownership": {
+        "input": "Native battle input state machine with D-pad/A/B and touch",
+        "navigation": [
+          "selection_follows_move"
+        ],
+        "surface_touch": "inherits_fight_menu",
+        "touch": "Explicit main/fight/two-option/target/playback hitbox tables"
+      },
+      "name": "Move PP/type detail",
+      "navigation": [
+        "selection_follows_move"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "src/battle",
+          "base/overlay/overlay_0012.bin",
+          "base/root/a/0/0/7",
+          "base/root/a/0/0/8"
+        ],
+        "module": "OVY_12 battle with OVY_6/7/8/10/75 support and project extension",
+        "overlay": 12,
+        "reference_evidence": [
+          "src/battle/battle_input.c",
+          "src/battle/battle_hp_bar.c",
+          "src/battle/battle_command.c",
+          "src/battle/battle_controller_player.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Battle scene BG plus command/message/HUD layers on both engines",
+        "font_route": "BattleSystem_BufferMessage -> formatter -> battle windows",
+        "hardcoded_coordinates": "HUD/menu/touch/target geometry across battle code and data tables",
+        "palette": "Battle BG/OAM, Pokemon, type/status and command palettes",
+        "sprites_oam": "Pokemon, HP bars, status, cursors, fingers, command and effect sprites",
+        "tilemap": "Archive command/HUD screens and code-built windows",
+        "window_usage": "battle messages, names, levels, HP, moves, PP and prompts"
+      },
+      "resource_archives": [
+        "a/0/0/7 battle command UI",
+        "a/0/0/8 HUD/UI",
+        "Pokemon sprites/icons",
+        "battle message banks"
+      ],
+      "resource_constraints": [
+        "many battle modes",
+        "OAM/VRAM pressure",
+        "native Mega request path",
+        "message timing"
+      ],
+      "runtime_evidence": [
+        "Stage5E_move_execution"
+      ],
+      "strategy": "generated_move_detail_component",
+      "system": "battle",
+      "system_strategy": "Battle-specific declarative layout/resources compiled into existing data and bounded adapter hooks; never replace battle controller semantics.",
+      "target_stage": "6E",
+      "touch_handling": "inherits_fight_menu",
+      "transition": "selection_update"
+    },
+    {
+      "bindings": [
+        "battle.can_run",
+        "battle.run_result"
+      ],
+      "classification": [
+        "CODE_DRIVEN",
+        "OVERLAY_CODE"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "Battle_Init",
+        "Battle_Main",
+        "Battle_Exit",
+        "BattleInput",
+        "BattleHpBar",
+        "Stage5E Mega observer"
+      ],
+      "id": "battle_run",
+      "input_ownership": {
+        "input": "Native battle input state machine with D-pad/A/B and touch",
+        "navigation": [
+          "request_run",
+          "return_or_exit"
+        ],
+        "surface_touch": "main_command_hitbox",
+        "touch": "Explicit main/fight/two-option/target/playback hitbox tables"
+      },
+      "name": "Run confirmation/result",
+      "navigation": [
+        "request_run",
+        "return_or_exit"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "src/battle",
+          "base/overlay/overlay_0012.bin",
+          "base/root/a/0/0/7",
+          "base/root/a/0/0/8"
+        ],
+        "module": "OVY_12 battle with OVY_6/7/8/10/75 support and project extension",
+        "overlay": 12,
+        "reference_evidence": [
+          "src/battle/battle_input.c",
+          "src/battle/battle_hp_bar.c",
+          "src/battle/battle_command.c",
+          "src/battle/battle_controller_player.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Battle scene BG plus command/message/HUD layers on both engines",
+        "font_route": "BattleSystem_BufferMessage -> formatter -> battle windows",
+        "hardcoded_coordinates": "HUD/menu/touch/target geometry across battle code and data tables",
+        "palette": "Battle BG/OAM, Pokemon, type/status and command palettes",
+        "sprites_oam": "Pokemon, HP bars, status, cursors, fingers, command and effect sprites",
+        "tilemap": "Archive command/HUD screens and code-built windows",
+        "window_usage": "battle messages, names, levels, HP, moves, PP and prompts"
+      },
+      "resource_archives": [
+        "a/0/0/7 battle command UI",
+        "a/0/0/8 HUD/UI",
+        "Pokemon sprites/icons",
+        "battle message banks"
+      ],
+      "resource_constraints": [
+        "many battle modes",
+        "OAM/VRAM pressure",
+        "native Mega request path",
+        "message timing"
+      ],
+      "runtime_evidence": [
+        "battle_engine_tests"
+      ],
+      "strategy": "command_component_and_message_theme",
+      "system": "battle",
+      "system_strategy": "Battle-specific declarative layout/resources compiled into existing data and bounded adapter hooks; never replace battle controller semantics.",
+      "target_stage": "6E",
+      "touch_handling": "main_command_hitbox",
+      "transition": "battle_run_state"
+    },
+    {
+      "bindings": [
+        "party.slots",
+        "battle.switch_eligible",
+        "battle.selected_slot"
+      ],
+      "classification": [
+        "MIXED",
+        "CODE_DRIVEN"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "gOverlayTemplate_PartyMenu",
+        "PartyMenu_HandleUseItemOnMon"
+      ],
+      "id": "battle_switch",
+      "input_ownership": {
+        "input": "D-pad/A/B plus explicit context-menu touch hitboxes",
+        "navigation": [
+          "select_slot",
+          "confirm_switch",
+          "cancel"
+        ],
+        "surface_touch": "party_hitboxes",
+        "touch": "Party/context hitbox arrays"
+      },
+      "name": "Battle Pokemon/switch",
+      "navigation": [
+        "select_slot",
+        "confirm_switch",
+        "cancel"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "src/party_menu.c",
+          "base/overlay/overlay_0094.bin"
+        ],
+        "module": "ARM9 party_menu with OVY_94 helper",
+        "overlay": null,
+        "reference_evidence": [
+          "src/party_menu.c",
+          "src/party_context_menu.c",
+          "src/party_menu_sprites.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Main BG0/BG3 and sub BG0/BG1",
+        "font_route": "message bank 300 and live Pokemon strings",
+        "hardcoded_coordinates": "Six slot layout, icon cells, HP/text positions and touch tables",
+        "palette": "Party BG palettes plus Pokemon icon palettes",
+        "sprites_oam": "Pokemon icons, held items, cursor/context affordances",
+        "tilemap": "plist_gra NSCR members and code-updated slot regions",
+        "window_usage": "Names, levels, HP, context actions and messages"
+      },
+      "resource_archives": [
+        "graphic/plist_gra members 3/4/12-26",
+        "poketool/icongra/poke_icon",
+        "message bank 300"
+      ],
+      "resource_constraints": [
+        "six slots",
+        "Pokemon form/icon correctness",
+        "multiple invocation modes"
+      ],
+      "runtime_evidence": [
+        "battle_test_regressions"
+      ],
+      "strategy": "party_adapter_battle_mode",
+      "system": "party",
+      "system_strategy": "Party-specific declarative adapter generated into windows, slot geometry, icon placement and navigation tables.",
+      "target_stage": "6E",
+      "touch_handling": "party_hitboxes",
+      "transition": "battle_to_party_child_app"
+    },
+    {
+      "bindings": [
+        "battle.targets",
+        "battle.selected_target"
+      ],
+      "classification": [
+        "MIXED",
+        "OVERLAY_CODE"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "Battle_Init",
+        "Battle_Main",
+        "Battle_Exit",
+        "BattleInput",
+        "BattleHpBar",
+        "Stage5E Mega observer"
+      ],
+      "id": "battle_target",
+      "input_ownership": {
+        "input": "Native battle input state machine with D-pad/A/B and touch",
+        "navigation": [
+          "select_target",
+          "confirm",
+          "cancel"
+        ],
+        "surface_touch": "explicit_target_hitboxes",
+        "touch": "Explicit main/fight/two-option/target/playback hitbox tables"
+      },
+      "name": "Battle target selection",
+      "navigation": [
+        "select_target",
+        "confirm",
+        "cancel"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "src/battle",
+          "base/overlay/overlay_0012.bin",
+          "base/root/a/0/0/7",
+          "base/root/a/0/0/8"
+        ],
+        "module": "OVY_12 battle with OVY_6/7/8/10/75 support and project extension",
+        "overlay": 12,
+        "reference_evidence": [
+          "src/battle/battle_input.c",
+          "src/battle/battle_hp_bar.c",
+          "src/battle/battle_command.c",
+          "src/battle/battle_controller_player.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Battle scene BG plus command/message/HUD layers on both engines",
+        "font_route": "BattleSystem_BufferMessage -> formatter -> battle windows",
+        "hardcoded_coordinates": "HUD/menu/touch/target geometry across battle code and data tables",
+        "palette": "Battle BG/OAM, Pokemon, type/status and command palettes",
+        "sprites_oam": "Pokemon, HP bars, status, cursors, fingers, command and effect sprites",
+        "tilemap": "Archive command/HUD screens and code-built windows",
+        "window_usage": "battle messages, names, levels, HP, moves, PP and prompts"
+      },
+      "resource_archives": [
+        "a/0/0/7 battle command UI",
+        "a/0/0/8 HUD/UI",
+        "Pokemon sprites/icons",
+        "battle message banks"
+      ],
+      "resource_constraints": [
+        "many battle modes",
+        "OAM/VRAM pressure",
+        "native Mega request path",
+        "message timing"
+      ],
+      "runtime_evidence": [
+        "source_only_bounded"
+      ],
+      "strategy": "generated_target_layout_and_hitboxes",
+      "system": "battle",
+      "system_strategy": "Battle-specific declarative layout/resources compiled into existing data and bounded adapter hooks; never replace battle controller semantics.",
+      "target_stage": "6E",
+      "touch_handling": "explicit_target_hitboxes",
+      "transition": "battle_input_target_menu"
+    },
+    {
+      "bindings": [
+        "battle.capture.ball",
+        "battle.capture.shakes",
+        "battle.capture.result"
+      ],
+      "classification": [
+        "MIXED",
+        "OVERLAY_CODE"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "Battle_Init",
+        "Battle_Main",
+        "Battle_Exit",
+        "BattleInput",
+        "BattleHpBar",
+        "Stage5E Mega observer"
+      ],
+      "id": "capture",
+      "input_ownership": {
+        "input": "Native battle input state machine with D-pad/A/B and touch",
+        "navigation": [
+          "native_capture_flow"
+        ],
+        "surface_touch": "none_during_animation",
+        "touch": "Explicit main/fight/two-option/target/playback hitbox tables"
+      },
+      "name": "Capture presentation",
+      "navigation": [
+        "native_capture_flow"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "src/battle",
+          "base/overlay/overlay_0012.bin",
+          "base/root/a/0/0/7",
+          "base/root/a/0/0/8"
+        ],
+        "module": "OVY_12 battle with OVY_6/7/8/10/75 support and project extension",
+        "overlay": 12,
+        "reference_evidence": [
+          "src/battle/battle_input.c",
+          "src/battle/battle_hp_bar.c",
+          "src/battle/battle_command.c",
+          "src/battle/battle_controller_player.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Battle scene BG plus command/message/HUD layers on both engines",
+        "font_route": "BattleSystem_BufferMessage -> formatter -> battle windows",
+        "hardcoded_coordinates": "HUD/menu/touch/target geometry across battle code and data tables",
+        "palette": "Battle BG/OAM, Pokemon, type/status and command palettes",
+        "sprites_oam": "Pokemon, HP bars, status, cursors, fingers, command and effect sprites",
+        "tilemap": "Archive command/HUD screens and code-built windows",
+        "window_usage": "battle messages, names, levels, HP, moves, PP and prompts"
+      },
+      "resource_archives": [
+        "a/0/0/7 battle command UI",
+        "a/0/0/8 HUD/UI",
+        "Pokemon sprites/icons",
+        "battle message banks"
+      ],
+      "resource_constraints": [
+        "many battle modes",
+        "OAM/VRAM pressure",
+        "native Mega request path",
+        "message timing"
+      ],
+      "runtime_evidence": [
+        "Stage5B_ordinary_capture"
+      ],
+      "strategy": "resource_theme_only_plus_message_layout",
+      "system": "battle",
+      "system_strategy": "Battle-specific declarative layout/resources compiled into existing data and bounded adapter hooks; never replace battle controller semantics.",
+      "target_stage": "6G",
+      "touch_handling": "none_during_animation",
+      "transition": "battle_capture_scripts_and_animation"
+    },
+    {
+      "bindings": [
+        "player.name",
+        "player.badge_count",
+        "pokedex.caught_count",
+        "save.play_time",
+        "save.location"
+      ],
+      "classification": [
+        "MIXED",
+        "OVERLAY_CODE"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "main_menu.c OverlayManagerTemplate",
+        "TouchscreenHitbox_FindRectAtTouchNew"
+      ],
+      "id": "continue",
+      "input_ownership": {
+        "input": "D-pad/A/B/Start plus touch buttons",
+        "navigation": [
+          "select_continue",
+          "boot_field"
+        ],
+        "surface_touch": "explicit_button_and_arrow_hitboxes",
+        "touch": "Explicit new-game and arrow hitboxes"
+      },
+      "name": "Continue/save summary",
+      "navigation": [
+        "select_continue",
+        "boot_field"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "base/overlay/overlay_0074.bin",
+          "base/root/a/1/1/3"
+        ],
+        "module": "application/main_menu",
+        "overlay": 74,
+        "reference_evidence": [
+          "src/application/main_menu/main_menu.c",
+          "src/application/check_savedata.c",
+          "src/application/delete_savedata.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Top/bottom tiled BG composition",
+        "font_route": "message banks through Window rendering",
+        "hardcoded_coordinates": "Button, arrow, touch, save-summary and text positions",
+        "palette": "Dedicated main-menu BG/OAM palettes",
+        "sprites_oam": "Buttons/arrows and save-panel decoration",
+        "tilemap": "Archive-provided screens plus code-updated regions",
+        "window_usage": "Save summary, player data, warnings and menu text"
+      },
+      "resource_archives": [
+        "a/1/1/3 main-menu graphics",
+        "message banks 17/442/800"
+      ],
+      "resource_constraints": [
+        "save detection and Continue routing",
+        "boot overlay memory"
+      ],
+      "runtime_evidence": [
+        "Stage4A_and_Stage5_save_continue"
+      ],
+      "strategy": "generated_save_summary_layout",
+      "system": "main_menu",
+      "system_strategy": "Generated layout/resource tables around existing state machine; semantic bindings to save/profile metadata.",
+      "target_stage": "6G",
+      "touch_handling": "explicit_button_and_arrow_hitboxes",
+      "transition": "main_menu_to_field"
+    },
+    {
+      "bindings": [
+        "script.message",
+        "player.name",
+        "script.variables"
+      ],
+      "classification": [
+        "MIXED",
+        "CODE_DRIVEN"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "TalkWinGraphicSet",
+        "BmpTalkWinWrite",
+        "BattleSystem_BufferMessage"
+      ],
+      "id": "dialogue",
+      "input_ownership": {
+        "input": "A/B/touch fast-forward and choice menu input",
+        "navigation": [
+          "advance",
+          "paginate",
+          "close"
+        ],
+        "surface_touch": "fast_forward_hitbox",
+        "touch": "Text fast-forward hitbox; choice menus vary"
+      },
+      "name": "Field dialogue",
+      "navigation": [
+        "advance",
+        "paginate",
+        "close"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "src/textbox.c",
+          "src/message.c",
+          "include/window.h",
+          "base/overlay/overlay_0001.bin"
+        ],
+        "module": "field textbox/message/window infrastructure",
+        "overlay": 1,
+        "reference_evidence": [
+          "src/render_text.c",
+          "src/msgdata.c",
+          "src/script.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Field window BG layer",
+        "font_route": "message bank/control codes -> String -> renderer",
+        "hardcoded_coordinates": "Default talk window and per-script menu rectangles",
+        "palette": "Configured frame/font palette",
+        "sprites_oam": "Optional choice cursor/portrait supplied by script/application",
+        "tilemap": "BmpTalkWin/Window rectangle",
+        "window_usage": "Dialogue, choices, item notifications and prompts"
+      },
+      "resource_archives": [
+        "common window frames",
+        "system fonts",
+        "script message banks"
+      ],
+      "resource_constraints": [
+        "control codes",
+        "player-name insertion",
+        "pagination and script synchronization"
+      ],
+      "runtime_evidence": [
+        "stage4a_world_persistence"
+      ],
+      "strategy": "declarative_dialogue_frame_and_regions",
+      "system": "dialogue",
+      "system_strategy": "Declarative frame/text-region theme and semantic dialogue layouts; preserve renderer/control-code and script timing.",
+      "target_stage": "6G",
+      "touch_handling": "fast_forward_hitbox",
+      "transition": "script_wait_and_text_reveal"
+    },
+    {
+      "bindings": [
+        "evolution.source_species",
+        "evolution.target_species",
+        "evolution.state"
+      ],
+      "classification": [
+        "MIXED",
+        "CODE_DRIVEN"
+      ],
+      "confidence": "MEDIUM",
+      "existing_hooks": [
+        "sub_02075A7C",
+        "Stage5C evolution observations"
+      ],
+      "id": "evolution",
+      "input_ownership": {
+        "input": "A/B and move-learning choice controls",
+        "navigation": [
+          "native_evolution_flow",
+          "cancel_if_allowed"
+        ],
+        "surface_touch": "none_primary",
+        "touch": "Not primary"
+      },
+      "name": "Evolution presentation",
+      "navigation": [
+        "native_evolution_flow",
+        "cancel_if_allowed"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "src/stage5c_runtime.c",
+          "src/pokemon.c",
+          "base/arm9.bin"
+        ],
+        "module": "ARM9 evolution task launched from field/start menu",
+        "overlay": null,
+        "reference_evidence": [
+          "src/start_menu.c",
+          "asm/unk_020755E8.s"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Dedicated evolution scene and message layers",
+        "font_route": "evolution/move messages through system renderer",
+        "hardcoded_coordinates": "Scene, sprite and message geometry in ARM9 task",
+        "palette": "Pokemon/effect/fade palettes",
+        "sprites_oam": "Source/target Pokemon and effects",
+        "tilemap": "Scene background and message windows",
+        "window_usage": "evolution and move-learning messages/prompts"
+      },
+      "resource_archives": [
+        "Pokemon sprites/palettes",
+        "evolution effects/messages",
+        "move-learning summary resources"
+      ],
+      "resource_constraints": [
+        "ordinary identity mutation and save semantics",
+        "animation timing"
+      ],
+      "runtime_evidence": [
+        "Stage5C_EXPANDED_EVOLUTION_PASSED",
+        "Stage5D_REGIONAL_FORM_PASSED"
+      ],
+      "strategy": "resource_theme_and_scene_descriptor",
+      "system": "evolution",
+      "system_strategy": "Resource-theme and bounded presentation descriptors around the proven native evolution task.",
+      "target_stage": "6G",
+      "touch_handling": "none_primary",
+      "transition": "evolution_task"
+    },
+    {
+      "bindings": [
+        "transition.state",
+        "transition.duration"
+      ],
+      "classification": [
+        "CODE_DRIVEN"
+      ],
+      "confidence": "MEDIUM",
+      "existing_hooks": [
+        "WindowTemplate",
+        "TalkWinGraphicSet",
+        "StringPut",
+        "TouchscreenHitbox"
+      ],
+      "id": "fades_transitions",
+      "input_ownership": {
+        "input": "ListMenu/MenuInputState and shared yes/no/list handlers",
+        "navigation": [
+          "not_applicable"
+        ],
+        "surface_touch": "disabled_while_transitioning",
+        "touch": "TouchscreenHitbox and touchscreen list-menu helpers where enabled"
+      },
+      "name": "Fades and screen transitions",
+      "navigation": [
+        "not_applicable"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "include/window.h",
+          "src/textbox.c",
+          "src/message.c",
+          "base/root/a/0/1/4"
+        ],
+        "module": "ARM9 window/text/menu infrastructure",
+        "overlay": null,
+        "reference_evidence": [
+          "src/window.c",
+          "src/render_text.c",
+          "src/list_menu.c",
+          "src/touchscreen.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Call-site selected BG layer; tiled WindowTemplate rectangles",
+        "font_route": "System font -> message/string formatter -> window pixel buffer -> VRAM",
+        "hardcoded_coordinates": "WindowTemplate and per-call pixel/tile coordinates",
+        "palette": "Call-site palette slot plus SystemFontPaletteLoad/TalkWinGraphicSet",
+        "sprites_oam": "Optional cursors/arrows supplied by callers",
+        "tilemap": "Window tile rectangles and common frame tiles",
+        "window_usage": "Window/WindowTemplate and GF_BGL_BMPWIN"
+      },
+      "resource_archives": [
+        "a/0/1/4 common UI archive",
+        "msgdata/msg text banks",
+        "system fonts"
+      ],
+      "resource_constraints": [
+        "8x8 BG tile grid",
+        "palette-slot ownership",
+        "font/control-code compatibility"
+      ],
+      "runtime_evidence": [
+        "all_runtime_QA"
+      ],
+      "strategy": "bounded_animation_state_tables_per_adapter",
+      "system": "global_windows",
+      "system_strategy": "Shared declarative Window/Text/List/Modal adapters plus generated WindowTemplate and touch tables.",
+      "target_stage": "6D",
+      "touch_handling": "disabled_while_transitioning",
+      "transition": "caller_and_overlay_owned"
+    },
+    {
+      "bindings": [
+        "text.string",
+        "text.control_codes",
+        "text.palette",
+        "text.speed"
+      ],
+      "classification": [
+        "MIXED",
+        "ENGINE_PATCH_REQUIRED"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "WindowTemplate",
+        "TalkWinGraphicSet",
+        "StringPut",
+        "TouchscreenHitbox"
+      ],
+      "id": "font_system",
+      "input_ownership": {
+        "input": "ListMenu/MenuInputState and shared yes/no/list handlers",
+        "navigation": [
+          "not_applicable"
+        ],
+        "surface_touch": "fast_forward_hook",
+        "touch": "TouchscreenHitbox and touchscreen list-menu helpers where enabled"
+      },
+      "name": "Fonts and text renderer",
+      "navigation": [
+        "not_applicable"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "include/window.h",
+          "src/textbox.c",
+          "src/message.c",
+          "base/root/a/0/1/4"
+        ],
+        "module": "ARM9 window/text/menu infrastructure",
+        "overlay": null,
+        "reference_evidence": [
+          "src/window.c",
+          "src/render_text.c",
+          "src/list_menu.c",
+          "src/touchscreen.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Call-site selected BG layer; tiled WindowTemplate rectangles",
+        "font_route": "System font -> message/string formatter -> window pixel buffer -> VRAM",
+        "hardcoded_coordinates": "WindowTemplate and per-call pixel/tile coordinates",
+        "palette": "Call-site palette slot plus SystemFontPaletteLoad/TalkWinGraphicSet",
+        "sprites_oam": "Optional cursors/arrows supplied by callers",
+        "tilemap": "Window tile rectangles and common frame tiles",
+        "window_usage": "Window/WindowTemplate and GF_BGL_BMPWIN"
+      },
+      "resource_archives": [
+        "a/0/1/4 common UI archive",
+        "msgdata/msg text banks",
+        "system fonts"
+      ],
+      "resource_constraints": [
+        "8x8 BG tile grid",
+        "palette-slot ownership",
+        "font/control-code compatibility"
+      ],
+      "runtime_evidence": [
+        "all_text_UI"
+      ],
+      "strategy": "retain_native_renderer; add_validated_font_resource_path_only_if_needed",
+      "system": "global_windows",
+      "system_strategy": "Shared declarative Window/Text/List/Modal adapters plus generated WindowTemplate and touch tables.",
+      "target_stage": "6C",
+      "touch_handling": "fast_forward_hook",
+      "transition": "glyph_render_and_text_reveal"
+    },
+    {
+      "bindings": [
+        "list.items",
+        "list.selected_index",
+        "list.scroll_offset"
+      ],
+      "classification": [
+        "MIXED",
+        "CODE_DRIVEN"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "WindowTemplate",
+        "TalkWinGraphicSet",
+        "StringPut",
+        "TouchscreenHitbox"
+      ],
+      "id": "generic_list",
+      "input_ownership": {
+        "input": "ListMenu/MenuInputState and shared yes/no/list handlers",
+        "navigation": [
+          "previous",
+          "next",
+          "page",
+          "confirm",
+          "cancel"
+        ],
+        "surface_touch": "touchscreen_list_menu_optional",
+        "touch": "TouchscreenHitbox and touchscreen list-menu helpers where enabled"
+      },
+      "name": "Generic list and scrolling menus",
+      "navigation": [
+        "previous",
+        "next",
+        "page",
+        "confirm",
+        "cancel"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "include/window.h",
+          "src/textbox.c",
+          "src/message.c",
+          "base/root/a/0/1/4"
+        ],
+        "module": "ARM9 window/text/menu infrastructure",
+        "overlay": null,
+        "reference_evidence": [
+          "src/window.c",
+          "src/render_text.c",
+          "src/list_menu.c",
+          "src/touchscreen.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Call-site selected BG layer; tiled WindowTemplate rectangles",
+        "font_route": "System font -> message/string formatter -> window pixel buffer -> VRAM",
+        "hardcoded_coordinates": "WindowTemplate and per-call pixel/tile coordinates",
+        "palette": "Call-site palette slot plus SystemFontPaletteLoad/TalkWinGraphicSet",
+        "sprites_oam": "Optional cursors/arrows supplied by callers",
+        "tilemap": "Window tile rectangles and common frame tiles",
+        "window_usage": "Window/WindowTemplate and GF_BGL_BMPWIN"
+      },
+      "resource_archives": [
+        "a/0/1/4 common UI archive",
+        "msgdata/msg text banks",
+        "system fonts"
+      ],
+      "resource_constraints": [
+        "8x8 BG tile grid",
+        "palette-slot ownership",
+        "font/control-code compatibility"
+      ],
+      "runtime_evidence": [
+        "multiple_existing_apps"
+      ],
+      "strategy": "declarative_list_window_navigation_adapter",
+      "system": "global_windows",
+      "system_strategy": "Shared declarative Window/Text/List/Modal adapters plus generated WindowTemplate and touch tables.",
+      "target_stage": "6G",
+      "touch_handling": "touchscreen_list_menu_optional",
+      "transition": "caller_owned"
+    },
+    {
+      "bindings": [
+        "item.selected",
+        "party.target",
+        "item.result"
+      ],
+      "classification": [
+        "MIXED",
+        "CODE_DRIVEN"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "gOverlayTemplate_PartyMenu",
+        "PartyMenu_HandleUseItemOnMon"
+      ],
+      "id": "item_use",
+      "input_ownership": {
+        "input": "D-pad/A/B plus explicit context-menu touch hitboxes",
+        "navigation": [
+          "select_target",
+          "confirm",
+          "return"
+        ],
+        "surface_touch": "party_hitboxes",
+        "touch": "Party/context hitbox arrays"
+      },
+      "name": "Field item use and target",
+      "navigation": [
+        "select_target",
+        "confirm",
+        "return"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "src/party_menu.c",
+          "base/overlay/overlay_0094.bin"
+        ],
+        "module": "ARM9 party_menu with OVY_94 helper",
+        "overlay": null,
+        "reference_evidence": [
+          "src/party_menu.c",
+          "src/party_context_menu.c",
+          "src/party_menu_sprites.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Main BG0/BG3 and sub BG0/BG1",
+        "font_route": "message bank 300 and live Pokemon strings",
+        "hardcoded_coordinates": "Six slot layout, icon cells, HP/text positions and touch tables",
+        "palette": "Party BG palettes plus Pokemon icon palettes",
+        "sprites_oam": "Pokemon icons, held items, cursor/context affordances",
+        "tilemap": "plist_gra NSCR members and code-updated slot regions",
+        "window_usage": "Names, levels, HP, context actions and messages"
+      },
+      "resource_archives": [
+        "graphic/plist_gra members 3/4/12-26",
+        "poketool/icongra/poke_icon",
+        "message bank 300"
+      ],
+      "resource_constraints": [
+        "six slots",
+        "Pokemon form/icon correctness",
+        "multiple invocation modes"
+      ],
+      "runtime_evidence": [
+        "Stage5C_Rare_Candy"
+      ],
+      "strategy": "party_adapter_item_mode",
+      "system": "party",
+      "system_strategy": "Party-specific declarative adapter generated into windows, slot geometry, icon placement and navigation tables.",
+      "target_stage": "6G",
+      "touch_handling": "party_hitboxes",
+      "transition": "bag_to_party_item_mode"
+    },
+    {
+      "bindings": [
+        "map.name"
+      ],
+      "classification": [
+        "MIXED",
+        "CODE_DRIVEN"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "start_menu.c",
+        "FieldSystem_LaunchApplication"
+      ],
+      "id": "map_name",
+      "input_ownership": {
+        "input": "X opens; D-pad/A/B and touch depending child app",
+        "navigation": [
+          "none_display"
+        ],
+        "surface_touch": "none",
+        "touch": "Field/start shell is primarily key-driven; launched apps vary"
+      },
+      "name": "Map-name banner",
+      "navigation": [
+        "none_display"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "base/overlay/overlay_0001.bin",
+          "base/root/a/0/1/4"
+        ],
+        "module": "ARM9 start_menu plus field overlay",
+        "overlay": 1,
+        "reference_evidence": [
+          "src/start_menu.c",
+          "src/field/fieldmap.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Field BG plus menu BG3 and OAM shell",
+        "font_route": "system font/message banks",
+        "hardcoded_coordinates": "Start-menu windows, icon cells and launch positions",
+        "palette": "Common UI palette and field/main OAM palettes",
+        "sprites_oam": "Start-menu icons/cursor from members 61-64",
+        "tilemap": "Start-menu BG member 13 with code-positioned windows",
+        "window_usage": "Menu labels, money/time, descriptions, prompts"
+      },
+      "resource_archives": [
+        "a/0/1/4 members 12/13/15 and 61-64",
+        "message banks per launched app"
+      ],
+      "resource_constraints": [
+        "must restore field layers and follower state",
+        "child overlay ownership"
+      ],
+      "runtime_evidence": [
+        "field_smokes"
+      ],
+      "strategy": "generated_banner_resource_and_animation_table",
+      "system": "field_shell",
+      "system_strategy": "Declarative launcher layout while preserving existing task transitions and child application contracts.",
+      "target_stage": "6G",
+      "touch_handling": "none",
+      "transition": "field_map_name_animation"
+    },
+    {
+      "bindings": [
+        "summary.moves",
+        "move_learning.new_move",
+        "move_learning.selection"
+      ],
+      "classification": [
+        "MIXED",
+        "CODE_DRIVEN"
+      ],
+      "confidence": "MEDIUM",
+      "existing_hooks": [
+        "gOverlayTemplate_PokemonSummary",
+        "PokemonSummary_LaunchApp"
+      ],
+      "id": "move_learning",
+      "input_ownership": {
+        "input": "D-pad/A/B/L/R and touch page controls",
+        "navigation": [
+          "select_replacement",
+          "confirm",
+          "cancel"
+        ],
+        "surface_touch": "summary_move_hitboxes",
+        "touch": "Explicit summary hitbox tables in ARM9 implementation"
+      },
+      "name": "Move learning/replacement",
+      "navigation": [
+        "select_replacement",
+        "confirm",
+        "cancel"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "src/summary.c",
+          "include/summary.h",
+          "base/arm9.bin"
+        ],
+        "module": "ARM9 summary implementation (unk_02088288/unk_0208B1AC)",
+        "overlay": null,
+        "reference_evidence": [
+          "asm/unk_02088288.s",
+          "asm/unk_0208B1AC.s",
+          "src/launch_application.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Multiple top/sub BG layers with page-specific content",
+        "font_route": "Pokemon strings, move/item messages and system font",
+        "hardcoded_coordinates": "Page layouts, tab/touch regions and value columns in ARM9 code/assembly",
+        "palette": "Page BG/OAM and Pokemon palettes",
+        "sprites_oam": "Pokemon sprite, markings, arrows, page tabs and cursors",
+        "tilemap": "Archive screens plus code-rendered page data",
+        "window_usage": "Overview/stats/moves/ribbons live data windows"
+      },
+      "resource_archives": [
+        "summary-opened NARC resources",
+        "Pokemon sprites/icons",
+        "type/status/item resources"
+      ],
+      "resource_constraints": [
+        "partially named/decompiled implementation",
+        "many invocation modes including move learning"
+      ],
+      "runtime_evidence": [
+        "Stage5C_move_learning"
+      ],
+      "strategy": "summary_adapter_move_learning_mode",
+      "system": "summary",
+      "system_strategy": "Bounded generated page descriptors and semantic bindings behind a summary adapter; preserve mode-specific flow.",
+      "target_stage": "6G",
+      "touch_handling": "summary_move_hitboxes",
+      "transition": "summary_learn_forget_mode"
+    },
+    {
+      "bindings": [
+        "naming.mode",
+        "naming.text",
+        "naming.max_length",
+        "naming.species",
+        "naming.form"
+      ],
+      "classification": [
+        "MIXED",
+        "CODE_DRIVEN"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "gOverlayTemplate_NamingScreen",
+        "NamingScreen_CreateArgs"
+      ],
+      "id": "naming",
+      "input_ownership": {
+        "input": "D-pad/A/B/Start and touch keyboard",
+        "navigation": [
+          "move_key",
+          "enter_character",
+          "change_page",
+          "backspace",
+          "confirm"
+        ],
+        "surface_touch": "page_specific_keyboard_hitboxes",
+        "touch": "Page-specific keyboard hitboxes"
+      },
+      "name": "Naming/keyboard",
+      "navigation": [
+        "move_key",
+        "enter_character",
+        "change_page",
+        "backspace",
+        "confirm"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "base/arm9.bin",
+          "include/summary.h"
+        ],
+        "module": "ARM9 naming_screen",
+        "overlay": null,
+        "reference_evidence": [
+          "src/naming_screen.c",
+          "src/launch_application.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Main/sub BG0-BG2 and OAM keyboard/cursor",
+        "font_route": "keyboard glyph resources plus system font",
+        "hardcoded_coordinates": "Keyboard pages, cursor, touch regions and name field",
+        "palette": "Naming BG/OAM and optional icon palettes",
+        "sprites_oam": "Keyboard glyph cells, cursor and optional Pokemon icon",
+        "tilemap": "Namein NSCR keyboard pages",
+        "window_usage": "name entry, prompt and mode labels"
+      },
+      "resource_archives": [
+        "data/namein members 0-16",
+        "a/0/1/4 member 71",
+        "message banks 197/249/254",
+        "Pokemon icons"
+      ],
+      "resource_constraints": [
+        "multiple naming modes",
+        "character/control-code limits"
+      ],
+      "runtime_evidence": [
+        "source_only_bounded"
+      ],
+      "strategy": "generated_keyboard_pages_and_keymap",
+      "system": "naming",
+      "system_strategy": "Generated keyboard/layout resources and semantic key map; preserve naming state and encoding.",
+      "target_stage": "6G",
+      "touch_handling": "page_specific_keyboard_hitboxes",
+      "transition": "naming_state_machine"
+    },
+    {
+      "bindings": [
+        "save.exists",
+        "menu.new_game_enabled"
+      ],
+      "classification": [
+        "MIXED",
+        "OVERLAY_CODE"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "main_menu.c OverlayManagerTemplate",
+        "TouchscreenHitbox_FindRectAtTouchNew"
+      ],
+      "id": "new_game",
+      "input_ownership": {
+        "input": "D-pad/A/B/Start plus touch buttons",
+        "navigation": [
+          "select_new_game",
+          "confirm_warning",
+          "enter_oak_intro"
+        ],
+        "surface_touch": "explicit_button_hitbox",
+        "touch": "Explicit new-game and arrow hitboxes"
+      },
+      "name": "New Game selection and intro",
+      "navigation": [
+        "select_new_game",
+        "confirm_warning",
+        "enter_oak_intro"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "base/overlay/overlay_0074.bin",
+          "base/root/a/1/1/3"
+        ],
+        "module": "application/main_menu",
+        "overlay": 74,
+        "reference_evidence": [
+          "src/application/main_menu/main_menu.c",
+          "src/application/check_savedata.c",
+          "src/application/delete_savedata.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Top/bottom tiled BG composition",
+        "font_route": "message banks through Window rendering",
+        "hardcoded_coordinates": "Button, arrow, touch, save-summary and text positions",
+        "palette": "Dedicated main-menu BG/OAM palettes",
+        "sprites_oam": "Buttons/arrows and save-panel decoration",
+        "tilemap": "Archive-provided screens plus code-updated regions",
+        "window_usage": "Save summary, player data, warnings and menu text"
+      },
+      "resource_archives": [
+        "a/1/1/3 main-menu graphics",
+        "message banks 17/442/800"
+      ],
+      "resource_constraints": [
+        "save detection and Continue routing",
+        "boot overlay memory"
+      ],
+      "runtime_evidence": [
+        "controlled_new_game_QA"
+      ],
+      "strategy": "generated_button_and_prompt_layout",
+      "system": "main_menu",
+      "system_strategy": "Generated layout/resource tables around existing state machine; semantic bindings to save/profile metadata.",
+      "target_stage": "6G",
+      "touch_handling": "explicit_button_hitbox",
+      "transition": "main_menu_to_OVY_53"
+    },
+    {
+      "bindings": [
+        "sprite.resource",
+        "sprite.position",
+        "sprite.frame",
+        "sprite.visibility",
+        "sprite.palette"
+      ],
+      "classification": [
+        "MIXED",
+        "CODE_DRIVEN"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "WindowTemplate",
+        "TalkWinGraphicSet",
+        "StringPut",
+        "TouchscreenHitbox"
+      ],
+      "id": "oam_animation",
+      "input_ownership": {
+        "input": "ListMenu/MenuInputState and shared yes/no/list handlers",
+        "navigation": [
+          "not_applicable"
+        ],
+        "surface_touch": "semantic_hitbox_separate_from_sprite",
+        "touch": "TouchscreenHitbox and touchscreen list-menu helpers where enabled"
+      },
+      "name": "OAM sprite animation",
+      "navigation": [
+        "not_applicable"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "include/window.h",
+          "src/textbox.c",
+          "src/message.c",
+          "base/root/a/0/1/4"
+        ],
+        "module": "ARM9 window/text/menu infrastructure",
+        "overlay": null,
+        "reference_evidence": [
+          "src/window.c",
+          "src/render_text.c",
+          "src/list_menu.c",
+          "src/touchscreen.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Call-site selected BG layer; tiled WindowTemplate rectangles",
+        "font_route": "System font -> message/string formatter -> window pixel buffer -> VRAM",
+        "hardcoded_coordinates": "WindowTemplate and per-call pixel/tile coordinates",
+        "palette": "Call-site palette slot plus SystemFontPaletteLoad/TalkWinGraphicSet",
+        "sprites_oam": "Optional cursors/arrows supplied by callers",
+        "tilemap": "Window tile rectangles and common frame tiles",
+        "window_usage": "Window/WindowTemplate and GF_BGL_BMPWIN"
+      },
+      "resource_archives": [
+        "a/0/1/4 common UI archive",
+        "msgdata/msg text banks",
+        "system fonts"
+      ],
+      "resource_constraints": [
+        "8x8 BG tile grid",
+        "palette-slot ownership",
+        "font/control-code compatibility"
+      ],
+      "runtime_evidence": [
+        "Pokemon_icons_and_battle_UI"
+      ],
+      "strategy": "declarative_Sprite_Cursor_Button_Animation_components",
+      "system": "global_windows",
+      "system_strategy": "Shared declarative Window/Text/List/Modal adapters plus generated WindowTemplate and touch tables.",
+      "target_stage": "6D",
+      "touch_handling": "semantic_hitbox_separate_from_sprite",
+      "transition": "NANR_cell_animation_or_generated_state_table"
+    },
+    {
+      "bindings": [
+        "options.text_speed",
+        "options.battle_scene",
+        "options.battle_style",
+        "options.sound",
+        "options.button_mode",
+        "options.frame"
+      ],
+      "classification": [
+        "MIXED",
+        "OVERLAY_CODE"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "OptionsMenu_Init",
+        "OptionsMenu_Main",
+        "OptionsMenu_Exit"
+      ],
+      "id": "options",
+      "input_ownership": {
+        "input": "D-pad/A/B and touch",
+        "navigation": [
+          "select_row",
+          "previous_value",
+          "next_value",
+          "confirm"
+        ],
+        "surface_touch": "16_explicit_hitboxes",
+        "touch": "16 explicit option hitboxes"
+      },
+      "name": "Options",
+      "navigation": [
+        "select_row",
+        "previous_value",
+        "next_value",
+        "confirm"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "base/overlay/overlay_0054.bin",
+          "base/root/a/0/7/2"
+        ],
+        "module": "options_app",
+        "overlay": 54,
+        "reference_evidence": [
+          "src/options_app.c",
+          "src/options.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Main/sub BG0/BG2 and OAM controls",
+        "font_route": "message bank 45/system font",
+        "hardcoded_coordinates": "Rows, arrows and 16 touch hitboxes",
+        "palette": "Dedicated options BG/OAM palettes",
+        "sprites_oam": "Selectors/arrows/cursors",
+        "tilemap": "Dedicated NSCR members plus dynamic windows",
+        "window_usage": "Option names and values"
+      },
+      "resource_archives": [
+        "a/0/7/2 members 2/3/7/8/17-19",
+        "resdat sprite members 20-23/77",
+        "message bank 45"
+      ],
+      "resource_constraints": [
+        "live option/save bindings"
+      ],
+      "runtime_evidence": [
+        "source_only_bounded"
+      ],
+      "strategy": "generated_option_rows_and_touch",
+      "system": "options",
+      "system_strategy": "Generated rows/touch/resources around existing option data adapter.",
+      "target_stage": "6G",
+      "touch_handling": "16_explicit_hitboxes",
+      "transition": "options_state_machine"
+    },
+    {
+      "bindings": [
+        "party.count",
+        "party[index].species",
+        "party[index].form",
+        "party[index].name",
+        "party[index].level",
+        "party[index].hp",
+        "party[index].max_hp",
+        "party[index].status",
+        "party[index].held_item"
+      ],
+      "classification": [
+        "MIXED",
+        "CODE_DRIVEN"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "gOverlayTemplate_PartyMenu",
+        "PartyMenu_HandleUseItemOnMon"
+      ],
+      "id": "party",
+      "input_ownership": {
+        "input": "D-pad/A/B plus explicit context-menu touch hitboxes",
+        "navigation": [
+          "select_slot",
+          "open_context",
+          "open_summary",
+          "cancel"
+        ],
+        "surface_touch": "slot_and_context_hitboxes",
+        "touch": "Party/context hitbox arrays"
+      },
+      "name": "Party overview",
+      "navigation": [
+        "select_slot",
+        "open_context",
+        "open_summary",
+        "cancel"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "src/party_menu.c",
+          "base/overlay/overlay_0094.bin"
+        ],
+        "module": "ARM9 party_menu with OVY_94 helper",
+        "overlay": null,
+        "reference_evidence": [
+          "src/party_menu.c",
+          "src/party_context_menu.c",
+          "src/party_menu_sprites.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Main BG0/BG3 and sub BG0/BG1",
+        "font_route": "message bank 300 and live Pokemon strings",
+        "hardcoded_coordinates": "Six slot layout, icon cells, HP/text positions and touch tables",
+        "palette": "Party BG palettes plus Pokemon icon palettes",
+        "sprites_oam": "Pokemon icons, held items, cursor/context affordances",
+        "tilemap": "plist_gra NSCR members and code-updated slot regions",
+        "window_usage": "Names, levels, HP, context actions and messages"
+      },
+      "resource_archives": [
+        "graphic/plist_gra members 3/4/12-26",
+        "poketool/icongra/poke_icon",
+        "message bank 300"
+      ],
+      "resource_constraints": [
+        "six slots",
+        "Pokemon form/icon correctness",
+        "multiple invocation modes"
+      ],
+      "runtime_evidence": [
+        "stage5bc_victini_icon_ui"
+      ],
+      "strategy": "party_slot_descriptor_adapter",
+      "system": "party",
+      "system_strategy": "Party-specific declarative adapter generated into windows, slot geometry, icon placement and navigation tables.",
+      "target_stage": "6F",
+      "touch_handling": "slot_and_context_hitboxes",
+      "transition": "party_state_machine"
+    },
+    {
+      "bindings": [
+        "party.selected",
+        "party.available_actions"
+      ],
+      "classification": [
+        "MIXED",
+        "CODE_DRIVEN"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "gOverlayTemplate_PartyMenu",
+        "PartyMenu_HandleUseItemOnMon"
+      ],
+      "id": "party_context",
+      "input_ownership": {
+        "input": "D-pad/A/B plus explicit context-menu touch hitboxes",
+        "navigation": [
+          "select_action",
+          "cancel"
+        ],
+        "surface_touch": "explicit_context_hitboxes",
+        "touch": "Party/context hitbox arrays"
+      },
+      "name": "Party context/actions",
+      "navigation": [
+        "select_action",
+        "cancel"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "src/party_menu.c",
+          "base/overlay/overlay_0094.bin"
+        ],
+        "module": "ARM9 party_menu with OVY_94 helper",
+        "overlay": null,
+        "reference_evidence": [
+          "src/party_menu.c",
+          "src/party_context_menu.c",
+          "src/party_menu_sprites.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Main BG0/BG3 and sub BG0/BG1",
+        "font_route": "message bank 300 and live Pokemon strings",
+        "hardcoded_coordinates": "Six slot layout, icon cells, HP/text positions and touch tables",
+        "palette": "Party BG palettes plus Pokemon icon palettes",
+        "sprites_oam": "Pokemon icons, held items, cursor/context affordances",
+        "tilemap": "plist_gra NSCR members and code-updated slot regions",
+        "window_usage": "Names, levels, HP, context actions and messages"
+      },
+      "resource_archives": [
+        "graphic/plist_gra members 3/4/12-26",
+        "poketool/icongra/poke_icon",
+        "message bank 300"
+      ],
+      "resource_constraints": [
+        "six slots",
+        "Pokemon form/icon correctness",
+        "multiple invocation modes"
+      ],
+      "runtime_evidence": [
+        "source_and_item_use_regressions"
+      ],
+      "strategy": "shared_modal_list_with_party_actions",
+      "system": "party",
+      "system_strategy": "Party-specific declarative adapter generated into windows, slot geometry, icon placement and navigation tables.",
+      "target_stage": "6F",
+      "touch_handling": "explicit_context_hitboxes",
+      "transition": "party_child_action"
+    },
+    {
+      "bindings": [
+        "pc.available_systems",
+        "pc.selected_action"
+      ],
+      "classification": [
+        "MIXED",
+        "CODE_DRIVEN"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "TalkWinGraphicSet",
+        "BmpTalkWinWrite",
+        "BattleSystem_BufferMessage"
+      ],
+      "id": "pc_boot",
+      "input_ownership": {
+        "input": "A/B/touch fast-forward and choice menu input",
+        "navigation": [
+          "choose_storage",
+          "choose_item_storage",
+          "log_off"
+        ],
+        "surface_touch": "list_menu_optional",
+        "touch": "Text fast-forward hitbox; choice menus vary"
+      },
+      "name": "PC terminal menus",
+      "navigation": [
+        "choose_storage",
+        "choose_item_storage",
+        "log_off"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "src/textbox.c",
+          "src/message.c",
+          "include/window.h",
+          "base/overlay/overlay_0001.bin"
+        ],
+        "module": "field textbox/message/window infrastructure",
+        "overlay": 1,
+        "reference_evidence": [
+          "src/render_text.c",
+          "src/msgdata.c",
+          "src/script.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Field window BG layer",
+        "font_route": "message bank/control codes -> String -> renderer",
+        "hardcoded_coordinates": "Default talk window and per-script menu rectangles",
+        "palette": "Configured frame/font palette",
+        "sprites_oam": "Optional choice cursor/portrait supplied by script/application",
+        "tilemap": "BmpTalkWin/Window rectangle",
+        "window_usage": "Dialogue, choices, item notifications and prompts"
+      },
+      "resource_archives": [
+        "common window frames",
+        "system fonts",
+        "script message banks"
+      ],
+      "resource_constraints": [
+        "control codes",
+        "player-name insertion",
+        "pagination and script synchronization"
+      ],
+      "runtime_evidence": [
+        "stage5bc_victini_pc_icon_ui"
+      ],
+      "strategy": "dialogue_and_list_theme",
+      "system": "dialogue",
+      "system_strategy": "Declarative frame/text-region theme and semantic dialogue layouts; preserve renderer/control-code and script timing.",
+      "target_stage": "6G",
+      "touch_handling": "list_menu_optional",
+      "transition": "field_script_to_PC_app"
+    },
+    {
+      "bindings": [
+        "box.current",
+        "box.name",
+        "box.slots",
+        "box.cursor",
+        "party.slots",
+        "box.selected.species",
+        "box.selected.form"
+      ],
+      "classification": [
+        "MIXED",
+        "OVERLAY_CODE"
+      ],
+      "confidence": "MEDIUM",
+      "existing_hooks": [
+        "PCBox_Init",
+        "PCBox_Main",
+        "PCBox_Exit"
+      ],
+      "id": "pc_storage",
+      "input_ownership": {
+        "input": "D-pad/A/B/L/R and touch",
+        "navigation": [
+          "move_cursor",
+          "change_box",
+          "pickup",
+          "drop",
+          "deposit",
+          "withdraw",
+          "exit"
+        ],
+        "surface_touch": "overlay_box_hitboxes",
+        "touch": "Overlay-owned box/action hitboxes"
+      },
+      "name": "Pokemon storage/box UI",
+      "navigation": [
+        "move_cursor",
+        "change_box",
+        "pickup",
+        "drop",
+        "deposit",
+        "withdraw",
+        "exit"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "base/overlay/overlay_0014.bin",
+          "src/pokemon_storage_system.c"
+        ],
+        "module": "OVY_14 PC Box application",
+        "overlay": 14,
+        "reference_evidence": [
+          "asm/overlay_14.s",
+          "src/launch_application.c",
+          "src/pokemon_storage_system.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Top/bottom BG layers for boxes, detail and actions",
+        "font_route": "Pokemon/item strings and PC message banks",
+        "hardcoded_coordinates": "30-slot grid, box tabs, detail pane, cursor and touch geometry in OVY_14",
+        "palette": "Wallpaper/BG plus icon/OAM palettes",
+        "sprites_oam": "Box Pokemon icons, cursor, held items, arrows and markings",
+        "tilemap": "Archive members and dynamically updated box grid",
+        "window_usage": "Box title, Pokemon detail, action menus and prompts"
+      },
+      "resource_archives": [
+        "PC box NARCs opened in OVY_14",
+        "Pokemon icon archive",
+        "wallpapers",
+        "item icons"
+      ],
+      "resource_constraints": [
+        "form/icon identity",
+        "party/box storage must remain ordinary save data"
+      ],
+      "runtime_evidence": [
+        "stage5bc_victini_pc_icon_ui"
+      ],
+      "strategy": "PC_chrome_detail_and_action_adapter",
+      "system": "pc",
+      "system_strategy": "PC-specific adapter; declarative box chrome/detail/actions while preserving native 30-slot manipulation core.",
+      "target_stage": "6G",
+      "touch_handling": "overlay_box_hitboxes",
+      "transition": "PC_box_state_machine"
+    },
+    {
+      "bindings": [
+        "pokedex.selected.number",
+        "pokedex.selected.name",
+        "pokedex.selected.category",
+        "pokedex.selected.description",
+        "pokedex.selected.sprite",
+        "pokedex.selected.seen",
+        "pokedex.selected.caught"
+      ],
+      "classification": [
+        "MIXED",
+        "OVERLAY_CODE"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "Pokedex_Init",
+        "Pokedex_Main",
+        "Pokedex_Exit",
+        "OVERLAY_POKEDEX_EXTENSION"
+      ],
+      "id": "pokedex_entry",
+      "input_ownership": {
+        "input": "D-pad/A/B/L/R plus extensive touch tabs/arrows/list",
+        "navigation": [
+          "next_entry",
+          "previous_entry",
+          "switch_detail",
+          "back"
+        ],
+        "surface_touch": "mode_specific_tabs_and_arrows",
+        "touch": "Overlay mode-specific touch tables"
+      },
+      "name": "Pokedex entry/details",
+      "navigation": [
+        "next_entry",
+        "previous_entry",
+        "switch_detail",
+        "back"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "src/pokedex/pokedex.c",
+          "armips/asm/pokedex.s",
+          "base/overlay/overlay_0018.bin"
+        ],
+        "module": "OVY_18 Pokedex plus project OVY_132 extension",
+        "overlay": 18,
+        "reference_evidence": [
+          "src/application/pokedex/ov18_021E5C40.c",
+          "src/application/pokedex/ov18_021E8BF4.c",
+          "src/pokedex.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Multiple top/sub BG layers for list, entry, search and detail modes",
+        "font_route": "expanded generated Dex archives plus system font",
+        "hardcoded_coordinates": "Mode-specific screen/touch/list positions in OVY_18",
+        "palette": "Dex BG/OAM and Pokemon palettes",
+        "sprites_oam": "Pokemon sprite, list cursor, tabs, arrows and form controls",
+        "tilemap": "zukan_gra screens plus dynamic list/detail windows",
+        "window_usage": "number/name/category/description/measurements/search"
+      },
+      "resource_archives": [
+        "graphic/zukan_gra NCGR/NSCR/NCLR",
+        "zukan encounter/stats data",
+        "expanded project Dex text archives",
+        "Pokemon sprites"
+      ],
+      "resource_constraints": [
+        "National Dex through 1025",
+        "expanded allocation",
+        "overlay collision priority"
+      ],
+      "runtime_evidence": [
+        "Stage5F_Gen5_to_Gen9_Dex_QA",
+        "Stage5FS_Pecharunt_1025"
+      ],
+      "strategy": "generated_Dex_entry_mode",
+      "system": "pokedex",
+      "system_strategy": "Generated mode descriptors/resources with a Pokedex adapter; retain expanded indexing and project text pipeline.",
+      "target_stage": "6G",
+      "touch_handling": "mode_specific_tabs_and_arrows",
+      "transition": "Dex_detail_state"
+    },
+    {
+      "bindings": [
+        "pokedex.selected.species",
+        "pokedex.seen_count",
+        "pokedex.caught_count",
+        "pokedex.list",
+        "pokedex.filters"
+      ],
+      "classification": [
+        "MIXED",
+        "OVERLAY_CODE"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "Pokedex_Init",
+        "Pokedex_Main",
+        "Pokedex_Exit",
+        "OVERLAY_POKEDEX_EXTENSION"
+      ],
+      "id": "pokedex_list",
+      "input_ownership": {
+        "input": "D-pad/A/B/L/R plus extensive touch tabs/arrows/list",
+        "navigation": [
+          "scroll",
+          "open_entry",
+          "search",
+          "back"
+        ],
+        "surface_touch": "mode_specific_hitboxes",
+        "touch": "Overlay mode-specific touch tables"
+      },
+      "name": "Pokedex list/search",
+      "navigation": [
+        "scroll",
+        "open_entry",
+        "search",
+        "back"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "src/pokedex/pokedex.c",
+          "armips/asm/pokedex.s",
+          "base/overlay/overlay_0018.bin"
+        ],
+        "module": "OVY_18 Pokedex plus project OVY_132 extension",
+        "overlay": 18,
+        "reference_evidence": [
+          "src/application/pokedex/ov18_021E5C40.c",
+          "src/application/pokedex/ov18_021E8BF4.c",
+          "src/pokedex.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Multiple top/sub BG layers for list, entry, search and detail modes",
+        "font_route": "expanded generated Dex archives plus system font",
+        "hardcoded_coordinates": "Mode-specific screen/touch/list positions in OVY_18",
+        "palette": "Dex BG/OAM and Pokemon palettes",
+        "sprites_oam": "Pokemon sprite, list cursor, tabs, arrows and form controls",
+        "tilemap": "zukan_gra screens plus dynamic list/detail windows",
+        "window_usage": "number/name/category/description/measurements/search"
+      },
+      "resource_archives": [
+        "graphic/zukan_gra NCGR/NSCR/NCLR",
+        "zukan encounter/stats data",
+        "expanded project Dex text archives",
+        "Pokemon sprites"
+      ],
+      "resource_constraints": [
+        "National Dex through 1025",
+        "expanded allocation",
+        "overlay collision priority"
+      ],
+      "runtime_evidence": [
+        "Stage5F_Gen5_to_Gen9_Dex_QA"
+      ],
+      "strategy": "generated_Dex_list_mode",
+      "system": "pokedex",
+      "system_strategy": "Generated mode descriptors/resources with a Pokedex adapter; retain expanded indexing and project text pipeline.",
+      "target_stage": "6G",
+      "touch_handling": "mode_specific_hitboxes",
+      "transition": "Dex_list_state"
+    },
+    {
+      "bindings": [
+        "pokegear.apps",
+        "pokegear.current_app"
+      ],
+      "classification": [
+        "MIXED",
+        "OVERLAY_CODE"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "PokegearMap_Init",
+        "PokegearPhone_Init",
+        "PokegearRadio_Init"
+      ],
+      "id": "pokegear_shell",
+      "input_ownership": {
+        "input": "Touch-led with key fallback where implemented",
+        "navigation": [
+          "select_map",
+          "select_phone",
+          "select_radio",
+          "close"
+        ],
+        "surface_touch": "four_explicit_shell_hitboxes",
+        "touch": "Explicit shell buttons and per-app hitbox tables"
+      },
+      "name": "Pokegear shell",
+      "navigation": [
+        "select_map",
+        "select_phone",
+        "select_radio",
+        "close"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "base/overlay/overlay_0100.bin",
+          "base/overlay/overlay_0101.bin"
+        ],
+        "module": "OVY_100 Pokegear shell and OVY_101 apps",
+        "overlay": 100,
+        "reference_evidence": [
+          "src/application/pokegear/main/pokegear_main.c",
+          "src/application/pokegear/map/pokegear_map.c",
+          "src/application/pokegear/phone/pokegear_phone.c",
+          "src/application/pokegear/radio/pokegear_radio.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "App-dependent BG layers",
+        "font_route": "app message banks/system font",
+        "hardcoded_coordinates": "Shell/app hitboxes and layouts across OVY_100/101",
+        "palette": "Shell and app palettes",
+        "sprites_oam": "Shell tabs, map markers, phone list, radio tuner and cursors",
+        "tilemap": "App archive screens plus dynamic regions",
+        "window_usage": "location/contact/radio text and prompts"
+      },
+      "resource_archives": [
+        "Pokegear shell/app archives",
+        "map/phone/radio graphics and messages"
+      ],
+      "resource_constraints": [
+        "shared OVY_101 among apps",
+        "map/fly script behavior"
+      ],
+      "runtime_evidence": [
+        "source_only_bounded"
+      ],
+      "strategy": "shared_Pokegear_shell_theme",
+      "system": "pokegear",
+      "system_strategy": "Shared shell resources plus per-app declarative adapters; preserve app engines.",
+      "target_stage": "6G",
+      "touch_handling": "four_explicit_shell_hitboxes",
+      "transition": "OVY_100_app_switch"
+    },
+    {
+      "bindings": [
+        "save.status",
+        "save.error"
+      ],
+      "classification": [
+        "MIXED",
+        "CODE_DRIVEN"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "main_menu.c OverlayManagerTemplate",
+        "TouchscreenHitbox_FindRectAtTouchNew"
+      ],
+      "id": "save_data_warning",
+      "input_ownership": {
+        "input": "D-pad/A/B/Start plus touch buttons",
+        "navigation": [
+          "confirm",
+          "cancel"
+        ],
+        "surface_touch": "main_menu_prompt_hitboxes",
+        "touch": "Explicit new-game and arrow hitboxes"
+      },
+      "name": "Save-data check/delete warnings",
+      "navigation": [
+        "confirm",
+        "cancel"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "base/overlay/overlay_0074.bin",
+          "base/root/a/1/1/3"
+        ],
+        "module": "application/main_menu",
+        "overlay": 74,
+        "reference_evidence": [
+          "src/application/main_menu/main_menu.c",
+          "src/application/check_savedata.c",
+          "src/application/delete_savedata.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Top/bottom tiled BG composition",
+        "font_route": "message banks through Window rendering",
+        "hardcoded_coordinates": "Button, arrow, touch, save-summary and text positions",
+        "palette": "Dedicated main-menu BG/OAM palettes",
+        "sprites_oam": "Buttons/arrows and save-panel decoration",
+        "tilemap": "Archive-provided screens plus code-updated regions",
+        "window_usage": "Save summary, player data, warnings and menu text"
+      },
+      "resource_archives": [
+        "a/1/1/3 main-menu graphics",
+        "message banks 17/442/800"
+      ],
+      "resource_constraints": [
+        "save detection and Continue routing",
+        "boot overlay memory"
+      ],
+      "runtime_evidence": [
+        "source_only_bounded"
+      ],
+      "strategy": "shared_modal_adapter",
+      "system": "main_menu",
+      "system_strategy": "Generated layout/resource tables around existing state machine; semantic bindings to save/profile metadata.",
+      "target_stage": "6G",
+      "touch_handling": "main_menu_prompt_hitboxes",
+      "transition": "boot_warning_state_machine"
+    },
+    {
+      "bindings": [
+        "save.status",
+        "save.error"
+      ],
+      "classification": [
+        "MIXED",
+        "OVERLAY_CODE"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "TouchSaveApp_SaveGame",
+        "Field_SaveGameNormal",
+        "SaveGameNormal"
+      ],
+      "id": "save_progress",
+      "input_ownership": {
+        "input": "A/B and touch confirm/cancel",
+        "navigation": [
+          "wait",
+          "acknowledge"
+        ],
+        "surface_touch": "disabled_during_write",
+        "touch": "Save app-owned hitboxes"
+      },
+      "name": "Saving/progress/completion",
+      "navigation": [
+        "wait",
+        "acknowledge"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "base/overlay/overlay_0030.bin",
+          "src/save.c"
+        ],
+        "module": "touch_save_app plus field save functions",
+        "overlay": 30,
+        "reference_evidence": [
+          "src/touch_save_app.c",
+          "src/start_menu.c",
+          "src/save.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Dedicated save prompt/progress BG/window layers",
+        "font_route": "save messages/system font",
+        "hardcoded_coordinates": "Prompt/progress/touch layout in save app",
+        "palette": "Save app palettes",
+        "sprites_oam": "Touch controls/progress decoration where used",
+        "tilemap": "Dedicated save screen plus dynamic status windows",
+        "window_usage": "confirmation, overwrite warning, saving and completion messages"
+      },
+      "resource_archives": [
+        "save app graphics/messages",
+        "common windows"
+      ],
+      "resource_constraints": [
+        "battery write cannot be interrupted",
+        "overwrite and error states"
+      ],
+      "runtime_evidence": [
+        "Stage4A_world_persistence",
+        "Stage5_persistence"
+      ],
+      "strategy": "save_status_layout_only",
+      "system": "save",
+      "system_strategy": "Theme/layout adapter only; battery transaction state remains native and semantically observed.",
+      "target_stage": "6G",
+      "touch_handling": "disabled_during_write",
+      "transition": "battery_write_state"
+    },
+    {
+      "bindings": [
+        "save.can_save",
+        "save.overwrite_required",
+        "save.selection"
+      ],
+      "classification": [
+        "MIXED",
+        "OVERLAY_CODE"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "TouchSaveApp_SaveGame",
+        "Field_SaveGameNormal",
+        "SaveGameNormal"
+      ],
+      "id": "save_prompt",
+      "input_ownership": {
+        "input": "A/B and touch confirm/cancel",
+        "navigation": [
+          "confirm",
+          "cancel"
+        ],
+        "surface_touch": "save_app_hitboxes",
+        "touch": "Save app-owned hitboxes"
+      },
+      "name": "Save confirmation",
+      "navigation": [
+        "confirm",
+        "cancel"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "base/overlay/overlay_0030.bin",
+          "src/save.c"
+        ],
+        "module": "touch_save_app plus field save functions",
+        "overlay": 30,
+        "reference_evidence": [
+          "src/touch_save_app.c",
+          "src/start_menu.c",
+          "src/save.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Dedicated save prompt/progress BG/window layers",
+        "font_route": "save messages/system font",
+        "hardcoded_coordinates": "Prompt/progress/touch layout in save app",
+        "palette": "Save app palettes",
+        "sprites_oam": "Touch controls/progress decoration where used",
+        "tilemap": "Dedicated save screen plus dynamic status windows",
+        "window_usage": "confirmation, overwrite warning, saving and completion messages"
+      },
+      "resource_archives": [
+        "save app graphics/messages",
+        "common windows"
+      ],
+      "resource_constraints": [
+        "battery write cannot be interrupted",
+        "overwrite and error states"
+      ],
+      "runtime_evidence": [
+        "Stage4A_world_persistence",
+        "Stage5_persistence"
+      ],
+      "strategy": "shared_modal_plus_save_adapter",
+      "system": "save",
+      "system_strategy": "Theme/layout adapter only; battery transaction state remains native and semantically observed.",
+      "target_stage": "6G",
+      "touch_handling": "save_app_hitboxes",
+      "transition": "field_to_save_app"
+    },
+    {
+      "bindings": [
+        "shop.inventory",
+        "shop.selected_item",
+        "shop.quantity",
+        "player.money"
+      ],
+      "classification": [
+        "MIXED",
+        "OVERLAY_CODE"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "MartBuy",
+        "MartSell",
+        "shop_menu.c"
+      ],
+      "id": "shop_buy",
+      "input_ownership": {
+        "input": "D-pad/A/B list and quantity controls",
+        "navigation": [
+          "select_item",
+          "choose_quantity",
+          "confirm",
+          "back"
+        ],
+        "surface_touch": "key_primary",
+        "touch": "Limited; menu helpers own any hitboxes"
+      },
+      "name": "Shop buy UI",
+      "navigation": [
+        "select_item",
+        "choose_quantity",
+        "confirm",
+        "back"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "src/field/mart.c",
+          "base/overlay/overlay_0003.bin"
+        ],
+        "module": "field OVY_3 shop_menu",
+        "overlay": 3,
+        "reference_evidence": [
+          "src/overlay_03/shop_menu.c",
+          "src/scrcmd_mart.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Field-preserving menu BG/window layers",
+        "font_route": "item strings and mart messages",
+        "hardcoded_coordinates": "List/detail/money/quantity windows in OVY_3",
+        "palette": "Common window and item palettes",
+        "sprites_oam": "Item icon/cursor where used",
+        "tilemap": "Dynamic windows over field/shop presentation",
+        "window_usage": "buy/sell lists, money, quantity, descriptions and prompts"
+      },
+      "resource_archives": [
+        "common window/menu resources",
+        "item icons/data",
+        "mart message banks"
+      ],
+      "resource_constraints": [
+        "script transaction integrity",
+        "money/item semantics"
+      ],
+      "runtime_evidence": [
+        "stage6b_shop_reference"
+      ],
+      "strategy": "generated_shop_windows_and_list",
+      "system": "shop",
+      "system_strategy": "Generated shop window/list layouts with existing transaction controller.",
+      "target_stage": "6G",
+      "touch_handling": "key_primary",
+      "transition": "mart_transaction_state"
+    },
+    {
+      "bindings": [
+        "bag.sellable_items",
+        "shop.selected_item",
+        "shop.quantity",
+        "player.money"
+      ],
+      "classification": [
+        "MIXED",
+        "OVERLAY_CODE"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "MartBuy",
+        "MartSell",
+        "shop_menu.c"
+      ],
+      "id": "shop_sell",
+      "input_ownership": {
+        "input": "D-pad/A/B list and quantity controls",
+        "navigation": [
+          "select_item",
+          "choose_quantity",
+          "confirm",
+          "back"
+        ],
+        "surface_touch": "key_primary",
+        "touch": "Limited; menu helpers own any hitboxes"
+      },
+      "name": "Shop sell UI",
+      "navigation": [
+        "select_item",
+        "choose_quantity",
+        "confirm",
+        "back"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "src/field/mart.c",
+          "base/overlay/overlay_0003.bin"
+        ],
+        "module": "field OVY_3 shop_menu",
+        "overlay": 3,
+        "reference_evidence": [
+          "src/overlay_03/shop_menu.c",
+          "src/scrcmd_mart.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Field-preserving menu BG/window layers",
+        "font_route": "item strings and mart messages",
+        "hardcoded_coordinates": "List/detail/money/quantity windows in OVY_3",
+        "palette": "Common window and item palettes",
+        "sprites_oam": "Item icon/cursor where used",
+        "tilemap": "Dynamic windows over field/shop presentation",
+        "window_usage": "buy/sell lists, money, quantity, descriptions and prompts"
+      },
+      "resource_archives": [
+        "common window/menu resources",
+        "item icons/data",
+        "mart message banks"
+      ],
+      "resource_constraints": [
+        "script transaction integrity",
+        "money/item semantics"
+      ],
+      "runtime_evidence": [
+        "source_only_bounded"
+      ],
+      "strategy": "generated_shop_windows_and_list",
+      "system": "shop",
+      "system_strategy": "Generated shop window/list layouts with existing transaction controller.",
+      "target_stage": "6G",
+      "touch_handling": "key_primary",
+      "transition": "mart_transaction_state"
+    },
+    {
+      "bindings": [
+        "player.name",
+        "player.money",
+        "menu.available_apps",
+        "save.can_save"
+      ],
+      "classification": [
+        "MIXED",
+        "CODE_DRIVEN"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "start_menu.c",
+        "FieldSystem_LaunchApplication"
+      ],
+      "id": "start_menu",
+      "input_ownership": {
+        "input": "X opens; D-pad/A/B and touch depending child app",
+        "navigation": [
+          "select_app",
+          "launch_app",
+          "close"
+        ],
+        "surface_touch": "key_primary",
+        "touch": "Field/start shell is primarily key-driven; launched apps vary"
+      },
+      "name": "Start/player menu",
+      "navigation": [
+        "select_app",
+        "launch_app",
+        "close"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "base/overlay/overlay_0001.bin",
+          "base/root/a/0/1/4"
+        ],
+        "module": "ARM9 start_menu plus field overlay",
+        "overlay": 1,
+        "reference_evidence": [
+          "src/start_menu.c",
+          "src/field/fieldmap.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Field BG plus menu BG3 and OAM shell",
+        "font_route": "system font/message banks",
+        "hardcoded_coordinates": "Start-menu windows, icon cells and launch positions",
+        "palette": "Common UI palette and field/main OAM palettes",
+        "sprites_oam": "Start-menu icons/cursor from members 61-64",
+        "tilemap": "Start-menu BG member 13 with code-positioned windows",
+        "window_usage": "Menu labels, money/time, descriptions, prompts"
+      },
+      "resource_archives": [
+        "a/0/1/4 members 12/13/15 and 61-64",
+        "message banks per launched app"
+      ],
+      "resource_constraints": [
+        "must restore field layers and follower state",
+        "child overlay ownership"
+      ],
+      "runtime_evidence": [
+        "Stage5B_icon_QA"
+      ],
+      "strategy": "declarative_launcher_layout",
+      "system": "field_shell",
+      "system_strategy": "Declarative launcher layout while preserving existing task transitions and child application contracts.",
+      "target_stage": "6F",
+      "touch_handling": "key_primary",
+      "transition": "field_child_app_state_machine"
+    },
+    {
+      "bindings": [
+        "summary.moves",
+        "summary.move[index].pp",
+        "summary.move[index].type",
+        "summary.move[index].description"
+      ],
+      "classification": [
+        "MIXED",
+        "CODE_DRIVEN"
+      ],
+      "confidence": "MEDIUM",
+      "existing_hooks": [
+        "gOverlayTemplate_PokemonSummary",
+        "PokemonSummary_LaunchApp"
+      ],
+      "id": "summary_moves",
+      "input_ownership": {
+        "input": "D-pad/A/B/L/R and touch page controls",
+        "navigation": [
+          "select_move",
+          "reorder_or_learn",
+          "back"
+        ],
+        "surface_touch": "page_and_move_hitboxes",
+        "touch": "Explicit summary hitbox tables in ARM9 implementation"
+      },
+      "name": "Pokemon summary moves",
+      "navigation": [
+        "select_move",
+        "reorder_or_learn",
+        "back"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "src/summary.c",
+          "include/summary.h",
+          "base/arm9.bin"
+        ],
+        "module": "ARM9 summary implementation (unk_02088288/unk_0208B1AC)",
+        "overlay": null,
+        "reference_evidence": [
+          "asm/unk_02088288.s",
+          "asm/unk_0208B1AC.s",
+          "src/launch_application.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Multiple top/sub BG layers with page-specific content",
+        "font_route": "Pokemon strings, move/item messages and system font",
+        "hardcoded_coordinates": "Page layouts, tab/touch regions and value columns in ARM9 code/assembly",
+        "palette": "Page BG/OAM and Pokemon palettes",
+        "sprites_oam": "Pokemon sprite, markings, arrows, page tabs and cursors",
+        "tilemap": "Archive screens plus code-rendered page data",
+        "window_usage": "Overview/stats/moves/ribbons live data windows"
+      },
+      "resource_archives": [
+        "summary-opened NARC resources",
+        "Pokemon sprites/icons",
+        "type/status/item resources"
+      ],
+      "resource_constraints": [
+        "partially named/decompiled implementation",
+        "many invocation modes including move learning"
+      ],
+      "runtime_evidence": [
+        "Stage5C_move_learning"
+      ],
+      "strategy": "generated_move_list_page_descriptor",
+      "system": "summary",
+      "system_strategy": "Bounded generated page descriptors and semantic bindings behind a summary adapter; preserve mode-specific flow.",
+      "target_stage": "6F",
+      "touch_handling": "page_and_move_hitboxes",
+      "transition": "summary_move_mode"
+    },
+    {
+      "bindings": [
+        "summary.species",
+        "summary.form",
+        "summary.name",
+        "summary.level",
+        "summary.exp",
+        "summary.ability",
+        "summary.met_data"
+      ],
+      "classification": [
+        "MIXED",
+        "CODE_DRIVEN"
+      ],
+      "confidence": "MEDIUM",
+      "existing_hooks": [
+        "gOverlayTemplate_PokemonSummary",
+        "PokemonSummary_LaunchApp"
+      ],
+      "id": "summary_overview",
+      "input_ownership": {
+        "input": "D-pad/A/B/L/R and touch page controls",
+        "navigation": [
+          "next_page",
+          "previous_page",
+          "next_mon",
+          "back"
+        ],
+        "surface_touch": "page_hitboxes",
+        "touch": "Explicit summary hitbox tables in ARM9 implementation"
+      },
+      "name": "Pokemon summary overview",
+      "navigation": [
+        "next_page",
+        "previous_page",
+        "next_mon",
+        "back"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "src/summary.c",
+          "include/summary.h",
+          "base/arm9.bin"
+        ],
+        "module": "ARM9 summary implementation (unk_02088288/unk_0208B1AC)",
+        "overlay": null,
+        "reference_evidence": [
+          "asm/unk_02088288.s",
+          "asm/unk_0208B1AC.s",
+          "src/launch_application.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Multiple top/sub BG layers with page-specific content",
+        "font_route": "Pokemon strings, move/item messages and system font",
+        "hardcoded_coordinates": "Page layouts, tab/touch regions and value columns in ARM9 code/assembly",
+        "palette": "Page BG/OAM and Pokemon palettes",
+        "sprites_oam": "Pokemon sprite, markings, arrows, page tabs and cursors",
+        "tilemap": "Archive screens plus code-rendered page data",
+        "window_usage": "Overview/stats/moves/ribbons live data windows"
+      },
+      "resource_archives": [
+        "summary-opened NARC resources",
+        "Pokemon sprites/icons",
+        "type/status/item resources"
+      ],
+      "resource_constraints": [
+        "partially named/decompiled implementation",
+        "many invocation modes including move learning"
+      ],
+      "runtime_evidence": [
+        "stage6b_summary_reference"
+      ],
+      "strategy": "generated_summary_page_descriptor",
+      "system": "summary",
+      "system_strategy": "Bounded generated page descriptors and semantic bindings behind a summary adapter; preserve mode-specific flow.",
+      "target_stage": "6F",
+      "touch_handling": "page_hitboxes",
+      "transition": "summary_page_state"
+    },
+    {
+      "bindings": [
+        "summary.hp",
+        "summary.attack",
+        "summary.defense",
+        "summary.sp_attack",
+        "summary.sp_defense",
+        "summary.speed",
+        "summary.nature"
+      ],
+      "classification": [
+        "MIXED",
+        "CODE_DRIVEN"
+      ],
+      "confidence": "MEDIUM",
+      "existing_hooks": [
+        "gOverlayTemplate_PokemonSummary",
+        "PokemonSummary_LaunchApp"
+      ],
+      "id": "summary_stats",
+      "input_ownership": {
+        "input": "D-pad/A/B/L/R and touch page controls",
+        "navigation": [
+          "next_page",
+          "previous_page",
+          "back"
+        ],
+        "surface_touch": "page_hitboxes",
+        "touch": "Explicit summary hitbox tables in ARM9 implementation"
+      },
+      "name": "Pokemon summary stats",
+      "navigation": [
+        "next_page",
+        "previous_page",
+        "back"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "src/summary.c",
+          "include/summary.h",
+          "base/arm9.bin"
+        ],
+        "module": "ARM9 summary implementation (unk_02088288/unk_0208B1AC)",
+        "overlay": null,
+        "reference_evidence": [
+          "asm/unk_02088288.s",
+          "asm/unk_0208B1AC.s",
+          "src/launch_application.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Multiple top/sub BG layers with page-specific content",
+        "font_route": "Pokemon strings, move/item messages and system font",
+        "hardcoded_coordinates": "Page layouts, tab/touch regions and value columns in ARM9 code/assembly",
+        "palette": "Page BG/OAM and Pokemon palettes",
+        "sprites_oam": "Pokemon sprite, markings, arrows, page tabs and cursors",
+        "tilemap": "Archive screens plus code-rendered page data",
+        "window_usage": "Overview/stats/moves/ribbons live data windows"
+      },
+      "resource_archives": [
+        "summary-opened NARC resources",
+        "Pokemon sprites/icons",
+        "type/status/item resources"
+      ],
+      "resource_constraints": [
+        "partially named/decompiled implementation",
+        "many invocation modes including move learning"
+      ],
+      "runtime_evidence": [
+        "source_and_Stage5_data_proofs"
+      ],
+      "strategy": "generated_summary_page_descriptor",
+      "system": "summary",
+      "system_strategy": "Bounded generated page descriptors and semantic bindings behind a summary adapter; preserve mode-specific flow.",
+      "target_stage": "6F",
+      "touch_handling": "page_hitboxes",
+      "transition": "summary_page_state"
+    },
+    {
+      "bindings": [
+        "save.exists",
+        "game.version"
+      ],
+      "classification": [
+        "MIXED",
+        "OVERLAY_CODE"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "TitleScreen_Init",
+        "TitleScreen_Main",
+        "TitleScreen_Exit"
+      ],
+      "id": "title",
+      "input_ownership": {
+        "input": "A/Start and boot state machine",
+        "navigation": [
+          "advance_to_main_menu"
+        ],
+        "surface_touch": "none_primary",
+        "touch": "No primary touch requirement"
+      },
+      "name": "Title screen",
+      "navigation": [
+        "advance_to_main_menu"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "base/overlay/overlay_0060.bin"
+        ],
+        "module": "title_screen / intro_title",
+        "overlay": 60,
+        "reference_evidence": [
+          "src/title_screen.c",
+          "src/intro_movie.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Multiple top/sub BG layers plus 3D title objects",
+        "font_route": "message bank 719 through system font",
+        "hardcoded_coordinates": "Title object/camera and prompt positions in overlay code",
+        "palette": "Dedicated title BG and extended palettes",
+        "sprites_oam": "Title effects and prompts; 3D objects dominate upper presentation",
+        "tilemap": "Dedicated title NSCR resources",
+        "window_usage": "Prompt/message windows only"
+      },
+      "resource_archives": [
+        "demo/title/titledemo NCGR/NSCR/NCLR",
+        "title NSBMD/NSBCA/NSBTA/NSBTP/NSBMA",
+        "message bank 719"
+      ],
+      "resource_constraints": [
+        "mixed 2D/3D title pipeline",
+        "boot/save routing must remain intact"
+      ],
+      "runtime_evidence": [
+        "stage6b_title_reference"
+      ],
+      "strategy": "title_resource_and_layout_adapter",
+      "system": "title",
+      "system_strategy": "Resource factory for 2D title planes plus a bounded title-layout adapter; retain native boot state machine.",
+      "target_stage": "6G",
+      "touch_handling": "none_primary",
+      "transition": "intro_title_state_machine"
+    },
+    {
+      "bindings": [
+        "touch.targets",
+        "touch.action",
+        "touch.enabled"
+      ],
+      "classification": [
+        "CODE_DRIVEN",
+        "LAYOUT_DATA"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "WindowTemplate",
+        "TalkWinGraphicSet",
+        "StringPut",
+        "TouchscreenHitbox"
+      ],
+      "id": "touch_regions",
+      "input_ownership": {
+        "input": "ListMenu/MenuInputState and shared yes/no/list handlers",
+        "navigation": [
+          "dispatch_action"
+        ],
+        "surface_touch": "TouchscreenHitbox_rect_or_circle",
+        "touch": "TouchscreenHitbox and touchscreen list-menu helpers where enabled"
+      },
+      "name": "Touch region infrastructure",
+      "navigation": [
+        "dispatch_action"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "include/window.h",
+          "src/textbox.c",
+          "src/message.c",
+          "base/root/a/0/1/4"
+        ],
+        "module": "ARM9 window/text/menu infrastructure",
+        "overlay": null,
+        "reference_evidence": [
+          "src/window.c",
+          "src/render_text.c",
+          "src/list_menu.c",
+          "src/touchscreen.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Call-site selected BG layer; tiled WindowTemplate rectangles",
+        "font_route": "System font -> message/string formatter -> window pixel buffer -> VRAM",
+        "hardcoded_coordinates": "WindowTemplate and per-call pixel/tile coordinates",
+        "palette": "Call-site palette slot plus SystemFontPaletteLoad/TalkWinGraphicSet",
+        "sprites_oam": "Optional cursors/arrows supplied by callers",
+        "tilemap": "Window tile rectangles and common frame tiles",
+        "window_usage": "Window/WindowTemplate and GF_BGL_BMPWIN"
+      },
+      "resource_archives": [
+        "a/0/1/4 common UI archive",
+        "msgdata/msg text banks",
+        "system fonts"
+      ],
+      "resource_constraints": [
+        "8x8 BG tile grid",
+        "palette-slot ownership",
+        "font/control-code compatibility"
+      ],
+      "runtime_evidence": [
+        "Stage5_UI_navigation"
+      ],
+      "strategy": "generated_semantic_touch_tables",
+      "system": "global_windows",
+      "system_strategy": "Shared declarative Window/Text/List/Modal adapters plus generated WindowTemplate and touch tables.",
+      "target_stage": "6D",
+      "touch_handling": "TouchscreenHitbox_rect_or_circle",
+      "transition": "caller_owned_pressed_feedback"
+    },
+    {
+      "bindings": [
+        "player.location",
+        "map.cursor",
+        "map.locations",
+        "map.fly_destinations"
+      ],
+      "classification": [
+        "MIXED",
+        "OVERLAY_CODE"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "PokegearMap_Init",
+        "PokegearPhone_Init",
+        "PokegearRadio_Init"
+      ],
+      "id": "town_map",
+      "input_ownership": {
+        "input": "Touch-led with key fallback where implemented",
+        "navigation": [
+          "move_cursor",
+          "select_location",
+          "fly_or_back"
+        ],
+        "surface_touch": "explicit_map_hitboxes",
+        "touch": "Explicit shell buttons and per-app hitbox tables"
+      },
+      "name": "Town Map",
+      "navigation": [
+        "move_cursor",
+        "select_location",
+        "fly_or_back"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "base/overlay/overlay_0100.bin",
+          "base/overlay/overlay_0101.bin"
+        ],
+        "module": "OVY_100 Pokegear shell and OVY_101 apps",
+        "overlay": 100,
+        "reference_evidence": [
+          "src/application/pokegear/main/pokegear_main.c",
+          "src/application/pokegear/map/pokegear_map.c",
+          "src/application/pokegear/phone/pokegear_phone.c",
+          "src/application/pokegear/radio/pokegear_radio.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "App-dependent BG layers",
+        "font_route": "app message banks/system font",
+        "hardcoded_coordinates": "Shell/app hitboxes and layouts across OVY_100/101",
+        "palette": "Shell and app palettes",
+        "sprites_oam": "Shell tabs, map markers, phone list, radio tuner and cursors",
+        "tilemap": "App archive screens plus dynamic regions",
+        "window_usage": "location/contact/radio text and prompts"
+      },
+      "resource_archives": [
+        "Pokegear shell/app archives",
+        "map/phone/radio graphics and messages"
+      ],
+      "resource_constraints": [
+        "shared OVY_101 among apps",
+        "map/fly script behavior"
+      ],
+      "runtime_evidence": [
+        "source_only_bounded"
+      ],
+      "strategy": "Pokegear_map_resource_and_marker_adapter",
+      "system": "pokegear",
+      "system_strategy": "Shared shell resources plus per-app declarative adapters; preserve app engines.",
+      "target_stage": "6G",
+      "touch_handling": "explicit_map_hitboxes",
+      "transition": "Pokegear_map_state"
+    },
+    {
+      "bindings": [
+        "player.name",
+        "player.id",
+        "player.money",
+        "player.badge_count",
+        "save.play_time",
+        "trainer_card.rank"
+      ],
+      "classification": [
+        "MIXED",
+        "OVERLAY_CODE"
+      ],
+      "confidence": "MEDIUM",
+      "existing_hooks": [
+        "trainer_card",
+        "trainer_card_main",
+        "trainer_card_signature"
+      ],
+      "id": "trainer_card",
+      "input_ownership": {
+        "input": "A/B and touch signature interaction",
+        "navigation": [
+          "flip",
+          "signature",
+          "back"
+        ],
+        "surface_touch": "signature_and_page_touch",
+        "touch": "Signature canvas and page controls"
+      },
+      "name": "Trainer Card/profile",
+      "navigation": [
+        "flip",
+        "signature",
+        "back"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "base/overlay/overlay_0050.bin",
+          "base/overlay/overlay_0051.bin",
+          "base/overlay/overlay_0052.bin"
+        ],
+        "module": "trainer_card overlays",
+        "overlay": 50,
+        "reference_evidence": [
+          "asm/overlay_trainer_card.s",
+          "asm/overlay_trainer_card_main.s",
+          "asm/overlay_trainer_card_signature.s"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Card faces and signature canvas",
+        "font_route": "profile/record values through system font",
+        "hardcoded_coordinates": "Card fields and signature regions in overlays",
+        "palette": "Card-rank and badge palettes",
+        "sprites_oam": "Badges, stars and cursors",
+        "tilemap": "Card face resources plus dynamic data",
+        "window_usage": "name, ID, money, time and records"
+      },
+      "resource_archives": [
+        "Trainer Card BG/OAM/signature resources",
+        "profile text"
+      ],
+      "resource_constraints": [
+        "signature persistence",
+        "badge/card state"
+      ],
+      "runtime_evidence": [
+        "source_only_bounded"
+      ],
+      "strategy": "card_face_and_field_adapter",
+      "system": "trainer_card",
+      "system_strategy": "Resource/layout adapter for card faces and fields; retain signature engine.",
+      "target_stage": "6G",
+      "touch_handling": "signature_and_page_touch",
+      "transition": "trainer_card_overlays"
+    },
+    {
+      "bindings": [
+        "window.bounds",
+        "window.frame",
+        "window.visibility"
+      ],
+      "classification": [
+        "MIXED",
+        "LAYOUT_DATA"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "WindowTemplate",
+        "TalkWinGraphicSet",
+        "StringPut",
+        "TouchscreenHitbox"
+      ],
+      "id": "window_system",
+      "input_ownership": {
+        "input": "ListMenu/MenuInputState and shared yes/no/list handlers",
+        "navigation": [
+          "not_applicable"
+        ],
+        "surface_touch": "separate_semantic_regions",
+        "touch": "TouchscreenHitbox and touchscreen list-menu helpers where enabled"
+      },
+      "name": "Window/frame system",
+      "navigation": [
+        "not_applicable"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "include/window.h",
+          "src/textbox.c",
+          "src/message.c",
+          "base/root/a/0/1/4"
+        ],
+        "module": "ARM9 window/text/menu infrastructure",
+        "overlay": null,
+        "reference_evidence": [
+          "src/window.c",
+          "src/render_text.c",
+          "src/list_menu.c",
+          "src/touchscreen.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Call-site selected BG layer; tiled WindowTemplate rectangles",
+        "font_route": "System font -> message/string formatter -> window pixel buffer -> VRAM",
+        "hardcoded_coordinates": "WindowTemplate and per-call pixel/tile coordinates",
+        "palette": "Call-site palette slot plus SystemFontPaletteLoad/TalkWinGraphicSet",
+        "sprites_oam": "Optional cursors/arrows supplied by callers",
+        "tilemap": "Window tile rectangles and common frame tiles",
+        "window_usage": "Window/WindowTemplate and GF_BGL_BMPWIN"
+      },
+      "resource_archives": [
+        "a/0/1/4 common UI archive",
+        "msgdata/msg text banks",
+        "system fonts"
+      ],
+      "resource_constraints": [
+        "8x8 BG tile grid",
+        "palette-slot ownership",
+        "font/control-code compatibility"
+      ],
+      "runtime_evidence": [
+        "all_windowed_UI"
+      ],
+      "strategy": "core_declarative_Window_Panel_Modal_adapter",
+      "system": "global_windows",
+      "system_strategy": "Shared declarative Window/Text/List/Modal adapters plus generated WindowTemplate and touch tables.",
+      "target_stage": "6D",
+      "touch_handling": "separate_semantic_regions",
+      "transition": "copy_schedule_and_frame_animation"
+    },
+    {
+      "bindings": [
+        "prompt.message",
+        "prompt.selection"
+      ],
+      "classification": [
+        "MIXED",
+        "CODE_DRIVEN"
+      ],
+      "confidence": "HIGH",
+      "existing_hooks": [
+        "WindowTemplate",
+        "TalkWinGraphicSet",
+        "StringPut",
+        "TouchscreenHitbox"
+      ],
+      "id": "yes_no_prompt",
+      "input_ownership": {
+        "input": "ListMenu/MenuInputState and shared yes/no/list handlers",
+        "navigation": [
+          "select_yes",
+          "select_no",
+          "confirm",
+          "cancel"
+        ],
+        "surface_touch": "caller_or_shared_menu",
+        "touch": "TouchscreenHitbox and touchscreen list-menu helpers where enabled"
+      },
+      "name": "Yes/no prompts",
+      "navigation": [
+        "select_yes",
+        "select_no",
+        "confirm",
+        "cancel"
+      ],
+      "ownership": {
+        "local_evidence": [
+          "include/window.h",
+          "src/textbox.c",
+          "src/message.c",
+          "base/root/a/0/1/4"
+        ],
+        "module": "ARM9 window/text/menu infrastructure",
+        "overlay": null,
+        "reference_evidence": [
+          "src/window.c",
+          "src/render_text.c",
+          "src/list_menu.c",
+          "src/touchscreen.c"
+        ]
+      },
+      "rendering": {
+        "bg_layers": "Call-site selected BG layer; tiled WindowTemplate rectangles",
+        "font_route": "System font -> message/string formatter -> window pixel buffer -> VRAM",
+        "hardcoded_coordinates": "WindowTemplate and per-call pixel/tile coordinates",
+        "palette": "Call-site palette slot plus SystemFontPaletteLoad/TalkWinGraphicSet",
+        "sprites_oam": "Optional cursors/arrows supplied by callers",
+        "tilemap": "Window tile rectangles and common frame tiles",
+        "window_usage": "Window/WindowTemplate and GF_BGL_BMPWIN"
+      },
+      "resource_archives": [
+        "a/0/1/4 common UI archive",
+        "msgdata/msg text banks",
+        "system fonts"
+      ],
+      "resource_constraints": [
+        "8x8 BG tile grid",
+        "palette-slot ownership",
+        "font/control-code compatibility"
+      ],
+      "runtime_evidence": [
+        "save_and_script_QA"
+      ],
+      "strategy": "shared_modal_and_choice_adapter",
+      "system": "global_windows",
+      "system_strategy": "Shared declarative Window/Text/List/Modal adapters plus generated WindowTemplate and touch tables.",
+      "target_stage": "6G",
+      "touch_handling": "caller_or_shared_menu",
+      "transition": "caller_owned"
+    }
+  ],
+  "source": "presentation/ui/ui_reality_source.json",
+  "source_sha256": "5ed9fa3bf350d8a3ba703d34ca93a82eea712e9b79ebbbdd33d7577cf3f94d31",
+  "summary": {
+    "classification_counts": {
+      "CODE_DRIVEN": 21,
+      "ENGINE_PATCH_REQUIRED": 2,
+      "LAYOUT_DATA": 2,
+      "MIXED": 46,
+      "OVERLAY_CODE": 26
+    },
+    "confidence_counts": {
+      "HIGH": 38,
+      "MEDIUM": 11
+    },
+    "core_surface_count": 40,
+    "core_surface_coverage": "PASS",
+    "overlay_ownership_counts": {
+      "1": 4,
+      "100": 2,
+      "12": 10,
+      "14": 1,
+      "15": 3,
+      "18": 2,
+      "3": 2,
+      "30": 2,
+      "50": 1,
+      "54": 1,
+      "60": 1,
+      "74": 3,
+      "ARM9_OR_SHARED": 17
+    },
+    "surface_count": 49,
+    "system_count": 18,
+    "target_stage_counts": {
+      "6C": 1,
+      "6D": 4,
+      "6E": 11,
+      "6F": 8,
+      "6G": 25
+    },
+    "unknown_surface_count": 0
+  },
+  "systems": {
+    "bag": {
+      "bg_layers": "Top/bottom BG tilemaps with pocket/list/description regions",
+      "constraints": [
+        "multiple use contexts",
+        "existing item-capacity debt is out of Stage 6 scope"
+      ],
+      "font_route": "item data/message banks through system font",
+      "hardcoded_coordinates": "Pocket wheel, list, descriptions, buttons and touch regions in OVY_15",
+      "hooks": [
+        "Bag_Init",
+        "Bag_Main",
+        "Bag_Exit",
+        "BagView"
+      ],
+      "input": "D-pad/A/B and touch pocket/list controls",
+      "local_evidence": [
+        "src/bag.c",
+        "base/overlay/overlay_0015.bin",
+        "data/graphics/bag"
+      ],
+      "local_evidence_metadata": [
+        {
+          "bytes": 21799,
+          "kind": "file",
+          "path": "src/bag.c",
+          "sha256": "f7eb3843fddf19dd9dbf6196c5c6325967e2e425f553dabcb164ec8d81acb832"
+        },
+        {
+          "kind": "file",
+          "path": "base/overlay/overlay_0015.bin",
+          "volatile_local_runtime_artifact": true
+        },
+        {
+          "file_count": 2,
+          "kind": "directory",
+          "path": "data/graphics/bag"
+        }
+      ],
+      "module": "OVY_15 Bag application plus ARM9 bag/bag_view data",
+      "overlay": 15,
+      "palette": "Bag BG/OAM and item icon palettes",
+      "recommended_strategy": "Bag overlay adapter with generated resource/layout tables; retain BagView and item-use semantics.",
+      "reference_evidence": [
+        "src/bag.c",
+        "src/bag_view.c",
+        "asm/overlay_15.s",
+        "src/launch_application.c"
+      ],
+      "resources": [
+        "Bag archive opened by OVY_15",
+        "itemtool/itemdata/item_icon",
+        "message banks 10/40"
+      ],
+      "sprites_oam": "Pocket wheel, cursor, item icons and arrows",
+      "tilemap": "Archive screen members plus dynamic list windows",
+      "touch": "Overlay-owned touch regions",
+      "transitions": "Pocket rotation/list and item-use state machines",
+      "window_usage": "Item names, quantities, descriptions and action menus"
+    },
+    "battle": {
+      "bg_layers": "Battle scene BG plus command/message/HUD layers on both engines",
+      "constraints": [
+        "many battle modes",
+        "OAM/VRAM pressure",
+        "native Mega request path",
+        "message timing"
+      ],
+      "font_route": "BattleSystem_BufferMessage -> formatter -> battle windows",
+      "hardcoded_coordinates": "HUD/menu/touch/target geometry across battle code and data tables",
+      "hooks": [
+        "Battle_Init",
+        "Battle_Main",
+        "Battle_Exit",
+        "BattleInput",
+        "BattleHpBar",
+        "Stage5E Mega observer"
+      ],
+      "input": "Native battle input state machine with D-pad/A/B and touch",
+      "local_evidence": [
+        "src/battle",
+        "base/overlay/overlay_0012.bin",
+        "base/root/a/0/0/7",
+        "base/root/a/0/0/8"
+      ],
+      "local_evidence_metadata": [
+        {
+          "file_count": 15,
+          "kind": "directory",
+          "path": "src/battle"
+        },
+        {
+          "kind": "file",
+          "path": "base/overlay/overlay_0012.bin",
+          "volatile_local_runtime_artifact": true
+        },
+        {
+          "kind": "file",
+          "path": "base/root/a/0/0/7",
+          "volatile_local_runtime_artifact": true
+        },
+        {
+          "kind": "file",
+          "path": "base/root/a/0/0/8",
+          "volatile_local_runtime_artifact": true
+        }
+      ],
+      "module": "OVY_12 battle with OVY_6/7/8/10/75 support and project extension",
+      "overlay": 12,
+      "palette": "Battle BG/OAM, Pokemon, type/status and command palettes",
+      "recommended_strategy": "Battle-specific declarative layout/resources compiled into existing data and bounded adapter hooks; never replace battle controller semantics.",
+      "reference_evidence": [
+        "src/battle/battle_input.c",
+        "src/battle/battle_hp_bar.c",
+        "src/battle/battle_command.c",
+        "src/battle/battle_controller_player.c"
+      ],
+      "resources": [
+        "a/0/0/7 battle command UI",
+        "a/0/0/8 HUD/UI",
+        "Pokemon sprites/icons",
+        "battle message banks"
+      ],
+      "sprites_oam": "Pokemon, HP bars, status, cursors, fingers, command and effect sprites",
+      "tilemap": "Archive command/HUD screens and code-built windows",
+      "touch": "Explicit main/fight/two-option/target/playback hitbox tables",
+      "transitions": "Battle command, animation, message and controller state machines",
+      "window_usage": "battle messages, names, levels, HP, moves, PP and prompts"
+    },
+    "dialogue": {
+      "bg_layers": "Field window BG layer",
+      "constraints": [
+        "control codes",
+        "player-name insertion",
+        "pagination and script synchronization"
+      ],
+      "font_route": "message bank/control codes -> String -> renderer",
+      "hardcoded_coordinates": "Default talk window and per-script menu rectangles",
+      "hooks": [
+        "TalkWinGraphicSet",
+        "BmpTalkWinWrite",
+        "BattleSystem_BufferMessage"
+      ],
+      "input": "A/B/touch fast-forward and choice menu input",
+      "local_evidence": [
+        "src/textbox.c",
+        "src/message.c",
+        "include/window.h",
+        "base/overlay/overlay_0001.bin"
+      ],
+      "local_evidence_metadata": [
+        {
+          "bytes": 1231,
+          "kind": "file",
+          "path": "src/textbox.c",
+          "sha256": "85e200d98ca9f481fc274f6f0b1242f9c1049cd950c49a8e2a0ab603e427abdf"
+        },
+        {
+          "bytes": 1685,
+          "kind": "file",
+          "path": "src/message.c",
+          "sha256": "d231dd54490b919696e9e28411908073067a9485cfbea10abb17808d2bccd9e4"
+        },
+        {
+          "bytes": 1998,
+          "kind": "file",
+          "path": "include/window.h",
+          "sha256": "bb31ef7f71f3f606b4b5130f84c3f1c079d28168d77a7b53279b9f5b25f19211"
+        },
+        {
+          "kind": "file",
+          "path": "base/overlay/overlay_0001.bin",
+          "volatile_local_runtime_artifact": true
+        }
+      ],
+      "module": "field textbox/message/window infrastructure",
+      "overlay": 1,
+      "palette": "Configured frame/font palette",
+      "recommended_strategy": "Declarative frame/text-region theme and semantic dialogue layouts; preserve renderer/control-code and script timing.",
+      "reference_evidence": [
+        "src/render_text.c",
+        "src/msgdata.c",
+        "src/script.c"
+      ],
+      "resources": [
+        "common window frames",
+        "system fonts",
+        "script message banks"
+      ],
+      "sprites_oam": "Optional choice cursor/portrait supplied by script/application",
+      "tilemap": "BmpTalkWin/Window rectangle",
+      "touch": "Text fast-forward hitbox; choice menus vary",
+      "transitions": "Text reveal, pagination and script wait states",
+      "window_usage": "Dialogue, choices, item notifications and prompts"
+    },
+    "evolution": {
+      "bg_layers": "Dedicated evolution scene and message layers",
+      "constraints": [
+        "ordinary identity mutation and save semantics",
+        "animation timing"
+      ],
+      "font_route": "evolution/move messages through system renderer",
+      "hardcoded_coordinates": "Scene, sprite and message geometry in ARM9 task",
+      "hooks": [
+        "sub_02075A7C",
+        "Stage5C evolution observations"
+      ],
+      "input": "A/B and move-learning choice controls",
+      "local_evidence": [
+        "src/stage5c_runtime.c",
+        "src/pokemon.c",
+        "base/arm9.bin"
+      ],
+      "local_evidence_metadata": [
+        {
+          "bytes": 13373,
+          "kind": "file",
+          "path": "src/stage5c_runtime.c",
+          "sha256": "2697ec9dd407806984592af8242ab0c662be0547778fdc8e3f021985c0169a7a"
+        },
+        {
+          "bytes": 85108,
+          "kind": "file",
+          "path": "src/pokemon.c",
+          "sha256": "e51c42a2cff97c854f31951d2aa7622ded8b502da856af270d220f858a111bf0"
+        },
+        {
+          "kind": "file",
+          "path": "base/arm9.bin",
+          "volatile_local_runtime_artifact": true
+        }
+      ],
+      "module": "ARM9 evolution task launched from field/start menu",
+      "overlay": null,
+      "palette": "Pokemon/effect/fade palettes",
+      "recommended_strategy": "Resource-theme and bounded presentation descriptors around the proven native evolution task.",
+      "reference_evidence": [
+        "src/start_menu.c",
+        "asm/unk_020755E8.s"
+      ],
+      "resources": [
+        "Pokemon sprites/palettes",
+        "evolution effects/messages",
+        "move-learning summary resources"
+      ],
+      "sprites_oam": "Source/target Pokemon and effects",
+      "tilemap": "Scene background and message windows",
+      "touch": "Not primary",
+      "transitions": "Evolution animation/species mutation/move-learning state machine",
+      "window_usage": "evolution and move-learning messages/prompts"
+    },
+    "field_shell": {
+      "bg_layers": "Field BG plus menu BG3 and OAM shell",
+      "constraints": [
+        "must restore field layers and follower state",
+        "child overlay ownership"
+      ],
+      "font_route": "system font/message banks",
+      "hardcoded_coordinates": "Start-menu windows, icon cells and launch positions",
+      "hooks": [
+        "start_menu.c",
+        "FieldSystem_LaunchApplication"
+      ],
+      "input": "X opens; D-pad/A/B and touch depending child app",
+      "local_evidence": [
+        "base/overlay/overlay_0001.bin",
+        "base/root/a/0/1/4"
+      ],
+      "local_evidence_metadata": [
+        {
+          "kind": "file",
+          "path": "base/overlay/overlay_0001.bin",
+          "volatile_local_runtime_artifact": true
+        },
+        {
+          "kind": "file",
+          "path": "base/root/a/0/1/4",
+          "volatile_local_runtime_artifact": true
+        }
+      ],
+      "module": "ARM9 start_menu plus field overlay",
+      "overlay": 1,
+      "palette": "Common UI palette and field/main OAM palettes",
+      "recommended_strategy": "Declarative launcher layout while preserving existing task transitions and child application contracts.",
+      "reference_evidence": [
+        "src/start_menu.c",
+        "src/field/fieldmap.c"
+      ],
+      "resources": [
+        "a/0/1/4 members 12/13/15 and 61-64",
+        "message banks per launched app"
+      ],
+      "sprites_oam": "Start-menu icons/cursor from members 61-64",
+      "tilemap": "Start-menu BG member 13 with code-positioned windows",
+      "touch": "Field/start shell is primarily key-driven; launched apps vary",
+      "transitions": "Field fade and child application task state machine",
+      "window_usage": "Menu labels, money/time, descriptions, prompts"
+    },
+    "global_windows": {
+      "bg_layers": "Call-site selected BG layer; tiled WindowTemplate rectangles",
+      "constraints": [
+        "8x8 BG tile grid",
+        "palette-slot ownership",
+        "font/control-code compatibility"
+      ],
+      "font_route": "System font -> message/string formatter -> window pixel buffer -> VRAM",
+      "hardcoded_coordinates": "WindowTemplate and per-call pixel/tile coordinates",
+      "hooks": [
+        "WindowTemplate",
+        "TalkWinGraphicSet",
+        "StringPut",
+        "TouchscreenHitbox"
+      ],
+      "input": "ListMenu/MenuInputState and shared yes/no/list handlers",
+      "local_evidence": [
+        "include/window.h",
+        "src/textbox.c",
+        "src/message.c",
+        "base/root/a/0/1/4"
+      ],
+      "local_evidence_metadata": [
+        {
+          "bytes": 1998,
+          "kind": "file",
+          "path": "include/window.h",
+          "sha256": "bb31ef7f71f3f606b4b5130f84c3f1c079d28168d77a7b53279b9f5b25f19211"
+        },
+        {
+          "bytes": 1231,
+          "kind": "file",
+          "path": "src/textbox.c",
+          "sha256": "85e200d98ca9f481fc274f6f0b1242f9c1049cd950c49a8e2a0ab603e427abdf"
+        },
+        {
+          "bytes": 1685,
+          "kind": "file",
+          "path": "src/message.c",
+          "sha256": "d231dd54490b919696e9e28411908073067a9485cfbea10abb17808d2bccd9e4"
+        },
+        {
+          "kind": "file",
+          "path": "base/root/a/0/1/4",
+          "volatile_local_runtime_artifact": true
+        }
+      ],
+      "module": "ARM9 window/text/menu infrastructure",
+      "overlay": null,
+      "palette": "Call-site palette slot plus SystemFontPaletteLoad/TalkWinGraphicSet",
+      "recommended_strategy": "Shared declarative Window/Text/List/Modal adapters plus generated WindowTemplate and touch tables.",
+      "reference_evidence": [
+        "src/window.c",
+        "src/render_text.c",
+        "src/list_menu.c",
+        "src/touchscreen.c"
+      ],
+      "resources": [
+        "a/0/1/4 common UI archive",
+        "msgdata/msg text banks",
+        "system fonts"
+      ],
+      "sprites_oam": "Optional cursors/arrows supplied by callers",
+      "tilemap": "Window tile rectangles and common frame tiles",
+      "touch": "TouchscreenHitbox and touchscreen list-menu helpers where enabled",
+      "transitions": "Caller-owned fades and window copy scheduling",
+      "window_usage": "Window/WindowTemplate and GF_BGL_BMPWIN"
+    },
+    "main_menu": {
+      "bg_layers": "Top/bottom tiled BG composition",
+      "constraints": [
+        "save detection and Continue routing",
+        "boot overlay memory"
+      ],
+      "font_route": "message banks through Window rendering",
+      "hardcoded_coordinates": "Button, arrow, touch, save-summary and text positions",
+      "hooks": [
+        "main_menu.c OverlayManagerTemplate",
+        "TouchscreenHitbox_FindRectAtTouchNew"
+      ],
+      "input": "D-pad/A/B/Start plus touch buttons",
+      "local_evidence": [
+        "base/overlay/overlay_0074.bin",
+        "base/root/a/1/1/3"
+      ],
+      "local_evidence_metadata": [
+        {
+          "kind": "file",
+          "path": "base/overlay/overlay_0074.bin",
+          "volatile_local_runtime_artifact": true
+        },
+        {
+          "kind": "file",
+          "path": "base/root/a/1/1/3",
+          "volatile_local_runtime_artifact": true
+        }
+      ],
+      "module": "application/main_menu",
+      "overlay": 74,
+      "palette": "Dedicated main-menu BG/OAM palettes",
+      "recommended_strategy": "Generated layout/resource tables around existing state machine; semantic bindings to save/profile metadata.",
+      "reference_evidence": [
+        "src/application/main_menu/main_menu.c",
+        "src/application/check_savedata.c",
+        "src/application/delete_savedata.c"
+      ],
+      "resources": [
+        "a/1/1/3 main-menu graphics",
+        "message banks 17/442/800"
+      ],
+      "sprites_oam": "Buttons/arrows and save-panel decoration",
+      "tilemap": "Archive-provided screens plus code-updated regions",
+      "touch": "Explicit new-game and arrow hitboxes",
+      "transitions": "Boot fade and selection state machine",
+      "window_usage": "Save summary, player data, warnings and menu text"
+    },
+    "naming": {
+      "bg_layers": "Main/sub BG0-BG2 and OAM keyboard/cursor",
+      "constraints": [
+        "multiple naming modes",
+        "character/control-code limits"
+      ],
+      "font_route": "keyboard glyph resources plus system font",
+      "hardcoded_coordinates": "Keyboard pages, cursor, touch regions and name field",
+      "hooks": [
+        "gOverlayTemplate_NamingScreen",
+        "NamingScreen_CreateArgs"
+      ],
+      "input": "D-pad/A/B/Start and touch keyboard",
+      "local_evidence": [
+        "base/arm9.bin",
+        "include/summary.h"
+      ],
+      "local_evidence_metadata": [
+        {
+          "kind": "file",
+          "path": "base/arm9.bin",
+          "volatile_local_runtime_artifact": true
+        },
+        {
+          "bytes": 6884,
+          "kind": "file",
+          "path": "include/summary.h",
+          "sha256": "ed85fa899301c6f443da6ac0500f73dfa37f579d0ebd16f0b3c842a749bfe832"
+        }
+      ],
+      "module": "ARM9 naming_screen",
+      "overlay": null,
+      "palette": "Naming BG/OAM and optional icon palettes",
+      "recommended_strategy": "Generated keyboard/layout resources and semantic key map; preserve naming state and encoding.",
+      "reference_evidence": [
+        "src/naming_screen.c",
+        "src/launch_application.c"
+      ],
+      "resources": [
+        "data/namein members 0-16",
+        "a/0/1/4 member 71",
+        "message banks 197/249/254",
+        "Pokemon icons"
+      ],
+      "sprites_oam": "Keyboard glyph cells, cursor and optional Pokemon icon",
+      "tilemap": "Namein NSCR keyboard pages",
+      "touch": "Page-specific keyboard hitboxes",
+      "transitions": "Keyboard page, confirm and return state machine",
+      "window_usage": "name entry, prompt and mode labels"
+    },
+    "options": {
+      "bg_layers": "Main/sub BG0/BG2 and OAM controls",
+      "constraints": [
+        "live option/save bindings"
+      ],
+      "font_route": "message bank 45/system font",
+      "hardcoded_coordinates": "Rows, arrows and 16 touch hitboxes",
+      "hooks": [
+        "OptionsMenu_Init",
+        "OptionsMenu_Main",
+        "OptionsMenu_Exit"
+      ],
+      "input": "D-pad/A/B and touch",
+      "local_evidence": [
+        "base/overlay/overlay_0054.bin",
+        "base/root/a/0/7/2"
+      ],
+      "local_evidence_metadata": [
+        {
+          "kind": "file",
+          "path": "base/overlay/overlay_0054.bin",
+          "volatile_local_runtime_artifact": true
+        },
+        {
+          "kind": "file",
+          "path": "base/root/a/0/7/2",
+          "volatile_local_runtime_artifact": true
+        }
+      ],
+      "module": "options_app",
+      "overlay": 54,
+      "palette": "Dedicated options BG/OAM palettes",
+      "recommended_strategy": "Generated rows/touch/resources around existing option data adapter.",
+      "reference_evidence": [
+        "src/options_app.c",
+        "src/options.c"
+      ],
+      "resources": [
+        "a/0/7/2 members 2/3/7/8/17-19",
+        "resdat sprite members 20-23/77",
+        "message bank 45"
+      ],
+      "sprites_oam": "Selectors/arrows/cursors",
+      "tilemap": "Dedicated NSCR members plus dynamic windows",
+      "touch": "16 explicit option hitboxes",
+      "transitions": "Option selection and exit fade",
+      "window_usage": "Option names and values"
+    },
+    "party": {
+      "bg_layers": "Main BG0/BG3 and sub BG0/BG1",
+      "constraints": [
+        "six slots",
+        "Pokemon form/icon correctness",
+        "multiple invocation modes"
+      ],
+      "font_route": "message bank 300 and live Pokemon strings",
+      "hardcoded_coordinates": "Six slot layout, icon cells, HP/text positions and touch tables",
+      "hooks": [
+        "gOverlayTemplate_PartyMenu",
+        "PartyMenu_HandleUseItemOnMon"
+      ],
+      "input": "D-pad/A/B plus explicit context-menu touch hitboxes",
+      "local_evidence": [
+        "src/party_menu.c",
+        "base/overlay/overlay_0094.bin"
+      ],
+      "local_evidence_metadata": [
+        {
+          "bytes": 13820,
+          "kind": "file",
+          "path": "src/party_menu.c",
+          "sha256": "94de3102b19ce105e8478f6b1997785c676c10a5f0ea218ef08ab307be3414a4"
+        },
+        {
+          "kind": "file",
+          "path": "base/overlay/overlay_0094.bin",
+          "volatile_local_runtime_artifact": true
+        }
+      ],
+      "module": "ARM9 party_menu with OVY_94 helper",
+      "overlay": null,
+      "palette": "Party BG palettes plus Pokemon icon palettes",
+      "recommended_strategy": "Party-specific declarative adapter generated into windows, slot geometry, icon placement and navigation tables.",
+      "reference_evidence": [
+        "src/party_menu.c",
+        "src/party_context_menu.c",
+        "src/party_menu_sprites.c"
+      ],
+      "resources": [
+        "graphic/plist_gra members 3/4/12-26",
+        "poketool/icongra/poke_icon",
+        "message bank 300"
+      ],
+      "sprites_oam": "Pokemon icons, held items, cursor/context affordances",
+      "tilemap": "plist_gra NSCR members and code-updated slot regions",
+      "touch": "Party/context hitbox arrays",
+      "transitions": "Menu state machine; child summary/item/evolution tasks",
+      "window_usage": "Names, levels, HP, context actions and messages"
+    },
+    "pc": {
+      "bg_layers": "Top/bottom BG layers for boxes, detail and actions",
+      "constraints": [
+        "form/icon identity",
+        "party/box storage must remain ordinary save data"
+      ],
+      "font_route": "Pokemon/item strings and PC message banks",
+      "hardcoded_coordinates": "30-slot grid, box tabs, detail pane, cursor and touch geometry in OVY_14",
+      "hooks": [
+        "PCBox_Init",
+        "PCBox_Main",
+        "PCBox_Exit"
+      ],
+      "input": "D-pad/A/B/L/R and touch",
+      "local_evidence": [
+        "base/overlay/overlay_0014.bin",
+        "src/pokemon_storage_system.c"
+      ],
+      "local_evidence_metadata": [
+        {
+          "kind": "file",
+          "path": "base/overlay/overlay_0014.bin",
+          "volatile_local_runtime_artifact": true
+        },
+        {
+          "bytes": 10946,
+          "kind": "file",
+          "path": "src/pokemon_storage_system.c",
+          "sha256": "5468ad12c5a35ebec669464d0f3789b8709c52d0d7117c9f2ece91cfa4ff43cb"
+        }
+      ],
+      "module": "OVY_14 PC Box application",
+      "overlay": 14,
+      "palette": "Wallpaper/BG plus icon/OAM palettes",
+      "recommended_strategy": "PC-specific adapter; declarative box chrome/detail/actions while preserving native 30-slot manipulation core.",
+      "reference_evidence": [
+        "asm/overlay_14.s",
+        "src/launch_application.c",
+        "src/pokemon_storage_system.c"
+      ],
+      "resources": [
+        "PC box NARCs opened in OVY_14",
+        "Pokemon icon archive",
+        "wallpapers",
+        "item icons"
+      ],
+      "sprites_oam": "Box Pokemon icons, cursor, held items, arrows and markings",
+      "tilemap": "Archive members and dynamically updated box grid",
+      "touch": "Overlay-owned box/action hitboxes",
+      "transitions": "Box slide, cursor, pickup/drop and mode state machines",
+      "window_usage": "Box title, Pokemon detail, action menus and prompts"
+    },
+    "pokedex": {
+      "bg_layers": "Multiple top/sub BG layers for list, entry, search and detail modes",
+      "constraints": [
+        "National Dex through 1025",
+        "expanded allocation",
+        "overlay collision priority"
+      ],
+      "font_route": "expanded generated Dex archives plus system font",
+      "hardcoded_coordinates": "Mode-specific screen/touch/list positions in OVY_18",
+      "hooks": [
+        "Pokedex_Init",
+        "Pokedex_Main",
+        "Pokedex_Exit",
+        "OVERLAY_POKEDEX_EXTENSION"
+      ],
+      "input": "D-pad/A/B/L/R plus extensive touch tabs/arrows/list",
+      "local_evidence": [
+        "src/pokedex/pokedex.c",
+        "armips/asm/pokedex.s",
+        "base/overlay/overlay_0018.bin"
+      ],
+      "local_evidence_metadata": [
+        {
+          "bytes": 1112,
+          "kind": "file",
+          "path": "src/pokedex/pokedex.c",
+          "sha256": "5dc44434e6d9b8ab06c734a0375b7d519dcd7e6b55156e588cd5c462d64e2c7c"
+        },
+        {
+          "bytes": 33121,
+          "kind": "file",
+          "path": "armips/asm/pokedex.s",
+          "sha256": "4396804e829bb0055698cf8aaccb9e070670fdd8c6e9998a87a8f37d26d4c9df"
+        },
+        {
+          "kind": "file",
+          "path": "base/overlay/overlay_0018.bin",
+          "volatile_local_runtime_artifact": true
+        }
+      ],
+      "module": "OVY_18 Pokedex plus project OVY_132 extension",
+      "overlay": 18,
+      "palette": "Dex BG/OAM and Pokemon palettes",
+      "recommended_strategy": "Generated mode descriptors/resources with a Pokedex adapter; retain expanded indexing and project text pipeline.",
+      "reference_evidence": [
+        "src/application/pokedex/ov18_021E5C40.c",
+        "src/application/pokedex/ov18_021E8BF4.c",
+        "src/pokedex.c"
+      ],
+      "resources": [
+        "graphic/zukan_gra NCGR/NSCR/NCLR",
+        "zukan encounter/stats data",
+        "expanded project Dex text archives",
+        "Pokemon sprites"
+      ],
+      "sprites_oam": "Pokemon sprite, list cursor, tabs, arrows and form controls",
+      "tilemap": "zukan_gra screens plus dynamic list/detail windows",
+      "touch": "Overlay mode-specific touch tables",
+      "transitions": "List/detail/search modes and fades",
+      "window_usage": "number/name/category/description/measurements/search"
+    },
+    "pokegear": {
+      "bg_layers": "App-dependent BG layers",
+      "constraints": [
+        "shared OVY_101 among apps",
+        "map/fly script behavior"
+      ],
+      "font_route": "app message banks/system font",
+      "hardcoded_coordinates": "Shell/app hitboxes and layouts across OVY_100/101",
+      "hooks": [
+        "PokegearMap_Init",
+        "PokegearPhone_Init",
+        "PokegearRadio_Init"
+      ],
+      "input": "Touch-led with key fallback where implemented",
+      "local_evidence": [
+        "base/overlay/overlay_0100.bin",
+        "base/overlay/overlay_0101.bin"
+      ],
+      "local_evidence_metadata": [
+        {
+          "kind": "file",
+          "path": "base/overlay/overlay_0100.bin",
+          "volatile_local_runtime_artifact": true
+        },
+        {
+          "kind": "file",
+          "path": "base/overlay/overlay_0101.bin",
+          "volatile_local_runtime_artifact": true
+        }
+      ],
+      "module": "OVY_100 Pokegear shell and OVY_101 apps",
+      "overlay": 100,
+      "palette": "Shell and app palettes",
+      "recommended_strategy": "Shared shell resources plus per-app declarative adapters; preserve app engines.",
+      "reference_evidence": [
+        "src/application/pokegear/main/pokegear_main.c",
+        "src/application/pokegear/map/pokegear_map.c",
+        "src/application/pokegear/phone/pokegear_phone.c",
+        "src/application/pokegear/radio/pokegear_radio.c"
+      ],
+      "resources": [
+        "Pokegear shell/app archives",
+        "map/phone/radio graphics and messages"
+      ],
+      "sprites_oam": "Shell tabs, map markers, phone list, radio tuner and cursors",
+      "tilemap": "App archive screens plus dynamic regions",
+      "touch": "Explicit shell buttons and per-app hitbox tables",
+      "transitions": "App switching and map/phone/radio state machines",
+      "window_usage": "location/contact/radio text and prompts"
+    },
+    "save": {
+      "bg_layers": "Dedicated save prompt/progress BG/window layers",
+      "constraints": [
+        "battery write cannot be interrupted",
+        "overwrite and error states"
+      ],
+      "font_route": "save messages/system font",
+      "hardcoded_coordinates": "Prompt/progress/touch layout in save app",
+      "hooks": [
+        "TouchSaveApp_SaveGame",
+        "Field_SaveGameNormal",
+        "SaveGameNormal"
+      ],
+      "input": "A/B and touch confirm/cancel",
+      "local_evidence": [
+        "base/overlay/overlay_0030.bin",
+        "src/save.c"
+      ],
+      "local_evidence_metadata": [
+        {
+          "kind": "file",
+          "path": "base/overlay/overlay_0030.bin",
+          "volatile_local_runtime_artifact": true
+        },
+        {
+          "bytes": 29730,
+          "kind": "file",
+          "path": "src/save.c",
+          "sha256": "da8775ff85844f253e15b79c651c7654313a339ed1db1ce8957674a7166b71e9"
+        }
+      ],
+      "module": "touch_save_app plus field save functions",
+      "overlay": 30,
+      "palette": "Save app palettes",
+      "recommended_strategy": "Theme/layout adapter only; battery transaction state remains native and semantically observed.",
+      "reference_evidence": [
+        "src/touch_save_app.c",
+        "src/start_menu.c",
+        "src/save.c"
+      ],
+      "resources": [
+        "save app graphics/messages",
+        "common windows"
+      ],
+      "sprites_oam": "Touch controls/progress decoration where used",
+      "tilemap": "Dedicated save screen plus dynamic status windows",
+      "touch": "Save app-owned hitboxes",
+      "transitions": "Field -> save app -> battery write -> field",
+      "window_usage": "confirmation, overwrite warning, saving and completion messages"
+    },
+    "shop": {
+      "bg_layers": "Field-preserving menu BG/window layers",
+      "constraints": [
+        "script transaction integrity",
+        "money/item semantics"
+      ],
+      "font_route": "item strings and mart messages",
+      "hardcoded_coordinates": "List/detail/money/quantity windows in OVY_3",
+      "hooks": [
+        "MartBuy",
+        "MartSell",
+        "shop_menu.c"
+      ],
+      "input": "D-pad/A/B list and quantity controls",
+      "local_evidence": [
+        "src/field/mart.c",
+        "base/overlay/overlay_0003.bin"
+      ],
+      "local_evidence_metadata": [
+        {
+          "bytes": 10966,
+          "kind": "file",
+          "path": "src/field/mart.c",
+          "sha256": "6b69642646ef5342f6e06b2a7b45bd981947d7d7e47bf062aafdd8d6b3478e78"
+        },
+        {
+          "kind": "file",
+          "path": "base/overlay/overlay_0003.bin",
+          "volatile_local_runtime_artifact": true
+        }
+      ],
+      "module": "field OVY_3 shop_menu",
+      "overlay": 3,
+      "palette": "Common window and item palettes",
+      "recommended_strategy": "Generated shop window/list layouts with existing transaction controller.",
+      "reference_evidence": [
+        "src/overlay_03/shop_menu.c",
+        "src/scrcmd_mart.c"
+      ],
+      "resources": [
+        "common window/menu resources",
+        "item icons/data",
+        "mart message banks"
+      ],
+      "sprites_oam": "Item icon/cursor where used",
+      "tilemap": "Dynamic windows over field/shop presentation",
+      "touch": "Limited; menu helpers own any hitboxes",
+      "transitions": "Field script -> shop state -> field",
+      "window_usage": "buy/sell lists, money, quantity, descriptions and prompts"
+    },
+    "summary": {
+      "bg_layers": "Multiple top/sub BG layers with page-specific content",
+      "constraints": [
+        "partially named/decompiled implementation",
+        "many invocation modes including move learning"
+      ],
+      "font_route": "Pokemon strings, move/item messages and system font",
+      "hardcoded_coordinates": "Page layouts, tab/touch regions and value columns in ARM9 code/assembly",
+      "hooks": [
+        "gOverlayTemplate_PokemonSummary",
+        "PokemonSummary_LaunchApp"
+      ],
+      "input": "D-pad/A/B/L/R and touch page controls",
+      "local_evidence": [
+        "src/summary.c",
+        "include/summary.h",
+        "base/arm9.bin"
+      ],
+      "local_evidence_metadata": [
+        {
+          "bytes": 8333,
+          "kind": "file",
+          "path": "src/summary.c",
+          "sha256": "36be23138b9607e7cd852ba26f138353377af52072140f339f40f0d73668b865"
+        },
+        {
+          "bytes": 6884,
+          "kind": "file",
+          "path": "include/summary.h",
+          "sha256": "ed85fa899301c6f443da6ac0500f73dfa37f579d0ebd16f0b3c842a749bfe832"
+        },
+        {
+          "kind": "file",
+          "path": "base/arm9.bin",
+          "volatile_local_runtime_artifact": true
+        }
+      ],
+      "module": "ARM9 summary implementation (unk_02088288/unk_0208B1AC)",
+      "overlay": null,
+      "palette": "Page BG/OAM and Pokemon palettes",
+      "recommended_strategy": "Bounded generated page descriptors and semantic bindings behind a summary adapter; preserve mode-specific flow.",
+      "reference_evidence": [
+        "asm/unk_02088288.s",
+        "asm/unk_0208B1AC.s",
+        "src/launch_application.c"
+      ],
+      "resources": [
+        "summary-opened NARC resources",
+        "Pokemon sprites/icons",
+        "type/status/item resources"
+      ],
+      "sprites_oam": "Pokemon sprite, markings, arrows, page tabs and cursors",
+      "tilemap": "Archive screens plus code-rendered page data",
+      "touch": "Explicit summary hitbox tables in ARM9 implementation",
+      "transitions": "Page state machine and sprite/page fades",
+      "window_usage": "Overview/stats/moves/ribbons live data windows"
+    },
+    "title": {
+      "bg_layers": "Multiple top/sub BG layers plus 3D title objects",
+      "constraints": [
+        "mixed 2D/3D title pipeline",
+        "boot/save routing must remain intact"
+      ],
+      "font_route": "message bank 719 through system font",
+      "hardcoded_coordinates": "Title object/camera and prompt positions in overlay code",
+      "hooks": [
+        "TitleScreen_Init",
+        "TitleScreen_Main",
+        "TitleScreen_Exit"
+      ],
+      "input": "A/Start and boot state machine",
+      "local_evidence": [
+        "base/overlay/overlay_0060.bin"
+      ],
+      "local_evidence_metadata": [
+        {
+          "kind": "file",
+          "path": "base/overlay/overlay_0060.bin",
+          "volatile_local_runtime_artifact": true
+        }
+      ],
+      "module": "title_screen / intro_title",
+      "overlay": 60,
+      "palette": "Dedicated title BG and extended palettes",
+      "recommended_strategy": "Resource factory for 2D title planes plus a bounded title-layout adapter; retain native boot state machine.",
+      "reference_evidence": [
+        "src/title_screen.c",
+        "src/intro_movie.c"
+      ],
+      "resources": [
+        "demo/title/titledemo NCGR/NSCR/NCLR",
+        "title NSBMD/NSBCA/NSBTA/NSBTP/NSBMA",
+        "message bank 719"
+      ],
+      "sprites_oam": "Title effects and prompts; 3D objects dominate upper presentation",
+      "tilemap": "Dedicated title NSCR resources",
+      "touch": "No primary touch requirement",
+      "transitions": "Intro/title fades and animation state machine",
+      "window_usage": "Prompt/message windows only"
+    },
+    "trainer_card": {
+      "bg_layers": "Card faces and signature canvas",
+      "constraints": [
+        "signature persistence",
+        "badge/card state"
+      ],
+      "font_route": "profile/record values through system font",
+      "hardcoded_coordinates": "Card fields and signature regions in overlays",
+      "hooks": [
+        "trainer_card",
+        "trainer_card_main",
+        "trainer_card_signature"
+      ],
+      "input": "A/B and touch signature interaction",
+      "local_evidence": [
+        "base/overlay/overlay_0050.bin",
+        "base/overlay/overlay_0051.bin",
+        "base/overlay/overlay_0052.bin"
+      ],
+      "local_evidence_metadata": [
+        {
+          "kind": "file",
+          "path": "base/overlay/overlay_0050.bin",
+          "volatile_local_runtime_artifact": true
+        },
+        {
+          "kind": "file",
+          "path": "base/overlay/overlay_0051.bin",
+          "volatile_local_runtime_artifact": true
+        },
+        {
+          "kind": "file",
+          "path": "base/overlay/overlay_0052.bin",
+          "volatile_local_runtime_artifact": true
+        }
+      ],
+      "module": "trainer_card overlays",
+      "overlay": 50,
+      "palette": "Card-rank and badge palettes",
+      "recommended_strategy": "Resource/layout adapter for card faces and fields; retain signature engine.",
+      "reference_evidence": [
+        "asm/overlay_trainer_card.s",
+        "asm/overlay_trainer_card_main.s",
+        "asm/overlay_trainer_card_signature.s"
+      ],
+      "resources": [
+        "Trainer Card BG/OAM/signature resources",
+        "profile text"
+      ],
+      "sprites_oam": "Badges, stars and cursors",
+      "tilemap": "Card face resources plus dynamic data",
+      "touch": "Signature canvas and page controls",
+      "transitions": "Card flip/page and signature state",
+      "window_usage": "name, ID, money, time and records"
+    }
+  }
+}

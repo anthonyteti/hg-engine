@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "stage6b_bag_reference",
+  "fixture": "fixtures/stage5bc_victini_shared_world.json",
+  "build_target": "stage5bc-shared-runtime-proof",
+  "entry": {"mode": "new_game_controlled"},
+  "steps": [
+    {"assert": "map_id", "value": 540},
+    {"action": "write_memory", "symbol": "gStage5BRuntimeState", "offset": 8, "width": 4, "value": 6},
+    {"action": "wait_memory", "symbol": "gStage5BRuntimeState", "offset": 12, "width": 4, "value": 6, "timeout_frames": 600},
+    {"action": "press", "button": "x", "after_frames": 240},
+    {"action": "touch", "x": 44, "y": 120, "after_frames": 600},
+    {"action": "capture", "name": "stage6b_bag"},
+    {"assert": "screenshot_valid", "name": "stage6b_bag"},
+    {"assert": "rom_running", "value": true}
+  ]
+}

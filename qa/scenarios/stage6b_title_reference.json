@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "id": "stage6b_title_reference",
+  "fixture": "fixtures/stage5bc_victini_shared_world.json",
+  "build_target": "stage5bc-shared-runtime-proof",
+  "entry": {"mode": "new_game_controlled"},
+  "steps": [
+    {"assert": "map_id", "value": 540},
+    {"action": "reset"},
+    {"action": "wait", "frames": 1800},
+    {"action": "capture", "name": "stage6b_intro_transition"},
+    {"action": "press", "button": "a", "after_frames": 600},
+    {"action": "capture", "name": "stage6b_title"},
+    {"action": "press", "button": "a", "after_frames": 600},
+    {"action": "capture", "name": "stage6b_new_continue"},
+    {"assert": "screenshot_valid", "name": "stage6b_intro_transition"},
+    {"assert": "screenshot_valid", "name": "stage6b_title"},
+    {"assert": "screenshot_valid", "name": "stage6b_new_continue"},
+    {"assert": "rom_running", "value": true}
+  ]
+}

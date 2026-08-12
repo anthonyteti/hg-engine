@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "id": "stage6b_shop_reference",
+  "fixture": "fixtures/stage6b_ui_reference_world.json",
+  "build_target": "stage6b-ui-reference",
+  "entry": {"mode": "new_game_controlled"},
+  "steps": [
+    {"assert": "map_id", "value": 540},
+    {"action": "write_memory", "symbol": "gStage5BRuntimeState", "offset": 8, "width": 4, "value": 6},
+    {"action": "wait_memory", "symbol": "gStage5BRuntimeState", "offset": 12, "width": 4, "value": 6, "timeout_frames": 600},
+    {"action": "press", "button": "left", "held_frames": 8, "after_frames": 30},
+    {"action": "press", "button": "a", "held_frames": 12, "after_frames": 300},
+    {"assert": "map_id", "value": 68},
+    {"assert": "position", "x": 4, "z": 9},
+    {"action": "capture", "name": "stage6b_mart_interior"},
+    {"action": "move", "direction": "north", "tiles": 3},
+    {"action": "press", "button": "left", "held_frames": 8, "after_frames": 30},
+    {"action": "press", "button": "a", "after_frames": 300},
+    {"action": "capture", "name": "stage6b_shop_prompt"},
+    {"action": "press", "button": "a", "after_frames": 240},
+    {"action": "capture", "name": "stage6b_shop_menu"},
+    {"assert": "screenshot_valid", "name": "stage6b_mart_interior"},
+    {"assert": "screenshot_valid", "name": "stage6b_shop_prompt"},
+    {"assert": "screenshot_valid", "name": "stage6b_shop_menu"},
+    {"assert": "rom_running", "value": true}
+  ]
+}

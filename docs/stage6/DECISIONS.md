@@ -21,3 +21,20 @@ labels use `CONFIRMED_SOURCE`, `CONFIRMED_RUNTIME`, `INFERRED`, or `PLANNED`.
 - Runtime QA combines semantic state with native-resolution screenshots.
 - A one-off patch is evidence only when it also establishes a reusable authoring
   boundary needed by Stage 7.
+
+## 2026-08-12 — UI reality and adapter boundary
+
+- Evidence: 49-surface static audit plus native runtime references
+  (`CONFIRMED_SOURCE`, `CONFIRMED_RUNTIME`).
+- HGSS has no universal UI skinning layer. Important screens are split across
+  ARM9/shared tasks and overlays 1, 3, 12, 14, 15, 18, 30, 50–54, 60, 74,
+  94, and 100–101.
+- Stage 6D will therefore define one semantic authoring schema and bounded
+  owner-specific adapters. Native state machines remain responsible for game
+  behavior and overlay lifecycle.
+- A local `base/` artifact proves that the implementation resource exists, but
+  its hash is excluded from the tracked audit because opt-in builds patch that
+  ignored tree in place. Tracked source evidence remains hashed.
+- Exact resource-member/coordinate recovery for the 11 MEDIUM-confidence
+  surfaces is deferred to the adapter that consumes it; zero major surfaces
+  remain unbounded `UNKNOWN`.

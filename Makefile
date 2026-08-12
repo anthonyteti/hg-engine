@@ -194,6 +194,10 @@ ifeq ($(STAGE5BC_RUNTIME_PROOF),Y)
     WORLD_INSTALL_ARGS := --fixture fixtures/stage5bc_victini_shared_world.json --output build/stage5bc/generated
     PROJECT_HEADER_FIXTURE := fixtures/stage5bc_victini_shared_world.json
 endif
+ifeq ($(STAGE6B_UI_AUDIT),Y)
+    WORLD_INSTALL_ARGS := --fixture fixtures/stage6b_ui_reference_world.json --output build/stage6b/generated
+    PROJECT_HEADER_FIXTURE := fixtures/stage6b_ui_reference_world.json
+endif
 ifeq ($(STAGE5C_EVOLUTION_PROOF),Y)
     WORLD_INSTALL_ARGS := --fixture fixtures/stage5b_victini_world.json --output build/stage5c/generated
     PROJECT_HEADER_FIXTURE := fixtures/stage5b_victini_world.json
@@ -522,6 +526,13 @@ stage5bc-shared-runtime-proof:
 	$(MAKE) STAGE2_MAP=Y STAGE3E2_HEADER=Y STAGE5B_RUNTIME_PROOF=Y STAGE5BC_RUNTIME_PROOF=Y
 	$(MAKE) -C tools/source/trainerdatagen clean
 
+.PHONY: stage6b-ui-reference
+stage6b-ui-reference:
+	$(MAKE) -C tools/source/trainerdatagen clean
+	$(MAKE) clean
+	$(MAKE) STAGE2_MAP=Y STAGE3E2_HEADER=Y STAGE5B_RUNTIME_PROOF=Y STAGE5BC_RUNTIME_PROOF=Y STAGE6B_UI_AUDIT=Y
+	$(MAKE) -C tools/source/trainerdatagen clean
+
 .PHONY: stage5c-evolution-proof
 stage5c-evolution-proof:
 	$(MAKE) clean
@@ -557,6 +568,11 @@ stage5f-roster-readiness:
 stage6a-presentation:
 	. .venv/bin/activate; python3 -m tools.pokeagent.stage6a_visuals
 	. .venv/bin/activate; python3 -m unittest -v tests.test_pokeagent_stage6a_presentation
+
+.PHONY: stage6b-ui-audit
+stage6b-ui-audit:
+	. .venv/bin/activate; python3 -m tools.pokeagent.ui_audit
+	. .venv/bin/activate; python3 -m unittest -v tests.test_pokeagent_stage6b_ui_audit
 
 .PHONY: battle-test-save
 battle-test-save:

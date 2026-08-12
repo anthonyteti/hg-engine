@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "artifact_policy": "Screenshots and emulator reports remain ignored; this tracked record retains scenario identity, semantic outcome and hashes where captured before cleanup.",
+  "rom_mode": "opt_in_reference_only",
+  "references": [
+    {
+      "surfaces": ["title", "new_game"],
+      "scenario": "qa/scenarios/stage6b_title_reference.json",
+      "result": "PASS",
+      "plan_sha256": "9a2674180742097bb81ae9d7d6dca475ecb08c9279ab546fd9f314747be7ce26",
+      "screenshots": {
+        "stage6b_title": "946b7ce4236b9da74c1b0ab690a4a29d5d1cf2259eb6be7b39826d229a63fc0c",
+        "stage6b_new_continue": "499a54393f7f88a4caea783e6a9edb6b83bdd8c669e09acb5063c87597f5b880"
+      },
+      "note": "A clean proof save follows the native New Game information branch; the existing Stage 4A persistence control separately proves the Continue branch."
+    },
+    {
+      "surfaces": ["start_menu", "party"],
+      "scenario": "qa/scenarios/stage5bc_victini_icon_ui.json",
+      "result": "PASS",
+      "plan_sha256": "eab2e7c61ebf34ab0284eae61b65e0a03d9d32859ce65a598cacfe0783d26b69",
+      "screenshots": {
+        "victini_icon_menu_probe": "bce78c43cf57a0536591a601e431228ce4954a607b5e0d9cd876d6b0f9f31704",
+        "victini_party_icon": "5de345e2a25455c8cb952b35dfd7acee0e6c0fb74fedccbf88eff92f135a444f"
+      }
+    },
+    {
+      "surfaces": ["summary_overview", "party_context"],
+      "scenario": "qa/scenarios/stage6b_summary_reference.json",
+      "result": "PASS",
+      "plan_sha256": "dbd5dde6b707bba0abe84a3c5cdcd9422f13ad78675a8fc86497161e87e4efa7",
+      "screenshots": {
+        "stage6b_party_context": "ee66a9aa7e9869071125432455512fee234556d719b24c7e5cdfd5ca4c987823",
+        "stage6b_summary": "87cd07fc2db8941bb98f3f0d118066de0c7c1b1ed45cddf3ead9576329065504"
+      }
+    },
+    {
+      "surfaces": ["bag"],
+      "scenario": "qa/scenarios/stage6b_bag_reference.json",
+      "result": "PASS",
+      "plan_sha256": "8bd05a82f39cbe2aa7f0e10a1b04c6ad80fd134efa1a374d3c68309c1a39667c",
+      "screenshots": {
+        "stage6b_bag": "7b054d6aa569ebce72d75c80945c90a087f7123bd27971e982bfd094c2e467f4"
+      }
+    },
+    {
+      "surfaces": ["battle_hud_player", "battle_hud_enemy", "battle_commands", "battle_messages"],
+      "scenario": "qa/scenarios/stage5bc_victini_trainer_runtime.json",
+      "result": "PASS",
+      "plan_sha256": "03df22d2f6ad0eea251025faf8392c8c4ce748166d286555ff9a4892c38b520f",
+      "screenshots": {
+        "victini_trainer_front": "d6af40550f9bca3b900a1b579266b68d5c4fa25a49debc31f81048a4cfe1fe7a"
+      }
+    },
+    {
+      "surfaces": ["shop_buy", "dialogue", "generic_list"],
+      "scenario": "qa/scenarios/stage6b_shop_reference.json",
+      "result": "PASS",
+      "plan_sha256": "62f5aaa7a9e486450a04ff8091492a36886fe0e1b2f3f6c5714b16019c9e20f1",
+      "screenshots": {
+        "stage6b_mart_interior": "d546db3267bb8c405393fa6793b1e52eb27a2d21c7218a0d171f26d6dd79cacb",
+        "stage6b_shop_prompt": "78dcfd0d5251bbe95c7a8bf375d4ca3d39c39569aa0295ebb24805e8c43a7a98",
+        "stage6b_shop_menu": "8149b3e6264e41bdc5fdf8f55b0f58bc8dd3733e73c79133211df6aa58388018"
+      },
+      "note": "Native map header 68, object event, clerk script and overlay 3. The fixture only supplies an opt-in ordinary warp."
+    },
+    {
+      "surfaces": ["pc_storage"],
+      "scenario": "qa/scenarios/stage5bc_victini_pc_icon_ui.json",
+      "result": "PASS",
+      "plan_sha256": "8fb736cfb61992795cd79d4af08889bf0e723b1adeabd0add9e81a0cdaa70ac4",
+      "screenshots": {
+        "victini_pc_icon": "d5641e75a479f0ba71a2c3451552019838d0a42caad5d448d23be8da10544084"
+      }
+    },
+    {
+      "surfaces": ["pokedex_list", "pokedex_entry"],
+      "scenario": "qa/scenarios/stage5f_expanded_dex_ui.json",
+      "result": "PASS",
+      "screenshots": {},
+      "note": "Victini entry was inspected at native resolution; the ignored report and screenshot were removed by the subsequent clean proof build, so no exact plan or screenshot hash is retained here. Stage 5F-S retains the canonical #1025 boundary evidence."
+    },
+    {
+      "surfaces": ["continue", "save_prompt", "dialogue"],
+      "scenario": "qa/scenarios/stage4a_world_persistence.json",
+      "result": "HISTORICAL_PASS_RETAINED",
+      "screenshots": {},
+      "note": "Ordinary battery save, hard reset, title routing, Continue and field return are established controls and remain required Stage 6 regressions."
+    }
+  ]
+}
