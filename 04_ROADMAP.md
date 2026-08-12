@@ -668,10 +668,11 @@ catalog identities rather than Nitro internals.
 
 ### Stage 6K — Unique Landmark / Real Generated 3D Kill Gate
 
-Run art direction -> concept -> authorized real generator/exporter -> immutable
-raw output -> Stage 4 preprocessing -> DS compilation -> ROM -> visual QA.
-At least one real generated landmark must pass. Stage 4H/S/T/U remain negative
-and access evidence, never retroactive success.
+Status: **passed**. An official anonymous Tencent Hunyuan3D-2 export from a
+project-owned lighthouse concept passed unchanged Stage 4 topology,
+preprocessing, 4,096-byte storage, ROM, collision, multi-view, and stability
+gates. Stage 4H/S/T/U remain negative and access evidence, never retroactive
+success. Proceed to Stage 6L integrated presentation QA.
 
 ### Stage 6L — Integrated Presentation QA
 

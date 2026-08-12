@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "asset_id": "stage6k_hunyuan_lighthouse",
+  "concept": {
+    "path": "assets/concepts/stage6k_adriatic_lighthouse.png",
+    "sha256": "0d035d07e9a624464a28b97345ff0f858451a26d09ca72f56136a8088b24e23b",
+    "ownership": "project_owned_ai_generated_concept"
+  },
+  "generator": {
+    "organization": "Tencent Hunyuan",
+    "repository": "https://github.com/Tencent-Hunyuan/Hunyuan3D-2",
+    "repository_revision": "f8db63096c8282cb27354314d896feba5ba6ff8a",
+    "model_id": "tencent/Hunyuan3D-2/hunyuan3d-dit-v2-0",
+    "model_repository_revision": "9cd649ba6913f7a852e3286bad86bfa9a2d83dcf",
+    "license": "tencent-hunyuan-community",
+    "official_space": "tencent/Hunyuan3D-2",
+    "official_space_revision": "40b9abf02675534b9e80e3150bd97b85c135c8c8",
+    "execution": "official_anonymous_hugging_face_space"
+  },
+  "selected_generation": {
+    "input_sha256": "0d035d07e9a624464a28b97345ff0f858451a26d09ca72f56136a8088b24e23b",
+    "steps": 20,
+    "guidance_scale": 5.0,
+    "seed": 1234,
+    "octree_resolution": 16,
+    "remove_background": true,
+    "num_chunks": 8000,
+    "texture_generation": false,
+    "reported_generation_seconds": 4.644496202468872,
+    "dense_raw": {
+      "path": "assets/source/generated/stage6k_hunyuan_lighthouse_octree16_dense_raw.glb",
+      "sha256": "4c996e776360fe41e77ac6004145f5d9610c6aba48750b49b45c7fae9ca7f1f7",
+      "bytes": 19360,
+      "positions": 506,
+      "triangles": 1004
+    },
+    "official_export": {
+      "format": "glb",
+      "reduce_face": true,
+      "export_texture": false,
+      "requested_target_faces": 100,
+      "actual_positions": 54,
+      "actual_triangles": 100,
+      "reported_client_seconds": 0.7918208269984461,
+      "path": "assets/source/generated/stage6k_hunyuan_lighthouse_octree16_100_raw.glb",
+      "sha256": "f8d7a52221efdc273b87a553ae2df207d70314dbb232cc5f9a914060c09c7151",
+      "bytes": 2652
+    }
+  },
+  "recovery_evidence": {
+    "stable_fast_3d": "official Space reachable but all three bounded calls failed server-side",
+    "octree_128_dense_sha256": "621dc798655915cb410c949ff2b6e2197da7b8f249e74dd3a5b34f0204eb7880",
+    "octree_128_export_250_sha256": "3aa1e721aa14e5cf8996d5c25e10f61a01cc7cfcfc56430e2063d3b1a7c47e46",
+    "octree_128_export_100_sha256": "887f6469b1c53fae0f4e0a5b6ee8b1a1cc4ecda88a044a4e3d365e4e5d787672",
+    "octree_128_result": "valid manifold but Stage 4O stalled at 302 triangles",
+    "octree_16_result": "official 100-triangle export entered unchanged Stage 4O"
+  },
+  "cost_usd": 0
+}

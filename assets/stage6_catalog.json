@@ -2,6 +2,7 @@
   "schema_version": 1,
   "assets": [
     {"id": "stage6i_rural_kit", "manifest": "assets/manifests/stage6i_rural_kit.json"},
-    {"id": "stage6i_coastal_kit", "manifest": "assets/manifests/stage6i_coastal_kit.json"}
+    {"id": "stage6i_coastal_kit", "manifest": "assets/manifests/stage6i_coastal_kit.json"},
+    {"id": "stage6k_hunyuan_lighthouse", "manifest": "assets/manifests/stage6k_hunyuan_lighthouse.json"}
   ]
 }

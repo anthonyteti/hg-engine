@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "assets": [
+    {"id": "stage6k_hunyuan_lighthouse", "manifest": "assets/manifests/stage6k_hunyuan_lighthouse.json"}
+  ]
+}

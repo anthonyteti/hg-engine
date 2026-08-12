@@ -41,7 +41,7 @@ from .textures import (
 )
 
 
-ASSET_SCHEMA_VERSIONS = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}
+ASSET_SCHEMA_VERSIONS = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}
 CATALOG_SCHEMA_VERSION = 1
 SAFE_ID = re.compile(r"^[a-z][a-z0-9_]{0,63}$")
 STAGE4B_BUDGET = {
@@ -263,9 +263,9 @@ def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
         "coordinate_system", "normalization", "material_policy", "collision", "budget", "status",
     }
     if not isinstance(data, dict) or data.get("schema_version") not in ASSET_SCHEMA_VERSIONS:
-        raise AssetError("unsupported_manifest_schema", "asset manifest schema_version must be in 1..13")
+        raise AssetError("unsupported_manifest_schema", "asset manifest schema_version must be in 1..14")
     expected = common | ({"textures"} if data["schema_version"] == 2 else set())
-    if data["schema_version"] in (3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13):
+    if data["schema_version"] in (3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14):
         expected |= {"texture_catalog"}
     if data["schema_version"] == 6:
         expected |= {"simplification"}
@@ -273,6 +273,8 @@ def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
         expected |= {"geometry_storage"}
     if data["schema_version"] == 8:
         expected |= {"simplification", "geometry_storage"}
+    if data["schema_version"] == 14:
+        expected |= {"geometry_storage"}
     if data["schema_version"] in (9, 10, 11, 12, 13):
         expected |= {"preprocessing"}
     if set(data) != expected:
@@ -280,7 +282,7 @@ def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
     if not isinstance(data.get("id"), str) or not SAFE_ID.fullmatch(data["id"]):
         raise AssetError("invalid_asset_id", "asset id must be stable lower snake_case")
     source = _safe_relative(root, data.get("source"), Path("assets/source"), "invalid_source")
-    expected_source = "glb" if data["schema_version"] in (5, 7, 8, 9, 10, 11, 12, 13) else "obj"
+    expected_source = "glb" if data["schema_version"] in (5, 7, 8, 9, 10, 11, 12, 13, 14) else "obj"
     if data["schema_version"] == 6:
         expected_source = data.get("source_format")
     if expected_source not in {"obj", "glb"} or source.suffix.lower() != f".{expected_source}":
@@ -298,8 +300,18 @@ def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
     provenance = data.get("provenance")
     if not isinstance(provenance, dict) or set(provenance) != {"kind", "license"}:
         raise AssetError("invalid_provenance", "asset provenance must name kind and license")
-    if provenance["kind"] != "project_authored" or provenance["license"] not in {"CC0-1.0", "MIT"}:
-        raise AssetError("unsafe_provenance", "Stage 4B source must be explicitly project-authored and redistributable")
+    project_owned = provenance["kind"] == "project_authored" and provenance["license"] in {"CC0-1.0", "MIT"}
+    official_generated = (
+        data["schema_version"] == 14
+        and data["id"] == "stage6k_hunyuan_lighthouse"
+        and provenance == {"kind": "official_generated", "license": "tencent-hunyuan-community"}
+        and Path(data["source"]).parts[:3] == ("assets", "source", "generated")
+    )
+    if not (project_owned or official_generated):
+        raise AssetError(
+            "unsafe_provenance",
+            "asset source must be project-owned or the bounded Stage 6K official generated evidence",
+        )
     coordinates = data.get("coordinate_system")
     if not isinstance(coordinates, dict) or set(coordinates) != {"units", "up_axis", "forward_axis", "handedness"}:
         raise AssetError("invalid_coordinate_system", "coordinate_system declaration is incomplete")
@@ -332,6 +344,7 @@ def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
         11: "project_texture_catalog_binding",
         12: "project_texture_catalog_binding",
         13: "project_texture_catalog_binding",
+        14: "project_texture_catalog_binding",
     }
     expected_mode = expected_modes[data["schema_version"]]
     if not isinstance(material, dict) or set(material) != {"mode", "mappings"} or material["mode"] != expected_mode:
@@ -417,6 +430,7 @@ def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
         11: "stage4m_uv_source",
         12: "stage4n_material_source",
         13: "stage4p_bootstrap_source",
+        14: "stage6k_generated_source",
     }.get(data["schema_version"], "stage4b_proof")
     if data.get("budget") != expected_budget:
         raise AssetError(
@@ -481,7 +495,7 @@ def _validate_manifest(data: object, root: Path) -> dict[str, Any]:
             value = approximate[field]
             if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or not minimum <= value <= maximum:
                 raise AssetError("invalid_approximate_simplification_policy", f"{field} is outside its bounded range")
-    if data["schema_version"] in (7, 8):
+    if data["schema_version"] in (7, 8, 14):
         storage = data.get("geometry_storage")
         if not isinstance(storage, dict) or set(storage) != {"policy", "max_bytes"}:
             raise AssetError("invalid_geometry_storage", "Stage 4I geometry_storage requires policy and max_bytes")
@@ -580,6 +594,7 @@ def load_manifest(path: Path, root: Path) -> tuple[dict[str, Any], bytes]:
 def _normalized_ir(manifest: dict[str, Any], mesh: SourceMesh, root: Path | None = None) -> dict[str, Any]:
     budget = (
         STAGE4J_SOURCE_BUDGET if manifest["schema_version"] == 8
+        else STAGE4M_SOURCE_BUDGET if manifest["schema_version"] == 14
         else STAGE4G_SOURCE_BUDGET if manifest["schema_version"] in (6, 7)
         else STAGE4M_SOURCE_BUDGET if manifest["schema_version"] in (11, 13)
         else STAGE4B_BUDGET
@@ -624,7 +639,7 @@ def _normalized_ir(manifest: dict[str, Any], mesh: SourceMesh, root: Path | None
     texture_dimensions = {
         texture["id"]: texture["dimensions"] for texture in manifest.get("textures", [])
     }
-    if manifest["schema_version"] in (3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13):
+    if manifest["schema_version"] in (3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14):
         if root is None:
             raise AssetError("invalid_texture_catalog", "Stage 4D normalization requires its repository root")
         catalog = compile_texture_catalog(root / manifest["texture_catalog"], root)
@@ -831,7 +846,7 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
             ir, simplification_report = simplify_coplanar_ir(source_ir)
         except SimplificationError as error:
             raise AssetError(error.code, str(error), **error.details) from error
-    elif manifest["schema_version"] == 7:
+    elif manifest["schema_version"] in (7, 14):
         target_bytes = manifest["geometry_storage"]["max_bytes"]
     elif manifest["schema_version"] == 8:
         target_bytes = manifest["geometry_storage"]["max_bytes"]
@@ -861,7 +876,7 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
     if len(display_list) > target_bytes:
         code = (
             "simplification_target_unreachable" if manifest["schema_version"] in (6, 8)
-            else "project_geometry_capacity_exceeded" if manifest["schema_version"] == 7
+            else "project_geometry_capacity_exceeded" if manifest["schema_version"] in (7, 14)
             else "display_list_overflow"
         )
         details: dict[str, object] = {
@@ -869,7 +884,7 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
             "capacity_bytes": binding["capacity_bytes"], "shape": binding["shape"],
         }
         message = "asset display list exceeds its allowed template shape budget"
-        if manifest["schema_version"] in (7, 8):
+        if manifest["schema_version"] in (7, 8, 14):
             message = "asset display list exceeds its configured geometry storage"
             details.update({
                 "asset_id": manifest["id"],
@@ -924,7 +939,7 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
         "material_index": binding["material_index"],
         "material_name": binding["material_name"],
         "display_list_bytes": len(display_list),
-        "display_list_capacity_bytes": target_bytes if manifest["schema_version"] in (7, 8) else binding["capacity_bytes"],
+        "display_list_capacity_bytes": target_bytes if manifest["schema_version"] in (7, 8, 14) else binding["capacity_bytes"],
         "inherited_display_list_capacity_bytes": binding["capacity_bytes"],
         "display_list_target_bytes": target_bytes,
         "shape_utilization_percent": round(len(display_list) * 100 / target_bytes, 3),
@@ -932,7 +947,7 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
         "budget": dict(
             STAGE4J_SOURCE_BUDGET if manifest["schema_version"] == 8
             else STAGE4G_SOURCE_BUDGET if manifest["schema_version"] in (6, 7)
-            else STAGE4M_SOURCE_BUDGET if manifest["schema_version"] in (11, 13)
+            else STAGE4M_SOURCE_BUDGET if manifest["schema_version"] in (11, 13, 14)
             else STAGE4B_BUDGET
         ),
         "hashes": {
@@ -981,7 +996,7 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
             "post_exact_overflow_bytes": max(0, simplification_report["post_exact_display_list_bytes"] - target_bytes),
         })
         report["simplification"] = simplification_report
-    if manifest["schema_version"] in (7, 8):
+    if manifest["schema_version"] in (7, 8, 14):
         report["geometry_storage"] = {
             **manifest["geometry_storage"],
             "inherited_capacity_bytes": binding["capacity_bytes"],
@@ -991,7 +1006,7 @@ def compile_asset(manifest_path: Path, root: Path) -> dict[str, Any]:
     compiled_textures = {
         texture["id"]: compile_png(texture, root) for texture in manifest.get("textures", [])
     }
-    if manifest["schema_version"] in (3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13):
+    if manifest["schema_version"] in (3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14):
         compiled_textures = compile_texture_catalog(root / manifest["texture_catalog"], root)["textures"]
     if compiled_textures:
         report["textures"] = {
@@ -1161,7 +1176,7 @@ def compile_placements(catalog_path: Path, placements: object, root: Path) -> di
         }
         binding = ASSET_MATERIAL_BINDINGS[next(iter(aliases))]
         asset_ids_by_shape.setdefault(binding["shape"], set()).add(asset_id)
-        if compiled["manifest"]["schema_version"] in (7, 8):
+        if compiled["manifest"]["schema_version"] in (7, 8, 14):
             project_capacity = int(compiled["manifest"]["geometry_storage"]["max_bytes"])
             previous = project_capacity_by_shape.setdefault(binding["shape"], project_capacity)
             if previous != project_capacity:

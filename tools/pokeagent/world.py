@@ -372,7 +372,7 @@ def _validate_stage4b_fixture(fixture: dict[str, Any]) -> None:
         asset = compile_asset(asset_path, PROJECT_ROOT)
         storage = asset["report"].get("geometry_storage", {})
         if (
-            asset["manifest"]["schema_version"] != 7
+            asset["manifest"]["schema_version"] not in (7, 14)
             or storage.get("requires_relocation") is not True
             or asset["report"]["display_list_bytes"] <= asset["report"]["inherited_display_list_capacity_bytes"]
         ):

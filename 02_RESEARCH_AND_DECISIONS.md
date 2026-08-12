@@ -731,3 +731,14 @@ seed. World sources request approved catalog identities. Arbitrary transforms,
 materials, Nitro shapes, texture slots, and NARC members remain outside the
 planner contract. This yields visual variety without nondeterministic canonical
 builds or an unbounded procedural-art system.
+
+### Stage 6K generated-landmark decision
+
+The official anonymous Tencent Hunyuan3D-2 Space is an authorized executable
+generator route. A project-owned Adriatic lighthouse concept generated a valid
+100-triangle closed-manifold export that passed unchanged Stage 4Q/R/O/P/F,
+fit the unchanged 4,096-byte Nitro ceiling through existing Stage 4I
+relocation, and rendered stably in ROM. This is the first positive real
+generator-to-DS evidence; Stage 4H/S/T/U remain historical negative/access
+findings. The canonical build begins at the immutable raw GLB hash and never
+depends on repeat external generation.

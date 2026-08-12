@@ -949,3 +949,14 @@ The generated production catalog is the interface between world planning and
 asset compilation. It records biome, footprint, bounds, rotations, collision,
 symbolic textures, budgets, source lineage, approval state, and visual tags for
 base modules and controlled variants.
+
+### Authorized generated-landmark boundary
+
+Official external generation terminates at a hash-pinned immutable raw GLB.
+Project-owned deterministic processing then owns geometry projection, existing
+Stage 4 topology/reduction/attribute contracts, DS storage, collision, symbolic
+material binding, placement, and QA. Generated-source schema 14 authorizes only
+official generated provenance and reuses the established 256-element source
+envelope and 4,096-byte relocated display-list ceiling. Raw generator output is
+never silently repaired or treated as a normal approved asset before the
+project pipeline accepts it.

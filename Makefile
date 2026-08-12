@@ -232,6 +232,9 @@ endif
 ifeq ($(STAGE6I_ENVIRONMENT_KIT),Y)
     WORLD_INSTALL_ARGS := --fixture fixtures/stage6i_presentation_sandbox.json --output build/stage6i/generated
 endif
+ifeq ($(STAGE6K_GENERATED_LANDMARK),Y)
+    WORLD_INSTALL_ARGS := --fixture fixtures/stage6k_generated_landmark_world.json --output build/stage6k/generated
+endif
 ifeq ($(STAGE4E_TRIANGLES),Y)
     WORLD_INSTALL_ARGS := --fixture fixtures/stage4e_triangle_world.json --output build/stage4e/generated
 endif
@@ -667,6 +670,12 @@ stage6i-environment-kit:
 stage6j-asset-catalog:
 	. .venv/bin/activate; python3 -m tools.pokeagent.asset_catalog
 	. .venv/bin/activate; python3 -m unittest -v tests.test_pokeagent_stage6j_asset_catalog
+
+.PHONY: stage6k-generated-landmark
+stage6k-generated-landmark:
+	. .venv/bin/activate; python3 -m tools.pokeagent.stage6k_landmark
+	$(MAKE) clean
+	$(MAKE) STAGE2_MAP=Y STAGE6K_GENERATED_LANDMARK=Y
 
 .PHONY: battle-test-save
 battle-test-save:

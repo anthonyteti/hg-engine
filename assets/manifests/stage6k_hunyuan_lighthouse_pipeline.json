@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "id": "stage6k_hunyuan_lighthouse",
+  "concept": {"path": "assets/concepts/stage6k_adriatic_lighthouse.png", "sha256": "0d035d07e9a624464a28b97345ff0f858451a26d09ca72f56136a8088b24e23b"},
+  "provenance": {"path": "assets/provenance/stage6k_hunyuan_lighthouse.json", "sha256": "4258bbe9578d88b98ddb6bc19f6061ebee3b9d77658c0d3fd7935eaf6b4bf989"},
+  "raw_source": {"path": "assets/source/generated/stage6k_hunyuan_lighthouse_octree16_100_raw.glb", "sha256": "f8d7a52221efdc273b87a553ae2df207d70314dbb232cc5f9a914060c09c7151"},
+  "derived": {
+    "geometry": {"path": "assets/source/generated/stage6k_hunyuan_lighthouse_geometry.glb", "sha256": "dec6453d80c2160093a0fb7cd502bb2fb9a583e3dfd3fcdff79882c819f7c41d"},
+    "canonical": {"path": "assets/source/generated/stage6k_hunyuan_lighthouse_canonical.glb", "sha256": "e00f8305cdd8ce188512e8dad6831f207efa5567783c8d02dbc93e78efef3f53"}
+  },
+  "topology": {"max_components": 2, "repair": false},
+  "tiny_faces": {
+    "policy": "target_quantized_degenerate_v1",
+    "candidate_scope": "stage4o_normal_rejected_only",
+    "coordinate_system": {"up_axis": "+y", "forward_axis": "+z", "handedness": "right"},
+    "normalization": {"units_to_tiles": 5.0, "anchor": "footprint_center_base"},
+    "placement": {"x": 16, "z": 16, "rotation": 0},
+    "preserve_components": true,
+    "require_valid_boundaries": true
+  },
+  "geometry_reduction": {
+    "policy": "constrained_geometry_qem",
+    "target_faces": 60,
+    "target_positions": 64,
+    "preserve_boundaries": true,
+    "preserve_ground_contact": true,
+    "require_one_component": true,
+    "crease_angle_degrees": 60.0,
+    "ground_tolerance_ratio": 0.000001,
+    "max_face_rotation_degrees": 80.0,
+    "crease_penalty": 0.0001,
+    "max_bounds_delta_ratio": 0.04,
+    "max_geometric_error_ratio": 0.08,
+    "max_surface_area_delta_percent": 22.0,
+    "min_silhouette_iou": 0.84
+  },
+  "bootstrap": {
+    "policy": "hard_surface_static_v1",
+    "material_name": "generated_surface",
+    "color0_policy": "reject",
+    "patch_normal_degrees": 0.1,
+    "plane_epsilon": 0.00001,
+    "texture_size": 32,
+    "padding_texels": 1,
+    "crease_angle_degrees": 60,
+    "normal_weighting": "area"
+  }
+}

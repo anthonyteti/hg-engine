@@ -1,0 +1,1983 @@
+{
+  "asset_id": "stage6k_hunyuan_lighthouse",
+  "concept": {
+    "path": "assets/concepts/stage6k_adriatic_lighthouse.png",
+    "sha256": "0d035d07e9a624464a28b97345ff0f858451a26d09ca72f56136a8088b24e23b"
+  },
+  "derived": {
+    "canonical": {
+      "bytes": 6964,
+      "path": "assets/source/generated/stage6k_hunyuan_lighthouse_canonical.glb",
+      "sha256": "e00f8305cdd8ce188512e8dad6831f207efa5567783c8d02dbc93e78efef3f53"
+    },
+    "geometry": {
+      "bytes": 1308,
+      "path": "assets/source/generated/stage6k_hunyuan_lighthouse_geometry.glb",
+      "sha256": "dec6453d80c2160093a0fb7cd502bb2fb9a583e3dfd3fcdff79882c819f7c41d"
+    }
+  },
+  "provenance": {
+    "path": "assets/provenance/stage6k_hunyuan_lighthouse.json",
+    "sha256": "4258bbe9578d88b98ddb6bc19f6061ebee3b9d77658c0d3fd7935eaf6b4bf989"
+  },
+  "raw": {
+    "bytes": 2652,
+    "immutable": true,
+    "node_path": [
+      0,
+      1
+    ],
+    "path": "assets/source/generated/stage6k_hunyuan_lighthouse_octree16_100_raw.glb",
+    "positions": 54,
+    "sha256": "f8d7a52221efdc273b87a553ae2df207d70314dbb232cc5f9a914060c09c7151",
+    "topology": {
+      "boundary_edges": 0,
+      "boundary_loops": 0,
+      "bounds": {
+        "max": [
+          0.47548598051071167,
+          0.5789357423782349,
+          0.3650446832180023
+        ],
+        "min": [
+          -0.7147781848907471,
+          -0.9570020437240601,
+          -0.6319823861122131
+        ]
+      },
+      "connected_components": 2,
+      "edges": 150,
+      "positions": 54,
+      "semantic_sha256": "0adfc7d70c6808d7dd86dd7c94d0956cb6cf02838313ec28dfdf6e84490690fd",
+      "triangles": 100,
+      "valid": true
+    },
+    "triangles": 100
+  },
+  "report_sha256": "67e29db74e22f564671d40146796493efb196c6ba16e9446a28f6083e4e8483b",
+  "schema_version": 1,
+  "stage4f": {
+    "accepted": true
+  },
+  "stage4j": {
+    "reason": "pre-J projection fits the unchanged 4096-byte ceiling",
+    "required": false
+  },
+  "stage4o": {
+    "accepted_collapses": 20,
+    "algorithm": "constrained_geometry_qem",
+    "algorithm_version": 1,
+    "component_count": 2,
+    "component_merge_or_split": false,
+    "component_policy": "stable_id_area_weighted_minimum_allowance",
+    "component_reports": [
+      {
+        "accepted_collapses": 0,
+        "boundary_loops": 0,
+        "component_id": "c8d2f836f9dfc753",
+        "final_area": 0.039937409756633374,
+        "final_faces": 4,
+        "final_positions": 4,
+        "metrics": {
+          "bounds_max_delta": 0.0,
+          "bounds_max_delta_ratio": 0.0,
+          "final_surface_area": 0.039937409756633374,
+          "maximum_geometric_error": 0.0,
+          "maximum_geometric_error_ratio": 0.0,
+          "mean_geometric_error": 0.0,
+          "mean_geometric_error_ratio": 0.0,
+          "minimum_silhouette_iou": 1.0,
+          "silhouette_iou": {
+            "front": 1.0,
+            "left": 1.0,
+            "rear": 1.0,
+            "right": 1.0,
+            "three_quarter": 1.0
+          },
+          "source_diagonal": 0.32561961489445623,
+          "source_surface_area": 0.039937409756633374,
+          "surface_area_delta_percent": 0.0
+        },
+        "rejected_collapse_evaluations": 0,
+        "rejected_collapse_reasons": {},
+        "semantic_sha256": "4ec54aa0839576b7538ce580524870594fbce5626cd56bd0f17ae9279490f574",
+        "source_area": 0.039937409756633374,
+        "source_faces": 4,
+        "source_positions": 4,
+        "target_faces": 4,
+        "target_positions": 4
+      },
+      {
+        "accepted_collapses": 20,
+        "boundary_loops": 0,
+        "component_id": "e392802ef85e4b7c",
+        "final_area": 5.127956228255257,
+        "final_faces": 56,
+        "final_positions": 30,
+        "metrics": {
+          "bounds_max_delta": 0.0,
+          "bounds_max_delta_ratio": 0.0,
+          "final_surface_area": 5.127956228255257,
+          "maximum_geometric_error": 0.09488251745023732,
+          "maximum_geometric_error_ratio": 0.04660944923098517,
+          "mean_geometric_error": 0.009032312290900632,
+          "mean_geometric_error_ratio": 0.004436972294521296,
+          "minimum_silhouette_iou": 0.971871,
+          "silhouette_iou": {
+            "front": 0.986609,
+            "left": 0.989406,
+            "rear": 0.986609,
+            "right": 0.989406,
+            "three_quarter": 0.971871
+          },
+          "source_diagonal": 2.035692740757834,
+          "source_surface_area": 5.17340049941652,
+          "surface_area_delta_percent": 0.8784216719039721
+        },
+        "rejected_collapse_evaluations": 710,
+        "rejected_collapse_reasons": {
+          "batch_conflict": 540,
+          "face_rotation": 100,
+          "ground_contact": 49,
+          "topology_link": 21
+        },
+        "semantic_sha256": "c56515a921d6bbdccad8d205b5f0e0f0048536fe3d3a27a8691f348b594d0b9b",
+        "source_area": 5.17340049941652,
+        "source_faces": 96,
+        "source_positions": 50,
+        "target_faces": 56,
+        "target_positions": 50
+      }
+    ],
+    "component_survival": true,
+    "face_reduction_percent": 40.0,
+    "final": {
+      "boundary_edges": 0,
+      "boundary_loops": 0,
+      "bounds": {
+        "max": [
+          0.47548598051071167,
+          0.5789357423782349,
+          0.3650446832180023
+        ],
+        "min": [
+          -0.7147781848907471,
+          -0.9570020437240601,
+          -0.6319823861122131
+        ]
+      },
+      "connected_components": 2,
+      "edges": 90,
+      "positions": 34,
+      "semantic_sha256": "00dc203d02b1c0f536510d01dc5fe68b78981c580ea6462dab7681ee2ae3c764",
+      "triangles": 60,
+      "valid": true
+    },
+    "metrics": {
+      "bounds_max_delta": 0.0,
+      "bounds_max_delta_ratio": 0.0,
+      "final_surface_area": 5.16789363801189,
+      "maximum_geometric_error": 0.09488251745023732,
+      "maximum_geometric_error_ratio": 0.043444191031738036,
+      "mean_geometric_error": 0.008211192991727847,
+      "mean_geometric_error_ratio": 0.003759687732971306,
+      "minimum_silhouette_iou": 0.971939,
+      "silhouette_iou": {
+        "front": 0.986667,
+        "left": 0.989981,
+        "rear": 0.986667,
+        "right": 0.989981,
+        "three_quarter": 0.971939
+      },
+      "source_diagonal": 2.1840093047404463,
+      "source_surface_area": 5.213337909173153,
+      "surface_area_delta_percent": 0.8716924157419638
+    },
+    "policy": {
+      "crease_angle_degrees": 60.0,
+      "crease_penalty": 0.0001,
+      "ground_tolerance_ratio": 1e-06,
+      "max_bounds_delta_ratio": 0.04,
+      "max_face_rotation_degrees": 80.0,
+      "max_geometric_error_ratio": 0.08,
+      "max_surface_area_delta_percent": 22.0,
+      "min_silhouette_iou": 0.84,
+      "policy": "constrained_geometry_qem",
+      "preserve_boundaries": true,
+      "preserve_ground_contact": true,
+      "require_one_component": true,
+      "target_faces": 60,
+      "target_positions": 64
+    },
+    "position_reduction_percent": 37.037,
+    "rejected_collapse_evaluations": 710,
+    "schema_version": 2,
+    "semantic_sha256": "4a9c4f22b1f39ce7c02d072f4219f36f6c97823368685c8457c46ad57cacf077",
+    "source": {
+      "boundary_edges": 0,
+      "boundary_loops": 0,
+      "bounds": {
+        "max": [
+          0.47548598051071167,
+          0.5789357423782349,
+          0.3650446832180023
+        ],
+        "min": [
+          -0.7147781848907471,
+          -0.9570020437240601,
+          -0.6319823861122131
+        ]
+      },
+      "connected_components": 2,
+      "edges": 150,
+      "positions": 54,
+      "semantic_sha256": "0adfc7d70c6808d7dd86dd7c94d0956cb6cf02838313ec28dfdf6e84490690fd",
+      "triangles": 100,
+      "valid": true
+    },
+    "success": true
+  },
+  "stage4p": {
+    "atomic": true,
+    "canonical_sha256": "e00f8305cdd8ce188512e8dad6831f207efa5567783c8d02dbc93e78efef3f53",
+    "canonical_size_bytes": 6964,
+    "color0": {
+      "discarded": false,
+      "evidence": null,
+      "policy": "reject"
+    },
+    "final_counts": {
+      "attribute_vertices": 180,
+      "faces": 60,
+      "normals": 60,
+      "unique_positions": 34,
+      "uvs": 180
+    },
+    "limits": {
+      "max_accessors": 4,
+      "max_buffer_bytes": 262144,
+      "max_buffer_views": 4,
+      "max_faces": 80,
+      "max_indices": 240,
+      "max_meshes": 1,
+      "max_nodes": 1,
+      "max_positions": 256,
+      "max_primitives": 1,
+      "max_source_bytes": 262144
+    },
+    "material": {
+      "count": 1,
+      "index": 0,
+      "name": "generated_surface",
+      "provenance": "stage4p_via_stage4n_policy"
+    },
+    "max_components": 2,
+    "normals": {
+      "boundary_edge_count": 0,
+      "canonical_attribute_vertices": 180,
+      "canonical_sha256": "e00f8305cdd8ce188512e8dad6831f207efa5567783c8d02dbc93e78efef3f53",
+      "canonical_size_bytes": 6964,
+      "crease_angle_degrees": 60,
+      "face_count": 60,
+      "generated_unique_normal_count": 60,
+      "hard_edge_count": 90,
+      "limits": {
+        "max_accessor_elements": 256,
+        "max_accessors": 16,
+        "max_adjacency_edges": 768,
+        "max_buffer_bytes": 262144,
+        "max_buffer_views": 16,
+        "max_faces": 256,
+        "max_meshes": 1,
+        "max_nodes": 1,
+        "max_primitives": 4,
+        "max_source_bytes": 262144
+      },
+      "material": "generated_surface",
+      "max_float32_normal_length_error": 3.5364469352927586e-08,
+      "minimum_smooth_edge_normal_agreement": null,
+      "policy": "crease_aware",
+      "preserve_boundaries": true,
+      "preserve_uv_seams": true,
+      "provenance": "stage4p_via_stage4l_crease_aware_policy",
+      "report_sha256": "17b900ecee23431352dafe6900b75a1f5ea4e6b2e238d226b6037dcf39dd84c2",
+      "schema_version": 1,
+      "smooth_edge_count": 0,
+      "smoothing_fan_count": 180,
+      "source_accessor_count": 3,
+      "source_attribute_vertices": 180,
+      "source_buffer_view_count": 3,
+      "source_primitive_count": 1,
+      "source_sha256": "3bfd5ca65f17207595d73af6c8095dc04a31d383df24baf4ffd7bbf3c59e62a4",
+      "source_size_bytes": 4680,
+      "split_vertex_count": 0,
+      "stage4f_accepted": true,
+      "success": true,
+      "uv_seam_forced_split_count": 90,
+      "weighting": "area"
+    },
+    "operation_order": [
+      "validate_geometry",
+      "assign_material",
+      "generate_uv0",
+      "generate_final_normals",
+      "stage4f_validate"
+    ],
+    "policy": "hard_surface_static_v1",
+    "report_sha256": "5d46fb2f32befd23f5fa9c2fc5953bead935745cda3b51d557d9fd53e8676d05",
+    "schema_version": 1,
+    "source_sha256": "dec6453d80c2160093a0fb7cd502bb2fb9a583e3dfd3fcdff79882c819f7c41d",
+    "source_size_bytes": 1308,
+    "source_topology": {
+      "boundary_edges": 0,
+      "boundary_loops": 0,
+      "bounds": {
+        "max": [
+          0.47548598051071167,
+          0.5789357423782349,
+          0.3650446832180023
+        ],
+        "min": [
+          -0.7147781848907471,
+          -0.9570020437240601,
+          -0.6319823861122131
+        ]
+      },
+      "connected_components": 2,
+      "edges": 90,
+      "positions": 34,
+      "semantic_sha256": "00dc203d02b1c0f536510d01dc5fe68b78981c580ea6462dab7681ee2ae3c764",
+      "triangles": 60,
+      "valid": true
+    },
+    "stage4f_accepted": true,
+    "success": true,
+    "uv": {
+      "boundary_edge_count": 0,
+      "canonical_attribute_vertices": 180,
+      "decimation_protected_edge_fraction": 1.0,
+      "degenerate_uv_triangle_count": 0,
+      "face_count": 60,
+      "intentionally_overlapping_patch_islands": 60,
+      "maximum_patch_aspect_distortion": 2.7477473786285955e-06,
+      "mean_patch_aspect_distortion": 3.8743738191632856e-07,
+      "mirrored_uv_triangle_count": 0,
+      "patches": [
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            -0.031395712458855224,
+            0.9995033690442074,
+            -0.002706382914506737
+          ],
+          "faces": 1,
+          "normal": [
+            -0.9958103640701628,
+            -0.03151214479020828,
+            -0.08584115295807149
+          ],
+          "patch": 0,
+          "projected_height": 0.3179597418032464,
+          "projected_width": 0.2897232424925879,
+          "tangent": [
+            -0.08588380551449125,
+            0.0,
+            0.9963051600540614
+          ],
+          "uniform_scale": 2.9484864803422988,
+          "unused_margin_u": 0.08325493646967119,
+          "unused_margin_v": 0.0
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            -0.24280021642532826,
+            0.969364706264357,
+            0.03714998186851
+          ],
+          "faces": 1,
+          "normal": [
+            -0.9582132530148672,
+            -0.2456258664086844,
+            0.14661273988862414
+          ],
+          "patch": 1,
+          "projected_height": 0.31610144503825877,
+          "projected_width": 0.4521377899554851,
+          "tangent": [
+            0.15124621202026842,
+            0.0,
+            0.9884961220710581
+          ],
+          "uniform_scale": 2.073482953265864,
+          "unused_margin_u": -1.1102230246251565e-16,
+          "unused_margin_v": 0.282069042210464
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            0.005114181962335635,
+            0.9999814272529479,
+            -0.003315160933257146
+          ],
+          "faces": 1,
+          "normal": [
+            -0.8391064447907045,
+            0.006094682039062707,
+            0.543933110925918
+          ],
+          "patch": 2,
+          "projected_height": 0.3079305261874583,
+          "projected_width": 0.1887551653923899,
+          "tangent": [
+            0.5439432134456321,
+            0.0,
+            0.839122029591906
+          ],
+          "uniform_scale": 3.0445179034613794,
+          "unused_margin_u": 0.3628315195920552,
+          "unused_margin_v": 0.0
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            0.3986098470220932,
+            0.8409613682676803,
+            0.3659155188542492
+          ],
+          "faces": 1,
+          "normal": [
+            -0.6195129883405605,
+            0.5410951645333295,
+            -0.568699991380339
+          ],
+          "patch": 3,
+          "projected_height": 0.2936596699261811,
+          "projected_width": 0.3285492181205825,
+          "tangent": [
+            -0.6762498407647666,
+            0.0,
+            0.736672351093502
+          ],
+          "uniform_scale": 2.8534537545480427,
+          "unused_margin_u": 0.0,
+          "unused_margin_v": 0.09955571228979965
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            0.60892770421389,
+            0.7098543845722798,
+            -0.3539968979303511
+          ],
+          "faces": 1,
+          "normal": [
+            -0.6136877205614877,
+            0.704348459715438,
+            0.3567641082403545
+          ],
+          "patch": 4,
+          "projected_height": 0.3253665085720806,
+          "projected_width": 0.1725028440350128,
+          "tangent": [
+            0.502587736293721,
+            -2.7755575615628914e-17,
+            0.8645262097398513
+          ],
+          "uniform_scale": 2.88136601432753,
+          "unused_margin_u": 0.44045616782267166,
+          "unused_margin_v": -1.1102230246251565e-16
+        },
+        {
+          "basis_policy": "world_axis_projected",
+          "bitangent": [
+            -8.673617379884037e-19,
+            0.052742771533268167,
+            -0.9986081313763621
+          ],
+          "faces": 1,
+          "normal": [
+            0.13438860629092253,
+            0.9895494644962625,
+            0.05226432640284993
+          ],
+          "patch": 5,
+          "projected_height": 0.27595266753206793,
+          "projected_width": 0.21656502825394586,
+          "tangent": [
+            0.990928707071898,
+            -0.13420155500645176,
+            -0.007088027558276452
+          ],
+          "uniform_scale": 3.397321752256861,
+          "unused_margin_u": 0.20175891873474805,
+          "unused_margin_v": 0.0
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            -0.006162800973748553,
+            0.9990904000079983,
+            0.042194697486958074
+          ],
+          "faces": 1,
+          "normal": [
+            0.14439145335367362,
+            0.042642380466596165,
+            -0.988601403795562
+          ],
+          "patch": 6,
+          "projected_height": 0.3180911688774377,
+          "projected_width": 0.19304953482648524,
+          "tangent": [
+            -0.9895014543104886,
+            8.673617379884037e-19,
+            -0.14452291139272053
+          ],
+          "uniform_scale": 2.9472682417072193,
+          "unused_margin_u": 0.36853123692954826,
+          "unused_margin_v": 0.0
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            0.1970977006084745,
+            0.9196938642853635,
+            0.33958164321810375
+          ],
+          "faces": 1,
+          "normal": [
+            -0.46167301887435924,
+            0.39263621330164555,
+            -0.7954211636910224
+          ],
+          "patch": 7,
+          "projected_height": 0.3157833280986708,
+          "projected_width": 0.34272023055702233,
+          "tangent": [
+            -0.8648760142692637,
+            0.0,
+            0.5019855375822219
+          ],
+          "uniform_scale": 2.735467347452129,
+          "unused_margin_u": 0.0,
+          "unused_margin_v": 0.07368501711632347
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            0.027017972314760202,
+            0.9976198317739287,
+            0.06344052666361734
+          ],
+          "faces": 1,
+          "normal": [
+            -0.39089271726553054,
+            0.06895412425198577,
+            -0.917849776563361
+          ],
+          "patch": 8,
+          "projected_height": 0.11914299064664591,
+          "projected_width": 0.716583655575193,
+          "tangent": [
+            -0.9200396256470528,
+            0.0,
+            0.39182532746012116
+          ],
+          "uniform_scale": 1.3082910734929896,
+          "unused_margin_u": 1.1102230246251565e-16,
+          "unused_margin_v": 0.7816262888677344
+        },
+        {
+          "basis_policy": "world_axis_projected",
+          "bitangent": [
+            0.0,
+            0.02907827602764172,
+            0.999577137525294
+          ],
+          "faces": 1,
+          "normal": [
+            -0.08992717373815233,
+            -0.9955271945712418,
+            0.02896046084890955
+          ],
+          "patch": 9,
+          "projected_height": 0.6207426027148298,
+          "projected_width": 0.47995279951650316,
+          "tangent": [
+            0.9959483437525604,
+            -0.0898891469109221,
+            0.002614927180343687
+          ],
+          "uniform_scale": 1.510287832508717,
+          "unused_margin_u": 0.21263312671172963,
+          "unused_margin_v": 0.0
+        },
+        {
+          "basis_policy": "world_axis_projected",
+          "bitangent": [
+            0.0,
+            -0.04724536310760776,
+            0.9988833143389824
+          ],
+          "faces": 1,
+          "normal": [
+            0.009015588970284302,
+            -0.9988427184743852,
+            -0.047243442997084314
+          ],
+          "patch": 10,
+          "projected_height": 0.9023763305258015,
+          "projected_width": 0.6598315591614055,
+          "tangent": [
+            0.9999593587519039,
+            0.009005521391355556,
+            0.00042594477453002544
+          ],
+          "uniform_scale": 1.0389235270097703,
+          "unused_margin_u": 0.2519854693236767,
+          "unused_margin_v": 1.1102230246251565e-16
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            0.006732673353964801,
+            0.9990854084900604,
+            -0.042225793678247865
+          ],
+          "faces": 1,
+          "normal": [
+            -0.1573116561762869,
+            0.042759169101482135,
+            0.9866228743997499
+          ],
+          "patch": 11,
+          "projected_height": 0.3082066902939353,
+          "projected_width": 0.16130796774715866,
+          "tangent": [
+            0.9875260573476442,
+            0.0,
+            0.15745566378958076
+          ],
+          "uniform_scale": 3.041789907629554,
+          "unused_margin_u": 0.4468350516864592,
+          "unused_margin_v": 0.0
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            0.10268271528995389,
+            0.7319371719193698,
+            -0.6735905554143088
+          ],
+          "faces": 1,
+          "normal": [
+            -0.11030286268322788,
+            0.6813721276678955,
+            0.7235781244075931
+          ],
+          "patch": 12,
+          "projected_height": 0.305637038631447,
+          "projected_width": 0.16130383375953083,
+          "tangent": [
+            0.9885795559612627,
+            -1.3877787807814457e-17,
+            0.15069990555880503
+          ],
+          "uniform_scale": 3.0673638384858393,
+          "unused_margin_u": 0.4427224533168838,
+          "unused_margin_v": 1.1102230246251565e-16
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            0.1197027201073608,
+            0.974085573794441,
+            -0.19190766979058793
+          ],
+          "faces": 1,
+          "normal": [
+            -0.5155221676770892,
+            0.22617978452009033,
+            0.826486297350392
+          ],
+          "patch": 13,
+          "projected_height": 0.3148418912551405,
+          "projected_width": 0.5202248089809276,
+          "tangent": [
+            0.8484740145887875,
+            0.0,
+            0.5292370419458431
+          ],
+          "uniform_scale": 1.8021055201817,
+          "unused_margin_u": 0.0,
+          "unused_margin_v": 0.37012168978466475
+        },
+        {
+          "basis_policy": "world_axis_projected",
+          "bitangent": [
+            0.0,
+            0.6632391503761569,
+            0.748407528962873
+          ],
+          "faces": 1,
+          "normal": [
+            -0.32169471445302183,
+            -0.7086247635220714,
+            0.6279836424750864
+          ],
+          "patch": 14,
+          "projected_height": 0.22433492324501325,
+          "projected_width": 0.47077775246866477,
+          "tangent": [
+            0.9468434457147543,
+            -0.2407587463242031,
+            0.2133605290943226
+          ],
+          "uniform_scale": 1.9913855212654734,
+          "unused_margin_u": 0.0,
+          "unused_margin_v": 0.49076268193567935
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            0.03415036960187747,
+            0.9994125639103288,
+            -0.0028773867029211744
+          ],
+          "faces": 1,
+          "normal": [
+            -0.9958838568241345,
+            0.03427137432585663,
+            0.08390957405983919
+          ],
+          "patch": 15,
+          "projected_height": 0.6984354419974367,
+          "projected_width": 0.20818211779535237,
+          "tangent": [
+            0.08395889454454357,
+            4.336808689942019e-19,
+            0.9964692188055074
+          ],
+          "uniform_scale": 1.3422858343483672,
+          "unused_margin_u": 0.6580600923186554,
+          "unused_margin_v": 1.1102230246251565e-16
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            0.03201549985393647,
+            0.9990633520208894,
+            0.02911058944589076
+          ],
+          "faces": 1,
+          "normal": [
+            -0.7391827717473922,
+            0.043271453046836925,
+            -0.6721133917004317
+          ],
+          "patch": 16,
+          "projected_height": 0.8704049979048072,
+          "projected_width": 0.21893619828260866,
+          "tangent": [
+            -0.672743515554736,
+            3.469446951953615e-18,
+            0.7398757748967423
+          ],
+          "uniform_scale": 1.0770848079419355,
+          "unused_margin_u": 0.7016871469212389,
+          "unused_margin_v": 0.0
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            0.009136666554551297,
+            0.9999582353560841,
+            -0.00022106066389088376
+          ],
+          "faces": 1,
+          "normal": [
+            -0.9996656796108523,
+            0.009139340432776108,
+            0.024186803522300505
+          ],
+          "patch": 17,
+          "projected_height": 0.4581840364344351,
+          "projected_width": 0.39939139618587427,
+          "tangent": [
+            0.024187813717727533,
+            -2.7105054312137617e-20,
+            0.9997074320357714
+          ],
+          "uniform_scale": 2.0461210462406707,
+          "unused_margin_u": 0.12029685857663674,
+          "unused_margin_v": 0.0
+        },
+        {
+          "basis_policy": "world_axis_projected",
+          "bitangent": [
+            2.1684043449710093e-19,
+            0.0038554444859782476,
+            -0.9999925677462886
+          ],
+          "faces": 1,
+          "normal": [
+            -0.6639704961844514,
+            0.7477532138610352,
+            0.0028829424320126313
+          ],
+          "patch": 18,
+          "projected_height": 0.39924265186983876,
+          "projected_width": 0.45465564879793097,
+          "tangent": [
+            0.7477587713939392,
+            0.6639655613872668,
+            0.002559901388366584
+          ],
+          "uniform_scale": 2.062000114765244,
+          "unused_margin_u": 0.0,
+          "unused_margin_v": 0.11426160602521218
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            0.04884014062969994,
+            0.9971013985615007,
+            0.05833902338889854
+          ],
+          "faces": 1,
+          "normal": [
+            -0.6400618192530814,
+            0.07608417040816912,
+            -0.7645469681764074
+          ],
+          "patch": 19,
+          "projected_height": 0.912691069469781,
+          "projected_width": 0.302417546014332,
+          "tangent": [
+            -0.7667695274316182,
+            0.0,
+            0.641922496725495
+          ],
+          "uniform_scale": 1.027182177365482,
+          "unused_margin_u": 0.6268620866114727,
+          "unused_margin_v": 1.1102230246251565e-16
+        },
+        {
+          "basis_policy": "world_axis_projected",
+          "bitangent": [
+            -1.387778780781446e-17,
+            -0.21341224972270584,
+            -0.976962236562035
+          ],
+          "faces": 1,
+          "normal": [
+            -0.5244318511744435,
+            0.8318368662776424,
+            -0.18171037773098703
+          ],
+          "patch": 20,
+          "projected_height": 0.44883925999820673,
+          "projected_width": 0.538881191451406,
+          "tangent": [
+            0.8514524258428925,
+            0.5123501142477525,
+            -0.11192018118538122
+          ],
+          "uniform_scale": 1.739715571580753,
+          "unused_margin_u": 0.0,
+          "unused_margin_v": 0.1566473502443375
+        },
+        {
+          "basis_policy": "world_axis_projected",
+          "bitangent": [
+            2.7755575615628914e-17,
+            -0.4967933124536557,
+            -0.8678688868148947
+          ],
+          "faces": 1,
+          "normal": [
+            -0.48692831693825106,
+            0.7580330799983591,
+            -0.43392011222330257
+          ],
+          "patch": 21,
+          "projected_height": 0.2749637676347817,
+          "projected_width": 0.5253144819501003,
+          "tangent": [
+            0.8734419351987184,
+            0.4225899363798502,
+            -0.24190273149923722
+          ],
+          "uniform_scale": 1.7846452595781535,
+          "unused_margin_u": 0.0,
+          "unused_margin_v": 0.44678721553483797
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            -0.004866908916016754,
+            0.9999881208757414,
+            0.00026702997365621653
+          ],
+          "faces": 1,
+          "normal": [
+            -0.9984863652822169,
+            -0.004874228903491732,
+            0.05478339381695631
+          ],
+          "patch": 22,
+          "projected_height": 0.6818801103695786,
+          "projected_width": 0.21298262144482735,
+          "tangent": [
+            0.054784044603429546,
+            0.0,
+            0.9984982265667223
+          ],
+          "uniform_scale": 1.374875122097161,
+          "unused_margin_u": 0.6446754923364696,
+          "unused_margin_v": 0.0
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            0.0001511351311994031,
+            0.9999999720124525,
+            -0.00018202545561515587
+          ],
+          "faces": 1,
+          "normal": [
+            -0.6388045458082242,
+            0.00023659056273352466,
+            0.7693690247726729
+          ],
+          "patch": 23,
+          "projected_height": 0.6818720293149441,
+          "projected_width": 0.3843208579534305,
+          "tangent": [
+            0.7693690463054258,
+            0.0,
+            0.6388045636867974
+          ],
+          "uniform_scale": 1.374891416123752,
+          "unused_margin_u": 0.40910055136251255,
+          "unused_margin_v": 0.0
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            0.17985138021502403,
+            0.9005405530058661,
+            -0.39582848991279
+          ],
+          "faces": 1,
+          "normal": [
+            -0.3725250307165045,
+            0.4347720234696442,
+            0.8198770573066296
+          ],
+          "patch": 24,
+          "projected_height": 0.34899753499302744,
+          "projected_width": 0.6120286363414073,
+          "tangent": [
+            0.9104276920900519,
+            0.0,
+            0.4136682456698626
+          ],
+          "uniform_scale": 1.5317910704378144,
+          "unused_margin_u": 0.0,
+          "unused_margin_v": 0.40290869229287196
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            0.19826359241025743,
+            0.8763254500700691,
+            -0.4390276226891309
+          ],
+          "faces": 1,
+          "normal": [
+            -0.3606734231024143,
+            0.4817195299751616,
+            0.7986619912754683
+          ],
+          "patch": 25,
+          "projected_height": 0.21193715175962807,
+          "projected_width": 0.6120036956984367,
+          "tangent": [
+            0.9113760090062533,
+            0.0,
+            0.4115747443755919
+          ],
+          "uniform_scale": 1.5318534946592066,
+          "unused_margin_u": 1.1102230246251565e-16,
+          "unused_margin_v": 0.6128433334288952
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            0.008819973112280523,
+            0.999908518444376,
+            -0.010254892328625139
+          ],
+          "faces": 1,
+          "normal": [
+            -0.6520121575829054,
+            0.013526076385007075,
+            0.7580878521792257
+          ],
+          "patch": 26,
+          "projected_height": 0.7674554002293278,
+          "projected_width": 0.3904354194373079,
+          "tangent": [
+            0.7581572095801656,
+            -8.673617379884035e-19,
+            0.6520718101264744
+          ],
+          "uniform_scale": 1.2215693572810358,
+          "unused_margin_u": 0.46055605561821616,
+          "unused_margin_v": 0.0
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            0.017625643381229874,
+            0.9990353067833875,
+            0.040221791302979676
+          ],
+          "faces": 1,
+          "normal": [
+            -0.40097839298095356,
+            0.043914186776288416,
+            -0.9150343559463705
+          ],
+          "patch": 27,
+          "projected_height": 0.9109243043201353,
+          "projected_width": 0.37202811889210663,
+          "tangent": [
+            -0.9159179357659778,
+            3.469446951953615e-18,
+            0.4013655876407323
+          ],
+          "uniform_scale": 1.0291744281646973,
+          "unused_margin_u": 0.5546181734780282,
+          "unused_margin_v": 1.1102230246251565e-16
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            0.016847997153509403,
+            0.999105651029143,
+            0.03878199419250691
+          ],
+          "faces": 1,
+          "normal": [
+            -0.3980964608607164,
+            0.042283543863213514,
+            -0.9163685447288878
+          ],
+          "patch": 28,
+          "projected_height": 0.8235407230165372,
+          "projected_width": 0.3721272547011165,
+          "tangent": [
+            -0.9171888316165256,
+            -1.7347234759768075e-18,
+            0.39845281672729155
+          ],
+          "uniform_scale": 1.1383772214275485,
+          "unused_margin_u": 0.5138788097758813,
+          "unused_margin_v": 0.0
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            0.06497621429651057,
+            0.9568103719640477,
+            0.2833584367505482
+          ],
+          "faces": 1,
+          "normal": [
+            -0.21385340831001576,
+            0.2907127656330566,
+            -0.932605386887814
+          ],
+          "patch": 29,
+          "projected_height": 0.19536039083788648,
+          "projected_width": 0.4170417155290219,
+          "tangent": [
+            -0.9747024219370154,
+            -1.3877787807814457e-17,
+            0.2235065741093903
+          ],
+          "uniform_scale": 2.247976557478839,
+          "unused_margin_u": 0.0,
+          "unused_margin_v": 0.49833442113652743
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            0.11536489444640483,
+            0.7550187788736606,
+            0.6454746971628682
+          ],
+          "faces": 1,
+          "normal": [
+            -0.13283855573622816,
+            0.6557031672549146,
+            -0.7432410608690738
+          ],
+          "patch": 30,
+          "projected_height": 0.37252831990065927,
+          "projected_width": 0.41602211173880654,
+          "tangent": [
+            -0.9844007614987318,
+            -1.3877787807814457e-17,
+            0.17594073081784423
+          ],
+          "uniform_scale": 2.2534859891980834,
+          "unused_margin_u": 0.0,
+          "unused_margin_v": 0.09801265052436281
+        },
+        {
+          "basis_policy": "world_axis_projected",
+          "bitangent": [
+            0.0,
+            -0.06330444859755374,
+            0.9979942619012194
+          ],
+          "faces": 1,
+          "normal": [
+            -0.07063963011664852,
+            -0.9955011735127819,
+            -0.06314630782284192
+          ],
+          "patch": 31,
+          "projected_height": 0.902285976488876,
+          "projected_width": 0.6046983510483044,
+          "tangent": [
+            0.997501901079383,
+            -0.07049794551923978,
+            -0.004471802833669584
+          ],
+          "uniform_scale": 1.0390275637976272,
+          "unused_margin_u": 0.30920174547783796,
+          "unused_margin_v": 1.1102230246251565e-16
+        },
+        {
+          "basis_policy": "world_axis_projected",
+          "bitangent": [
+            0.0,
+            0.5958812215675652,
+            0.8030725806445806
+          ],
+          "faces": 1,
+          "normal": [
+            -0.04851913314796603,
+            -0.802126764575441,
+            0.5951794244346026
+          ],
+          "patch": 32,
+          "projected_height": 0.11557291553032634,
+          "projected_width": 0.5572963978394642,
+          "tangent": [
+            0.9988222533156587,
+            -0.03896438546777509,
+            0.028911640329609332
+          ],
+          "uniform_scale": 1.6822287092371588,
+          "unused_margin_u": 0.0,
+          "unused_margin_v": 0.7430799234846439
+        },
+        {
+          "basis_policy": "world_axis_projected",
+          "bitangent": [
+            -1.0842021724855047e-19,
+            0.01916084189285863,
+            0.9998164142171087
+          ],
+          "faces": 1,
+          "normal": [
+            0.015761977940742803,
+            -0.9996922093329847,
+            0.01915846158572106
+          ],
+          "patch": 33,
+          "projected_height": 0.6921812340690483,
+          "projected_width": 0.6032626966818626,
+          "tangent": [
+            0.9998757723094381,
+            0.01575908426568264,
+            -0.00030201276724129827
+          ],
+          "uniform_scale": 1.3544140665137998,
+          "unused_margin_u": 0.12043251781103748,
+          "unused_margin_v": 0.0
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            0.15293277390934432,
+            0.9539158343888147,
+            -0.2581785187940408
+          ],
+          "faces": 1,
+          "normal": [
+            -0.48616292155041735,
+            0.3000742923049083,
+            0.820732010346417
+          ],
+          "patch": 34,
+          "projected_height": 0.04727371543345338,
+          "projected_width": 0.3158152754110944,
+          "tangent": [
+            0.860381996774663,
+            0.0,
+            0.5096497028607433
+          ],
+          "uniform_scale": 2.968507456707606,
+          "unused_margin_u": 0.0,
+          "unused_margin_v": 0.7971676232295202
+        },
+        {
+          "basis_policy": "world_axis_projected",
+          "bitangent": [
+            0.0,
+            0.32394656472908673,
+            0.9460753792379462
+          ],
+          "faces": 1,
+          "normal": [
+            -0.20124356983466457,
+            -0.9267198427426262,
+            0.3173190171850444
+          ],
+          "patch": 35,
+          "projected_height": 0.15346438557031755,
+          "projected_width": 0.276831794866262,
+          "tangent": [
+            0.979541232210365,
+            -0.19039158665052835,
+            0.06519216312175764
+          ],
+          "uniform_scale": 3.386532968342412,
+          "unused_margin_u": 0.0,
+          "unused_margin_v": 0.41778779879970807
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            -0.12738463252101567,
+            0.7932916975578016,
+            0.5953666416447492
+          ],
+          "faces": 1,
+          "normal": [
+            0.16597608582478268,
+            0.6088417549625366,
+            -0.7757342691594995
+          ],
+          "patch": 36,
+          "projected_height": 0.09995667546058506,
+          "projected_width": 0.1894952119601682,
+          "tangent": [
+            -0.9778676261804408,
+            1.387778780781446e-17,
+            -0.20922453409729422
+          ],
+          "uniform_scale": 4.947354554779263,
+          "unused_margin_u": 0.0,
+          "unused_margin_v": 0.44297888637948185
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            -0.0016642505726789838,
+            0.9989006191081509,
+            0.04684851561559002
+          ],
+          "faces": 1,
+          "normal": [
+            -0.03546265965019112,
+            -0.04687806678344195,
+            0.9982709284684103
+          ],
+          "patch": 37,
+          "projected_height": 0.9908044378564808,
+          "projected_width": 0.5226790925850163,
+          "tangent": [
+            0.9993696163284964,
+            0.0,
+            0.03550168952928798
+          ],
+          "uniform_scale": 0.946200848704513,
+          "unused_margin_u": 0.4429405989959528,
+          "unused_margin_v": 0.0
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            -0.0013533078834388427,
+            0.9998086403861822,
+            -0.019515408448361575
+          ],
+          "faces": 1,
+          "normal": [
+            0.06916623472637093,
+            0.01956227515228635,
+            0.9974133292495357
+          ],
+          "patch": 38,
+          "projected_height": 0.8251679129231257,
+          "projected_width": 0.523862486309146,
+          "tangent": [
+            0.9976042304098099,
+            -4.336808689942018e-19,
+            -0.06917947288358606
+          ],
+          "uniform_scale": 1.1361323984096063,
+          "unused_margin_u": 0.34232285699277043,
+          "unused_margin_v": 0.0
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            0.0015301186415809746,
+            0.9941435256829853,
+            0.10805697145277737
+          ],
+          "faces": 1,
+          "normal": [
+            0.014075954904802086,
+            -0.10806780437578833,
+            0.9940438708381609
+          ],
+          "patch": 39,
+          "projected_height": 0.30259563088210595,
+          "projected_width": 0.6072698841398625,
+          "tangent": [
+            0.9998997580910102,
+            0.0,
+            -0.014158875998444774
+          ],
+          "uniform_scale": 1.543794652896176,
+          "unused_margin_u": 0.0,
+          "unused_margin_v": 0.47035448305445987
+        },
+        {
+          "basis_policy": "world_axis_projected",
+          "bitangent": [
+            0.0,
+            -0.028974058671817488,
+            -0.9995801638308367
+          ],
+          "faces": 1,
+          "normal": [
+            0.021862537800436337,
+            0.9993412503341466,
+            -0.02896713347069699
+          ],
+          "patch": 40,
+          "projected_height": 0.4094921979019335,
+          "projected_width": 0.3132025115466766,
+          "tangent": [
+            0.9997609861566537,
+            -0.021853359116318014,
+            0.00063344645294467
+          ],
+          "uniform_scale": 2.2894209091244164,
+          "unused_margin_u": 0.22044762127475714,
+          "unused_margin_v": 0.0
+        },
+        {
+          "basis_policy": "world_axis_projected",
+          "bitangent": [
+            2.7755575615628907e-17,
+            0.5844041108691095,
+            -0.8114627749929664
+          ],
+          "faces": 1,
+          "normal": [
+            0.40434474381218044,
+            0.7421692519781954,
+            0.5344998873429145
+          ],
+          "patch": 41,
+          "projected_height": 0.4010437045242514,
+          "projected_width": 0.6633955718640903,
+          "tangent": [
+            0.9146066521469556,
+            -0.32811070786765206,
+            -0.2363007304921552
+          ],
+          "uniform_scale": 1.4131839881983195,
+          "unused_margin_u": 1.1102230246251565e-16,
+          "unused_margin_v": 0.37075145819859
+        },
+        {
+          "basis_policy": "world_axis_projected",
+          "bitangent": [
+            0.0,
+            -0.5317946270170582,
+            -0.8468733522055042
+          ],
+          "faces": 1,
+          "normal": [
+            0.5389616857956507,
+            0.7133470682092413,
+            -0.4479467172796228
+          ],
+          "patch": 42,
+          "projected_height": 0.14564268878216793,
+          "projected_width": 0.17161768024568144,
+          "tangent": [
+            0.8423302803795613,
+            -0.4564322895600924,
+            0.286616928674183
+          ],
+          "uniform_scale": 5.4627238793690145,
+          "unused_margin_u": 0.0,
+          "unused_margin_v": 0.1418942061341415
+        },
+        {
+          "basis_policy": "world_axis_projected",
+          "bitangent": [
+            0.0,
+            -0.5247098494656525,
+            0.851281136801311
+          ],
+          "faces": 1,
+          "normal": [
+            0.23236122554723032,
+            -0.8279811974692673,
+            -0.5103483099801029
+          ],
+          "patch": 43,
+          "projected_height": 0.2527043026390229,
+          "projected_width": 0.5097640670827195,
+          "tangent": [
+            0.9726295599364586,
+            0.19780472823239206,
+            0.12192222367854173
+          ],
+          "uniform_scale": 1.839086080282453,
+          "unused_margin_u": 0.0,
+          "unused_margin_v": 0.4727550345890887
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            -0.009488276525968441,
+            0.999551473441309,
+            0.02840465718636741
+          ],
+          "faces": 1,
+          "normal": [
+            0.3166883743507128,
+            0.0299474863938244,
+            -0.9480567607531706
+          ],
+          "patch": 44,
+          "projected_height": 0.8231734053531579,
+          "projected_width": 0.5231059316561927,
+          "tangent": [
+            -0.9484821802014363,
+            0.0,
+            -0.3168304812361501
+          ],
+          "uniform_scale": 1.1388851898073575,
+          "unused_margin_u": 0.3417424017363824,
+          "unused_margin_v": 0.0
+        },
+        {
+          "basis_policy": "world_axis_projected",
+          "bitangent": [
+            -2.7755575615628914e-17,
+            -0.5400370048508667,
+            -0.8416412735790142
+          ],
+          "faces": 1,
+          "normal": [
+            0.4305586452802868,
+            0.759633938972236,
+            -0.48741720500607016
+          ],
+          "patch": 45,
+          "projected_height": 0.3876780257452548,
+          "projected_width": 0.3125845025034765,
+          "tangent": [
+            0.9025626033546948,
+            -0.36237592656415557,
+            0.2325176012098128
+          ],
+          "uniform_scale": 2.418243846031232,
+          "unused_margin_u": 0.18159445045623368,
+          "unused_margin_v": 0.0
+        },
+        {
+          "basis_policy": "world_axis_projected",
+          "bitangent": [
+            0.0,
+            -0.46531128096579005,
+            -0.8851471130868448
+          ],
+          "faces": 1,
+          "normal": [
+            0.46716710853791166,
+            0.7826196739404473,
+            -0.41141382896260914
+          ],
+          "patch": 46,
+          "projected_height": 0.1611799083306347,
+          "projected_width": 0.5557563952195546,
+          "tangent": [
+            0.8841690407949868,
+            -0.4135116174514612,
+            0.21737812569885992
+          ],
+          "uniform_scale": 1.686890169981104,
+          "unused_margin_u": 0.0,
+          "unused_margin_v": 0.6656071970385968
+        },
+        {
+          "basis_policy": "world_axis_projected",
+          "bitangent": [
+            0.0,
+            -0.289218147104193,
+            -0.9572632153099885
+          ],
+          "faces": 1,
+          "normal": [
+            0.4917567078211388,
+            0.8335203321120036,
+            -0.25183168241666987
+          ],
+          "patch": 47,
+          "projected_height": 0.456823518755911,
+          "projected_width": 0.5643323485060749,
+          "tangent": [
+            0.8707326457144668,
+            -0.47074060727911793,
+            0.1422249638620878
+          ],
+          "uniform_scale": 1.6612551140862128,
+          "unused_margin_u": 0.0,
+          "unused_margin_v": 0.1785995932318839
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            0.07000460598440511,
+            0.968365117452366,
+            -0.2395169189064387
+          ],
+          "faces": 1,
+          "normal": [
+            0.2716625726776288,
+            -0.24953757092162565,
+            -0.9294785889436651
+          ],
+          "patch": 48,
+          "projected_height": 0.20851580190684094,
+          "projected_width": 0.25018607013109306,
+          "tangent": [
+            -0.9598431130904365,
+            -1.387778780781446e-17,
+            -0.28053733842905787
+          ],
+          "uniform_scale": 3.747211023814262,
+          "unused_margin_u": 0.0,
+          "unused_margin_v": 0.15614728845521464
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            -0.015147608270839849,
+            0.9990004962687876,
+            0.042054231872541
+          ],
+          "faces": 1,
+          "normal": [
+            0.3385408720258106,
+            0.04469908785105418,
+            -0.9398893921697848
+          ],
+          "patch": 49,
+          "projected_height": 0.7872409690741954,
+          "projected_width": 0.4977557981445099,
+          "tangent": [
+            -0.9408297550203635,
+            -1.734723475976807e-18,
+            -0.3388795834338846
+          ],
+          "uniform_scale": 1.1908679004631975,
+          "unused_margin_u": 0.3447385977202644,
+          "unused_margin_v": 0.0
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            -0.06501966559721047,
+            0.9945726504709359,
+            -0.08122614124064045
+          ],
+          "faces": 1,
+          "normal": [
+            0.6215304613219359,
+            0.10404442769902456,
+            0.7764500258958872
+          ],
+          "patch": 50,
+          "projected_height": 0.959506662877105,
+          "projected_width": 0.492981105516099,
+          "tangent": [
+            0.780687087593082,
+            6.93889390390723e-18,
+            -0.6249221321616251
+          ],
+          "uniform_scale": 0.9770646065019315,
+          "unused_margin_u": 0.4558256101260255,
+          "unused_margin_v": 0.0
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            -0.13208612941589856,
+            0.9845040814934433,
+            -0.11534716268152467
+          ],
+          "faces": 1,
+          "normal": [
+            0.7415493778503981,
+            0.17536166491782526,
+            0.6475745568557615
+          ],
+          "patch": 51,
+          "projected_height": 1.0052931064425796,
+          "projected_width": 0.3758415211884127,
+          "tangent": [
+            0.6577672647871845,
+            -1.387778780781446e-17,
+            -0.7532212326895639
+          ],
+          "uniform_scale": 0.9325638403286397,
+          "unused_margin_u": 0.587003787645576,
+          "unused_margin_v": 0.0
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            -0.10501618090719607,
+            0.9928068513597264,
+            0.057499196871375106
+          ],
+          "faces": 1,
+          "normal": [
+            0.8708209422032577,
+            0.11972700569706937,
+            -0.4767979978219757
+          ],
+          "patch": 52,
+          "projected_height": 0.27824161822091814,
+          "projected_width": 0.23091008566150437,
+          "tangent": [
+            -0.4802525256236534,
+            0.0,
+            -0.8771302706166868
+          ],
+          "uniform_scale": 3.369373733499653,
+          "unused_margin_u": 0.1594776225719724,
+          "unused_margin_v": 0.0
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            -0.7062082357053892,
+            0.707945129676562,
+            -0.009144462210396867
+          ],
+          "faces": 1,
+          "normal": [
+            0.7078857871849571,
+            0.706267437566844,
+            0.00916618428235144
+          ],
+          "patch": 53,
+          "projected_height": 0.41503587138673975,
+          "projected_width": 0.39258426077684366,
+          "tangent": [
+            0.01294759141367239,
+            0.0,
+            -0.9999161764250966
+          ],
+          "uniform_scale": 2.258840896974942,
+          "unused_margin_u": 0.05071461624858986,
+          "unused_margin_v": 1.1102230246251565e-16
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            -0.16635406145105167,
+            0.9428321729400674,
+            0.28877988141117206
+          ],
+          "faces": 1,
+          "normal": [
+            0.47062426619299463,
+            0.3332679007481982,
+            -0.8169732592938367
+          ],
+          "patch": 54,
+          "projected_height": 0.29298977361128353,
+          "projected_width": 0.3217739996060508,
+          "tangent": [
+            -0.8665097381501521,
+            0.0,
+            -0.49916016837379457
+          ],
+          "uniform_scale": 2.9135355906561284,
+          "unused_margin_u": 0.0,
+          "unused_margin_v": 0.08386386688524372
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            -0.08599677531811944,
+            0.9898617929010739,
+            0.1130406368946867
+          ],
+          "faces": 1,
+          "normal": [
+            0.5993281712816938,
+            0.1420339077638559,
+            -0.7878020767638715
+          ],
+          "patch": 55,
+          "projected_height": 0.9430943207563648,
+          "projected_width": 0.3280631964775329,
+          "tangent": [
+            -0.7958707795509429,
+            0.0,
+            -0.6054665162145423
+          ],
+          "uniform_scale": 0.9940681216785633,
+          "unused_margin_u": 0.6113828344857134,
+          "unused_margin_v": 0.0
+        },
+        {
+          "basis_policy": "world_axis_projected",
+          "bitangent": [
+            0.0,
+            0.05328550167192125,
+            0.9985793184878063
+          ],
+          "faces": 1,
+          "normal": [
+            0.4637640246993948,
+            -0.8847000975721754,
+            0.04720875713680894
+          ],
+          "patch": 56,
+          "projected_height": 0.6917526318913911,
+          "projected_width": 0.12085515227518667,
+          "tangent": [
+            0.8859587628070615,
+            0.46310516372348376,
+            -0.024711898713496522
+          ],
+          "uniform_scale": 1.355253246289336,
+          "unused_margin_u": 0.7737106625482613,
+          "unused_margin_v": 0.0
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            0.6708900507537445,
+            0.7415326784787806,
+            -0.005985528190852529
+          ],
+          "faces": 1,
+          "normal": [
+            0.741503167974447,
+            -0.6709167509818826,
+            -0.0066155223356362146
+          ],
+          "patch": 57,
+          "projected_height": 0.11226439995335036,
+          "projected_width": 0.6572471560471524,
+          "tangent": [
+            -0.008921417123797766,
+            0.0,
+            -0.9999602033663656
+          ],
+          "uniform_scale": 1.4264040420324642,
+          "unused_margin_u": 0.0,
+          "unused_margin_v": 0.7773656061301919
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            0.003938157445092719,
+            0.9999922420061241,
+            8.27254661009229e-05
+          ],
+          "faces": 1,
+          "normal": [
+            0.9997716878566624,
+            -0.003939026220410423,
+            0.021001338830550886
+          ],
+          "patch": 58,
+          "projected_height": 0.9553800061291687,
+          "projected_width": 0.657544117014085,
+          "tangent": [
+            0.021001501760072924,
+            1.3552527156068805e-20,
+            -0.9997794441394671
+          ],
+          "uniform_scale": 0.9812849274482814,
+          "unused_margin_u": 0.2922618688417893,
+          "unused_margin_v": 0.0
+        },
+        {
+          "basis_policy": "vertical_world_up",
+          "bitangent": [
+            0.009631954627394908,
+            0.9999536071186519,
+            9.51864095887289e-05
+          ],
+          "faces": 1,
+          "normal": [
+            0.9999047824750363,
+            -0.009632424948929765,
+            0.009881415544016081
+          ],
+          "patch": 59,
+          "projected_height": 0.955416918840686,
+          "projected_width": 0.48909742677554496,
+          "tangent": [
+            0.009881873992623719,
+            0.0,
+            -0.9999511730911634
+          ],
+          "uniform_scale": 0.981247015321409,
+          "unused_margin_u": 0.4575746097751151,
+          "unused_margin_v": 0.0
+        }
+      ],
+      "planar_patch_count": 60,
+      "provenance": "stage4p_via_stage4m_planar_patch_policy",
+      "source_attribute_vertices": 34,
+      "transient_geometric_normals_written": false,
+      "uv_max": [
+        0.96875,
+        0.96875
+      ],
+      "uv_min": [
+        0.03125,
+        0.03125
+      ],
+      "uv_seam_edge_count": 90,
+      "uv_split_count": 146
+    },
+    "uv_intermediate_sha256": "3bfd5ca65f17207595d73af6c8095dc04a31d383df24baf4ffd7bbf3c59e62a4"
+  },
+  "stage4q": {
+    "exact_zero_area_faces": 0,
+    "no_op": true,
+    "repair_applied": false,
+    "success": true,
+    "topology": {
+      "boundary_edges": 0,
+      "boundary_loop_vertex_counts": [],
+      "boundary_loops": 0,
+      "components": [
+        {
+          "boundary_loops": 0,
+          "bounds": {
+            "max": [
+              0.47548598051071167,
+              0.35952869057655334,
+              0.3650446832180023
+            ],
+            "min": [
+              -0.7147781848907471,
+              -0.9570020437240601,
+              -0.6319823861122131
+            ]
+          },
+          "component_id": "3c4acf25549c1c82",
+          "faces": 96,
+          "positions": 50
+        },
+        {
+          "boundary_loops": 0,
+          "bounds": {
+            "max": [
+              0.08660748600959778,
+              0.5789357423782349,
+              -0.01735289767384529
+            ],
+            "min": [
+              -0.18456067144870758,
+              0.49964094161987305,
+              -0.17924267053604126
+            ]
+          },
+          "component_id": "9a2ca2fbe6512b28",
+          "faces": 4,
+          "positions": 4
+        }
+      ],
+      "connected_components": 2
+    }
+  },
+  "stage4r": {
+    "classification_counts": {
+      "EXACT_ZERO_STAGE4Q_REQUIRED": 0,
+      "TARGET_NULL_NONBLOCKING_PRESERVED": 0,
+      "TARGET_QUANTIZED_DEGENERATE": 0,
+      "TARGET_REPRESENTABLE": 100
+    },
+    "no_op": true,
+    "removed_face_count": 0,
+    "success": true,
+    "target_representation": {
+      "anchor_center_xz_base_y": [
+        -0.5982305109500885,
+        -4.7850102186203,
+        -0.667344257235527
+      ],
+      "command": "VTX_16",
+      "fixed_fraction_bits": 12,
+      "model_base_y": 0.25,
+      "model_coordinate_increment": 0.000244140625,
+      "model_tile_scale": 0.25,
+      "normalized_tile_increment": 0.0009765625,
+      "opcode": "0x23",
+      "placement": {
+        "rotation": 0,
+        "x": 16,
+        "z": 16
+      },
+      "rounding": "python_round_nearest_ties_to_even",
+      "signed_range": [
+        -32768,
+        32767
+      ],
+      "source_bounds_oriented_tiles": {
+        "max": [
+          2.3774299025535583,
+          2.8946787118911743,
+          1.8252234160900116
+        ],
+        "min": [
+          -3.5738909244537354,
+          -4.7850102186203,
+          -3.1599119305610657
+        ]
+      },
+      "source_units_to_tiles": 5.0
+    }
+  },
+  "success": true
+}
