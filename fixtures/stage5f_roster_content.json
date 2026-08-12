@@ -2,7 +2,9 @@
   "schema_version": 1,
   "id": "stage5f_roster_content_closure",
   "scope": {
-    "base_species_last_national_dex": 905,
+    "base_species_last_national_dex": 1025,
+    "main_story_encounter_pool": "CURATED_APPROXIMATELY_300_350_DEFERRED",
+    "postgame_completion": "ALL_1025_BASE_SPECIES_OBTAINABLE",
     "gigantamax": "OUT_OF_SCOPE_FOR_GAME",
     "mega": "TEMPORARY_BATTLE_FORM",
     "expanded_cry_authenticity": "ROUTED_SOURCE_PRESENT_UNVERIFIED"

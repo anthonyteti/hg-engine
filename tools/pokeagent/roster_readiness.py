@@ -20,7 +20,10 @@ from typing import Any
 
 SPECIES_DATA = Path("data/Species.c")
 PROJECT_SPEC = Path("01_PROJECT_SPEC.md")
-IN_SCOPE_LAST_NATIONAL_DEX = 905
+FORM_DATA = Path("data/PokeFormDataTbl.c")
+MEGA_SOURCE = Path("src/battle/mega.c")
+ITEM_CONSTANTS = Path("include/constants/item.h")
+IN_SCOPE_LAST_NATIONAL_DEX = 1025
 
 READINESS_STATUSES = {
     "READY",
@@ -205,6 +208,101 @@ def validate_generated_dex_archives(
     }
 
 
+def mega_runtime_contracts(root: Path, records: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """Resolve every adjusted Mega identity to its exact source/target form trigger."""
+
+    form_source = _read(root, FORM_DATA)
+    form_entries: dict[str, list[dict[str, Any]]] = {}
+    for match in re.finditer(r"^\s*\[(SPECIES_[A-Z0-9_]+)\]\s*=\s*\{(.*?)\n\s*\},", form_source, re.MULTILINE | re.DOTALL):
+        entries = []
+        for entry in re.finditer(r"(NEEDS_REVERSION\s*\|\s*)?(SPECIES_[A-Z0-9_]+)", match.group(2)):
+            entries.append({"identity": entry.group(2), "needs_reversion": bool(entry.group(1))})
+        form_entries[match.group(1)] = entries
+
+    mega_source = _read(root, MEGA_SOURCE)
+    table_match = re.search(r"const struct MegaStruct sMegaTable\[\]\s*=\s*\{(.*?)\n\};", mega_source, re.DOTALL)
+    move_match = re.search(r"const struct MegaStructMove sMegaMoveTable\[\]\s*=\s*\{(.*?)\n\};", mega_source, re.DOTALL)
+    if not table_match or not move_match:
+        raise ReadinessError("Mega trigger tables not found")
+
+    triggers: dict[str, dict[str, Any]] = {}
+    for block in re.finditer(r"\{(.*?)\}", table_match.group(1), re.DOTALL):
+        base = re.search(r"\.monindex\s*=\s*(SPECIES_[A-Z0-9_]+)", block.group(1))
+        item = re.search(r"\.itemindex\s*=\s*(ITEM_[A-Z0-9_]+)", block.group(1))
+        target = re.search(r"\.form\s*=\s*(\d+)", block.group(1))
+        source = re.search(r"\.sourceform\s*=\s*(\d+)", block.group(1))
+        if not base or not item or not target:
+            continue
+        target_form = int(target.group(1))
+        entries = form_entries.get(base.group(1), [])
+        if not 1 <= target_form <= len(entries):
+            raise ReadinessError(f"Mega target form is outside PokeFormDataTbl: {base.group(1)} form {target_form}")
+        identity = entries[target_form - 1]["identity"]
+        if identity in triggers:
+            raise ReadinessError(f"duplicate Mega trigger for adjusted identity: {identity}")
+        triggers[identity] = {
+            "trigger_type": "ITEM",
+            "trigger": item.group(1),
+            "base_species": base.group(1),
+            "source_form": int(source.group(1)) if source else 0,
+            "target_form": target_form,
+        }
+
+    for block in re.finditer(r"\{(.*?)\}", move_match.group(1), re.DOTALL):
+        base = re.search(r"\.monindex\s*=\s*(SPECIES_[A-Z0-9_]+)", block.group(1))
+        move = re.search(r"\.moveindex\s*=\s*(MOVE_[A-Z0-9_]+)", block.group(1))
+        target = re.search(r"\.form\s*=\s*(\d+)", block.group(1))
+        if not base or not move or not target:
+            continue
+        target_form = int(target.group(1))
+        identity = form_entries[base.group(1)][target_form - 1]["identity"]
+        triggers[identity] = {
+            "trigger_type": "MOVE",
+            "trigger": move.group(1),
+            "base_species": base.group(1),
+            "source_form": 0,
+            "target_form": target_form,
+        }
+
+    item_source = _read(root, ITEM_CONSTANTS)
+    item_values = {name: int(value) for name, value in re.findall(r"^#define\s+(ITEM_[A-Z0-9_]+)\s+(\d+)\s*$", item_source, re.MULTILINE)}
+    macro_match = re.search(r"#define IS_ITEM_MEGA_STONE\(item\)(.*?)(?=\n#define IS_ITEM_Z_CRYSTAL)", item_source, re.DOTALL)
+    if not macro_match:
+        raise ReadinessError("IS_ITEM_MEGA_STONE definition not found")
+    stone_ranges = [
+        (item_values[first], item_values[last])
+        for first, last in re.findall(r"item\s*>=\s*(ITEM_[A-Z0-9_]+)\s*&&\s*item\s*<=\s*(ITEM_[A-Z0-9_]+)", macro_match.group(1))
+    ]
+    stone_singletons = {
+        item_values[name]
+        for name in re.findall(r"item\s*==\s*(ITEM_[A-Z0-9_]+)", macro_match.group(1))
+    }
+
+    contracts: dict[str, dict[str, Any]] = {}
+    for record in records:
+        if record["kind"] != "form" or not record["species"].startswith("SPECIES_MEGA_"):
+            continue
+        base = record["base_species"]
+        matching = next((entry for entry in form_entries.get(base, []) if entry["identity"] == record["species"]), None)
+        trigger = triggers.get(record["species"])
+        stone_classified = None
+        if trigger and trigger["trigger_type"] == "ITEM":
+            value = item_values.get(trigger["trigger"])
+            stone_classified = value is not None and (value in stone_singletons or any(first <= value <= last for first, last in stone_ranges))
+        contracts[record["species"]] = {
+            "base_species": base,
+            "trigger_type": trigger["trigger_type"] if trigger else None,
+            "trigger": trigger["trigger"] if trigger else None,
+            "source_form": trigger["source_form"] if trigger else None,
+            "target_form": trigger["target_form"] if trigger else None,
+            "adjusted_identity": record["species"],
+            "needs_reversion": bool(matching and matching["needs_reversion"]),
+            "mega_stone_classified": stone_classified,
+            "source_paths": [str(MEGA_SOURCE), str(FORM_DATA), str(ITEM_CONSTANTS)],
+        }
+    return contracts
+
+
 def form_family(species: str) -> str:
     if "_FILLER_" in species:
         return "FILLER_OR_RESERVED"
@@ -247,7 +345,7 @@ def _cry_classification(record: dict[str, Any]) -> str:
     return "ROUTED_SOURCE_PRESENT_UNVERIFIED"
 
 
-def classify_record(record: dict[str, Any], dex_fields: dict[str, str]) -> dict[str, Any]:
+def classify_record(record: dict[str, Any], dex_fields: dict[str, str], mega_contract: dict[str, Any] | None = None) -> dict[str, Any]:
     """Classify one historical audit record under production semantics."""
 
     species = record["species"]
@@ -301,23 +399,19 @@ def classify_record(record: dict[str, Any], dex_fields: dict[str, str]) -> dict[
             scope = "OUT_OF_SCOPE_FOR_GAME"
             readiness = "OUT_OF_SCOPE_FOR_GAME"
             not_applicable = ["dynamax_runtime", "ordinary_follower", "persistent_dex_identity"]
-        elif record["id"] >= 1428:
-            # These are the later Legends: Z-A Mega identity block.  The
-            # project content boundary is through Legends: Arceus (#905), and
-            # no design decision opts these newer forms into production even
-            # when their base species is older.
-            scope = "OUT_OF_SCOPE_FOR_GAME"
-            readiness = "OUT_OF_SCOPE_FOR_GAME"
-            not_applicable = ["current_game_content_selection"]
         elif scope == "OUT_OF_SCOPE_FOR_GAME":
             readiness = "OUT_OF_SCOPE_FOR_GAME"
         elif family == "MEGA_TEMPORARY":
             required = _required_missing(caps, ("species_data", "battle_front", "battle_back", "palette", "icon", "form_mapping"))
-            if not caps.get("mega_battle_mapping", False) and species != "SPECIES_MEGA_RAYQUAZA":
-                required.append("mega_battle_mapping")
+            if not mega_contract or not mega_contract["trigger"]:
+                required.append("mega_trigger_mapping")
+            if mega_contract and not mega_contract["needs_reversion"]:
+                required.append("battle_reversion")
+            if mega_contract and mega_contract["trigger_type"] == "ITEM" and not mega_contract["mega_stone_classified"]:
+                required.append("mega_stone_classification")
             not_applicable = ["ordinary_follower", "persistent_form_storage", "independent_national_dex_identity"]
             evidence.append("STAGE_5E_REPRESENTATIVE_MEGA_ARCHITECTURE_PROVEN")
-            if species == "SPECIES_MEGA_RAYQUAZA":
+            if mega_contract and mega_contract["trigger_type"] == "MOVE":
                 evidence.append("MEGA_MOVE_TRIGGER_MAPPING_DRAGON_ASCENT")
             readiness = "REQUIRED_FUNCTIONAL_GAP" if required else "READY"
         elif family == "REGIONAL_PERSISTENT":
@@ -355,7 +449,7 @@ def apply_production_readiness(root: Path, inventory: dict[str, Any]) -> dict[st
     """Annotate inventory records and return a deterministic summary."""
 
     spec = _read(root, PROJECT_SPEC)
-    if "National Dex #905" not in spec or "Dynamax or Gigantamax" not in spec:
+    if "National Dex #1-1025" not in spec or "Dynamax or Gigantamax" not in spec:
         raise ReadinessError("project roster/gimmick scope markers changed")
     records = inventory["records"]
     id_by_name = {record["species"]: record["id"] for record in records}
@@ -365,11 +459,16 @@ def apply_production_readiness(root: Path, inventory: dict[str, Any]) -> dict[st
         if record["kind"] == "species"
     }
     dex_records = species_text_records(root)
+    mega_contracts = mega_runtime_contracts(root, records)
     for record in records:
         if record["kind"] == "form":
             record["base_species_id"] = id_by_name.get(record["base_species"])
             record["base_national_dex_number"] = dex_by_name.get(record["base_species"])
-        record["production"] = classify_record(record, dex_records.get(record["species"], {}))
+        mega_contract = mega_contracts.get(record["species"])
+        if mega_contract:
+            mega_contract["base_national_dex_number"] = record.get("base_national_dex_number")
+            record["mega_runtime"] = mega_contract
+        record["production"] = classify_record(record, dex_records.get(record["species"], {}), mega_contract)
 
     readiness_counts = Counter(record["production"]["readiness"] for record in records)
     scope_counts = Counter(record["production"]["scope"] for record in records)
@@ -411,7 +510,7 @@ def apply_production_readiness(root: Path, inventory: dict[str, Any]) -> dict[st
                 if record["production"]["family"] == "GIGANTAMAX_OUT_OF_SCOPE"
                 else "preserve structural filler; do not invent gameplay content"
                 if record["production"]["family"] == "FILLER_OR_RESERVED"
-                else "preserve source-backed future Mega data; base species is outside the #905 production scope"
+                else "retain historical audit status; exact source-backed Mega runtime contract is production-ready"
             ),
         }
         for record in records
@@ -421,10 +520,20 @@ def apply_production_readiness(root: Path, inventory: dict[str, Any]) -> dict[st
     in_scope_bases = [record for record in records if record["kind"] == "species" and record["production"]["scope"] == "IN_SCOPE"]
     regional = [record for record in records if record["production"]["family"] == "REGIONAL_PERSISTENT" and record["production"]["scope"] == "IN_SCOPE"]
     megas = [record for record in records if record["production"]["family"] == "MEGA_TEMPORARY" and record["production"]["scope"] == "IN_SCOPE"]
+    mega_classification_counts = Counter(
+        "IN_SCOPE_READY" if record["production"]["readiness"] == "READY" else "IN_SCOPE_REQUIRED_GAP"
+        for record in megas
+    )
+    mega_slot_match = re.search(r"^#define\s+NUM_MEGA_STONES\s+\((\d+)\)", _read(root, ITEM_CONSTANTS), re.MULTILINE)
+    if not mega_slot_match:
+        raise ReadinessError("NUM_MEGA_STONES definition not found")
+    mega_slot_reserve = int(mega_slot_match.group(1))
     return {
         "schema_version": 1,
         "game_scope": {
-            "base_species": "National Dex identities through 905",
+            "base_species": "National Dex identities through 1025",
+            "main_story_encounter_pool": "curated approximately 300-350 species; composition deferred to content design",
+            "postgame_completion": "all 1,025 base species ultimately obtainable",
             "regional_forms": "persistent relevant forms through the scoped base roster",
             "mega_forms": "temporary battle identities for scoped base species",
             "gigantamax": "OUT_OF_SCOPE_FOR_GAME",
@@ -449,9 +558,29 @@ def apply_production_readiness(root: Path, inventory: dict[str, Any]) -> dict[st
             "required_gap_count": sum(bool(record["production"]["required_gaps"]) for record in regional),
         },
         "mega_static_audit": {
+            "total_identity_count": len(mega_contracts),
             "in_scope_count": len(megas),
             "ready_count": sum(record["production"]["readiness"] == "READY" for record in megas),
             "required_gap_count": sum(bool(record["production"]["required_gaps"]) for record in megas),
+            "unique_item_trigger_count": len({
+                record["mega_runtime"]["trigger"]
+                for record in megas
+                if record["mega_runtime"]["trigger_type"] == "ITEM"
+            }),
+            "bag_incremental_mega_slot_reserve": mega_slot_reserve,
+            "bag_capacity_classification": "NONBLOCKING_FULL_ITEM_COLLECTION_DEBT",
+            "classification_counts": dict(sorted(mega_classification_counts.items())),
+            "records": [
+                {
+                    "species": record["species"],
+                    "base_species": record["base_species"],
+                    "base_national_dex_number": record["base_national_dex_number"],
+                    "classification": "IN_SCOPE_READY" if record["production"]["readiness"] == "READY" else "IN_SCOPE_REQUIRED_GAP",
+                    "required_gaps": record["production"]["required_gaps"],
+                    **record["mega_runtime"],
+                }
+                for record in megas
+            ],
         },
         "exceptional_identities": exceptions,
         "trainer_form_serialization": {

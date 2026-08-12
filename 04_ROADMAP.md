@@ -522,9 +522,10 @@ and unexecuted cases already covered by shared architecture.
 
 Stage 5F preserves the historical flat audit statuses and adds production
 scope, form-family requirements, readiness, reason codes, truthful cry
-provenance classes, and the Stage 5B-E representative evidence. The #905
-production roster contains 905 base species, resolved by National Dex order
-rather than the engine's reserved-ID-shifted constants; all 905 have the required static
+provenance classes, and the Stage 5B-E representative evidence. The #1-1025
+production roster contains all 1,025 implemented base species, resolved by
+National Dex order rather than the engine's reserved-ID-shifted constants; all
+1,025 have the required static
 data/assets and safe shared runtime paths. All 1,025 implemented base records
 already carry nonempty category/description content through `Species.c` and
 speciesdatagen; five ordinary expanded-generation Dex views confirm the live
@@ -537,6 +538,16 @@ other special forms are classified by semantic family instead of being
 mislabelled for intentionally absent follower/Dex behavior. Stage 5 foundation
 work is complete with nonblocking content/provenance debt. Do not add another
 representative Pokémon-mechanic stage.
+
+### Stage 5F-S final scope correction
+
+The supported production roster is Bulbasaur through Pecharunt, National Dex
+#1-1025. The main journey will later curate approximately 300-350 species;
+whole-game/postgame completion must eventually make all 1,025 obtainable.
+Gigantamax remains excluded. All current-fork Mega identities are classified
+under temporary-form requirements, and Pecharunt provides the bounded upper-Dex
+UI regression. Stage 5 is closed after this correction; the next activity is
+the unchanged Stage 6 Presentation Factory.
 
 
 ## Stage 6: Presentation Factory

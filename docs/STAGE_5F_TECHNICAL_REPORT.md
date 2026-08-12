@@ -1,5 +1,13 @@
 # Stage 5F Technical Report — Roster / Content Gap Closure
 
+> Historical scope note (Stage 5F-S, 2026-08-11): this report records the
+> originally executed Stage 5F decision under the then-current #1-905 project
+> scope. That scope was subsequently corrected to all 1,025 implemented base
+> species. The additive correction, regenerated counts, Pecharunt boundary
+> proof, and complete Mega reconciliation are recorded in
+> `docs/STAGE_5F_SCOPE_CORRECTION_REPORT.md`. The original measurements below
+> are retained rather than rewritten as if the earlier scope had never existed.
+
 ## Verdict
 
 `STAGE_5F_ROSTER_CONTENT_CLOSURE_PASSED`

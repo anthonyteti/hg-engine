@@ -4,13 +4,15 @@
 
 The Stage 5A flat audit status is useful provenance but is not a production
 backlog. A deterministic semantic layer now evaluates each identity according
-to project scope and its real runtime family. For the selected #905 roster,
+to project scope and its real runtime family. For the corrected #1-1025 roster,
 there are no required base-species, Dex, cry-routing, regional-form, or Mega
 static gaps.
 
 Scope must use `sPokedexSort_NationalNum`, not the numeric species constant:
-HG-Engine reserves internal IDs 494-543, so internal ID 905 is National Dex
-#855, while `SPECIES_ENAMORUS` at internal ID 955 is National Dex #905.
+HG-Engine reserves internal IDs 494-543, so internal IDs cannot define game
+scope. The ordered `sPokedexSort_NationalNum` mapping establishes all 1,025
+base identities through `SPECIES_PECHARUNT` (internal ID 1075, National Dex
+#1025).
 
 Confidence: high. Counts and source/generated equality are deterministic;
 shared runtime claims come only from Stages 5B-E. Cry authenticity for expanded
@@ -20,7 +22,8 @@ source WAVs remains explicitly unverified.
 
 Canonical evidence:
 
-- `01_PROJECT_SPEC.md`: #905 roster and no Dynamax/Gigantamax;
+- `01_PROJECT_SPEC.md`: #1-1025 roster, curated main-story pool, and no
+  Dynamax/Gigantamax;
 - `include/constants/species.h`, `data/Species.c`, `data/Evolutions.c`,
   `data/FormToSpeciesMapping.c`;
 - `src/field/overworld_table.c`, `data/FollowerProperties.c`;
@@ -35,12 +38,14 @@ Reproduce:
 
 ```bash
 make stage5f-dex-proof
+make stage5fs-dex-boundary-proof
 make stage5f-roster-readiness
 python3 -m tools.pokeagent qa run qa/scenarios/stage5f_expanded_dex_ui.json --timeout 600
 python3 -m tools.pokeagent qa run qa/scenarios/stage5f_expanded_dex_gen6.json --timeout 600
 python3 -m tools.pokeagent qa run qa/scenarios/stage5f_expanded_dex_gen7.json --timeout 600
 python3 -m tools.pokeagent qa run qa/scenarios/stage5f_expanded_dex_gen8.json --timeout 600
 python3 -m tools.pokeagent qa run qa/scenarios/stage5f_expanded_dex_gen9.json --timeout 600
+python3 -m tools.pokeagent qa run qa/scenarios/stage5fs_pecharunt_dex_boundary.json --timeout 600
 ```
 
 Inventory output is canonical at
@@ -95,11 +100,13 @@ authenticity `ROUTED_SOURCE_PRESENT_UNVERIFIED`.
 
 - Authentic/canonical provenance of the 532 expanded source WAVs is not
   independently verified.
-- The 178 non-regional/non-Mega special forms are statically complete under a
+- The 212 non-regional/non-Mega special forms are statically complete under a
   shared form contract but are not individually runtime-executed or selected
   as required game content.
-- Post-#905 bases and later Mega records are available engine content but not
-  in the current production scope.
+- All 97 current-fork Mega identities are production-classified by an exact
+  base/source-form/target-form/trigger/reversion contract. Only Mega Altaria is
+  the representative executed runtime proof; the rest use the shared Stage 5E
+  architecture plus complete static contracts.
 - Specialized evolution/form triggers remain targeted regressions only when
   chosen production content depends on them.
 

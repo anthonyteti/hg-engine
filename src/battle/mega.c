@@ -16,7 +16,8 @@ struct MegaStruct
 {
     u32 monindex:12;
     u32 itemindex:12;
-    u32 form:8;
+    u32 form:5;
+    u32 sourceform:3;
 };
 
 struct MegaStructMove
@@ -285,11 +286,6 @@ const struct MegaStruct sMegaTable[] =
         .form = 1,
     },
     {
-        .monindex = SPECIES_LATIOS,
-        .itemindex = ITEM_LATIOSITE,
-        .form = 1,
-    },
-    {
         .monindex = SPECIES_STARAPTOR,
         .itemindex = ITEM_STARAPTITE,
         .form = 1,
@@ -332,6 +328,16 @@ const struct MegaStruct sMegaTable[] =
     {
         .monindex = SPECIES_FROSLASS,
         .itemindex = ITEM_FROSLASSITE,
+        .form = 1,
+    },
+    {
+        .monindex = SPECIES_HEATRAN,
+        .itemindex = ITEM_HEATRANITE,
+        .form = 1,
+    },
+    {
+        .monindex = SPECIES_DARKRAI,
+        .itemindex = ITEM_DARKRANITE,
         .form = 1,
     },
     {
@@ -405,6 +411,12 @@ const struct MegaStruct sMegaTable[] =
         .form = 2,
     },
     {
+        .monindex = SPECIES_MEOWSTIC,
+        .itemindex = ITEM_MEOWSTICITE,
+        .form = 3,
+        .sourceform = 1,
+    },
+    {
         .monindex = SPECIES_MALAMAR,
         .itemindex = ITEM_MALAMARITE,
         .form = 1,
@@ -452,7 +464,13 @@ const struct MegaStruct sMegaTable[] =
     {
         .monindex = SPECIES_MAGEARNA,
         .itemindex = ITEM_MAGEARNITE,
-        .form = 1,
+        .form = 2,
+    },
+    {
+        .monindex = SPECIES_MAGEARNA,
+        .itemindex = ITEM_MAGEARNITE,
+        .form = 3,
+        .sourceform = 1,
     },
     {
         .monindex = SPECIES_ZERAORA,
@@ -477,7 +495,19 @@ const struct MegaStruct sMegaTable[] =
     {
         .monindex = SPECIES_TATSUGIRI,
         .itemindex = ITEM_TATSUGIRINITE,
-        .form = 1,
+        .form = 3,
+    },
+    {
+        .monindex = SPECIES_TATSUGIRI,
+        .itemindex = ITEM_TATSUGIRINITE,
+        .form = 4,
+        .sourceform = 1,
+    },
+    {
+        .monindex = SPECIES_TATSUGIRI,
+        .itemindex = ITEM_TATSUGIRINITE,
+        .form = 5,
+        .sourceform = 2,
     },
     {
         .monindex = SPECIES_BAXCALIBUR,
@@ -498,6 +528,21 @@ const struct MegaStructMove sMegaMoveTable[] =
 
 static BOOL CheckMegaMoveData(u32 mon, u16 *moves);
 
+static BOOL CheckMegaDataForForm(u32 mon, u32 item, u32 sourceform)
+{
+#ifdef MEGA_EVOLUTIONS
+    u32 i;
+    for (i = 0; i < NELEMS(sMegaTable); i++)
+    {
+        if (sMegaTable[i].monindex == mon && sMegaTable[i].itemindex == item && sMegaTable[i].sourceform == sourceform)
+        {
+            return TRUE;
+        }
+    }
+#endif // MEGA_EVOLUTIONS
+    return FALSE;
+}
+
 BOOL CheckCanMega(struct BattleStruct *battle, int client)
 {
     u16 mon = battle->battlemon[client].species;
@@ -510,13 +555,10 @@ BOOL CheckCanMega(struct BattleStruct *battle, int client)
     if (newBS.SideMega[client])
         return FALSE;
 
-    if (form)
-        return FALSE;
-
     if (battle->playerActions[client][3] != SELECT_FIGHT_COMMAND)
         return FALSE;
 
-    return (CheckMegaData(mon, item) || CheckMegaMoveData(mon, battle->battlemon[client].move));
+    return (CheckMegaDataForForm(mon, item, form) || (!form && CheckMegaMoveData(mon, battle->battlemon[client].move)));
 }
 
 BOOL IsMegaSpecies(u32 mon, u32 form)
@@ -617,13 +659,13 @@ BOOL LONG_CALL CheckMegaData(u32 mon, u32 item)
     return FALSE;
 }
 
-u32 LONG_CALL GrabMegaTargetForm(u32 mon, u32 item)
+u32 LONG_CALL GrabMegaTargetForm(u32 mon, u32 item, u32 sourceform)
 {
 #ifdef MEGA_EVOLUTIONS
     u32 i;
     for (i = 0; i < NELEMS(sMegaTable);i++)
     {
-        if (sMegaTable[i].monindex == mon && sMegaTable[i].itemindex == item)
+        if (sMegaTable[i].monindex == mon && sMegaTable[i].itemindex == item && sMegaTable[i].sourceform == sourceform)
         {
             return sMegaTable[i].form;
         }
@@ -692,10 +734,10 @@ BOOL CheckCanDrawMegaButton(struct BI_PARAM *bip)
 #ifdef STAGE5E_MEGA_PROOF
     Stage5E_RecordMegaCommandReturn(bip);
 #endif
-    if (form_no || (bip->bw->sp->battlemon[bip->client_no].condition2 & STATUS2_TRANSFORM)) // can not draw mega button if form is nonzero.  only base form can mega evolve
+    if (bip->bw->sp->battlemon[bip->client_no].condition2 & STATUS2_TRANSFORM)
         return FALSE;
 
-    BOOL result = CheckMegaData(mon, item) || CheckMegaMoveData(mon, moves);
+    BOOL result = CheckMegaDataForForm(mon, item, form_no) || (!form_no && CheckMegaMoveData(mon, moves));
 #ifdef STAGE5E_MEGA_PROOF
     Stage5E_RecordEligibility(bip, result, newBS.CanMega, newBS.PlayerMegaed);
 #endif

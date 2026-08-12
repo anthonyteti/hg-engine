@@ -2941,6 +2941,12 @@ void LONG_CALL BattleController_MoveEnd(struct BattleSystem *bsys, struct Battle
 {
     // debug_printf("In BattleController_MoveEnd\n");
 
+#ifdef STAGE5E_MEGA_PROOF
+    // Observe the attacking battler before the retail overlay advances the
+    // controller sequence or client index at move end.
+    Stage5E_RecordMove(ctx);
+#endif
+
     u32 ovyId, offset;
 
     void (*internalFunc)(struct BattleSystem *bsys, struct BattleStruct *ctx);
@@ -2952,8 +2958,9 @@ void LONG_CALL BattleController_MoveEnd(struct BattleSystem *bsys, struct Battle
     internalFunc(bsys, ctx);
     UnloadOverlayByID(ovyId);
 #ifdef STAGE5E_MEGA_PROOF
-    if (ctx->server_seq_no == CONTROLLER_COMMAND_8)
-        Stage5E_RecordMove(ctx);
+    // The retail overlay may enter and leave command 8 in this call. The
+    // observer itself filters for the Mega Altaria attacker and records once.
+    Stage5E_RecordMove(ctx);
 #endif
 }
 

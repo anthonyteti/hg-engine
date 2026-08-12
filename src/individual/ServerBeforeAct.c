@@ -433,7 +433,7 @@ static BOOL MegaEvolutionOrUltraBurst(struct BattleSystem *bsys, struct BattleSt
                 gIllusionStruct.dontRemoveIllusion = TRUE;
             }
 
-            ctx->battlemon[client_no].form_no = GrabMegaTargetForm(ctx->battlemon[client_no].species, ctx->battlemon[client_no].item);
+            ctx->battlemon[client_no].form_no = GrabMegaTargetForm(ctx->battlemon[client_no].species, ctx->battlemon[client_no].item, ctx->battlemon[client_no].form_no);
 
             // https://www.smogon.com/forums/threads/scarlet-violet-battle-mechanics-research.3709545/post-9458017
             ctx->battlemon[client_no].condition2 &= ~STATUS2_DESTINY_BOND;

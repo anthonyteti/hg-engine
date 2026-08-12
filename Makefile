@@ -157,6 +157,9 @@ endif
 ifeq ($(STAGE5F_DEX_PROOF),Y)
     CFLAGS += -DSTAGE5F_DEX_PROOF -Werror
 endif
+ifeq ($(STAGE5FS_SCOPE_PROOF),Y)
+    CFLAGS += -DSTAGE5FS_SCOPE_PROOF -Werror
+endif
 
 ifeq ($(BATTLE_SAVE_PROVISION),Y)
     CFLAGS += -DBATTLE_SAVE_PROVISION -Werror
@@ -538,6 +541,11 @@ stage5e-mega-proof:
 stage5f-dex-proof:
 	$(MAKE) clean
 	$(MAKE) STAGE2_MAP=Y STAGE3E2_HEADER=Y STAGE5F_DEX_PROOF=Y
+
+.PHONY: stage5fs-dex-boundary-proof
+stage5fs-dex-boundary-proof:
+	$(MAKE) clean
+	$(MAKE) STAGE2_MAP=Y STAGE3E2_HEADER=Y STAGE5F_DEX_PROOF=Y STAGE5FS_SCOPE_PROOF=Y
 
 .PHONY: stage5f-roster-readiness
 stage5f-roster-readiness:

@@ -114,7 +114,7 @@ class Stage5ARosterInventoryTests(unittest.TestCase):
     def test_mega_mappings_and_highest_form_are_explicit(self) -> None:
         summary = self.inventory["summary"]
         self.assertEqual(summary["mega_form_identity_count"], 97)
-        self.assertEqual(summary["mega_runtime_mapped_base_species_count"], 84)
+        self.assertEqual(summary["mega_runtime_mapped_base_species_count"], 86)
         highest = _record(self.inventory, "SPECIES_MEGA_BAXCALIBUR")
         self.assertEqual(highest["id"], 1475)
         self.assertEqual(highest["kind"], "form")

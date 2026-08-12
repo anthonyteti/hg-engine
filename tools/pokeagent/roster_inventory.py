@@ -425,7 +425,7 @@ def build_inventory(root: Path = ROOT, revision: str | None = None) -> dict[str,
     }
     inventory["production_readiness"] = apply_production_readiness(root, inventory)
     inventory["method"]["production_classification"] = (
-        "Stage 5A audit status is preserved; production readiness applies family-specific required/optional/not-applicable capabilities, the project #905 scope, actual Species.c Dex text, and Stages 5B-5E shared runtime evidence"
+        "Stage 5A audit status is preserved; production readiness applies family-specific required/optional/not-applicable capabilities, the project #1-1025 scope, actual Species.c Dex text, and Stages 5B-5E shared runtime evidence"
     )
     inventory["selected_expanded_species_proof"]["runtime_blocker"] = "none; Stage 5F confirms expanded Dex text already exists in the canonical Species.c message-generation path"
     inventory["selected_expanded_species_proof"]["selection_reason"] = (

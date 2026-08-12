@@ -14,6 +14,9 @@ struct Stage5FRuntimeState {
     u32 caught[STAGE5F_DEX_REPRESENTATIVE_COUNT];
     u32 ownedCount;
     u32 currentMap;
+    u32 boundarySpecies;
+    u32 boundarySeen;
+    u32 boundaryCaught;
 };
 
 #ifdef STAGE5F_DEX_PROOF

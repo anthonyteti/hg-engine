@@ -50,6 +50,13 @@ static void Stage5F_Initialize(void) {
         if (index == 0)
             PokeParty_Add(party, &mon);
     }
+#ifdef STAGE5FS_SCOPE_PROOF
+    PokeParaSet(&mon, SPECIES_PECHARUNT, 20, 31, TRUE, 0, TRUE, 0x050F1025);
+    InitBoxMonMoveset(&mon.box);
+    RecalcPartyPokemonStats(&mon);
+    SetPokemonSee(dex, &mon);
+    SetPokemonGet(dex, &mon);
+#endif
     SetScriptFlag(STAGE5F_GOT_STARTER_FLAG);
     SetScriptFlag(STAGE5F_GOT_POKEDEX_FLAG);
     SetScriptFlag(STAGE5F_GOT_BAG_FLAG);
@@ -75,6 +82,11 @@ void Stage5F_RuntimeTick(void) {
     }
     gStage5FRuntimeState.ownedCount = Pokedex_CountDexOwned(dex);
     gStage5FRuntimeState.currentMap = gFieldSysPtr->location->mapId;
+#ifdef STAGE5FS_SCOPE_PROOF
+    gStage5FRuntimeState.boundarySpecies = SPECIES_PECHARUNT;
+    gStage5FRuntimeState.boundarySeen = Stage5F_DexBit(dex, SPECIES_PECHARUNT, STAGE5F_DEX_SEEN_OFFSET);
+    gStage5FRuntimeState.boundaryCaught = Stage5F_DexBit(dex, SPECIES_PECHARUNT, STAGE5F_DEX_CAUGHT_OFFSET);
+#endif
 }
 
 #endif

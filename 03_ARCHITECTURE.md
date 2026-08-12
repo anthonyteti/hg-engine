@@ -254,7 +254,10 @@ abilities:
   hidden: SAP_SIPPER
 ```
 
-Do not implement the full #905 roster until one species beyond the engine's comfortable existing range can be added end-to-end through the automated pipeline.
+The production support boundary is all 1,025 implemented base species through
+Pecharunt. This is distinct from the later-curated main-story encounter pool of
+approximately 300-350 species; the complete roster is a full-game/postgame
+collection capability, not an instruction to populate every route.
 
 ## Build orchestration
 
@@ -858,6 +861,13 @@ generated rows and exercises five expanded-generation UI representatives.
 `STAGE5F_DEX_PROOF` only seeds ordinary seen/caught data and enables the
 National Dex for the isolated UI fixture. It adds no roster record or normal-
 build behavior.
+
+Production scope is derived from the ordered National Dex table, never raw
+engine IDs. The Stage 5F-S boundary fixture additionally proves Pecharunt at
+National Dex #1025. Mega readiness resolves each adjusted identity through its
+exact base species, source form, target form, item/move trigger, stone
+classification, and `NEEDS_REVERSION` entry. Persistent regional forms and
+temporary Mega forms retain separate storage/presentation requirements.
 
 Cry readiness is split into safe routing and provenance/authenticity. Forms
 inherit the base route; required base species must have a safe route, but an

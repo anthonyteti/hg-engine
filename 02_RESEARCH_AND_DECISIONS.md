@@ -617,13 +617,13 @@ production. Stage 5F adds a parallel deterministic layer with project scope,
 semantic form family, readiness, required/optional/not-applicable gaps, reason
 codes, and Stages 5B-E shared-runtime evidence.
 
-The project's production base roster is National Dex #1-905. Scope is resolved
+The project's production base roster is National Dex #1-1025. Scope is resolved
 through `sPokedexSort_NationalNum`, not raw engine IDs, because internal IDs
-494-543 are reserved. All 905 scoped base
+494-543 are reserved. All 1,025 scoped base
 species have required data, battle/icon/follower assets, safe cry routing, and
-the already-proven shared party/box/save/trainer/wild runtime paths. Identities
-with National Dex numbers 906-1025 remain available engine capability but are
-not silently opted into this game's production roster.
+the already-proven shared party/box/save/trainer/wild runtime paths. The
+main-story encounter pool remains a later-curated approximately 300-350
+species; full #1-1025 availability belongs to whole-game/postgame completion.
 
 The claimed 532-entry expanded-Dex gap was not a source/content gap. It was a
 Stage 5A audit heuristic that equated `id > 493` with missing category and
@@ -643,8 +643,10 @@ missing/fallback routes for required production bases.
 Evaluate persistent regional forms by storage/presentation mappings and Mega
 forms by temporary battle/reversion requirements. Ordinary followers and
 persistent Dex/save identity are not applicable to Megas. Gigantamax is out of
-game scope; Alcremie filler records are reserved; the later Legends: Z-A Mega
-identity block is not selected by the through-Legends:-Arceus content boundary.
+game scope; Alcremie filler records are reserved. All 97 current-fork Mega
+identities are in scope under their temporary battle-form semantics. The scope
+correction added exact source-form-aware triggers for represented cosmetic
+variants and repaired missing/wrong trigger rows without inventing species data.
 Trainer form data independently decodes the same
 packed species/form representation and reaches the existing CreateMon/form
 lookup boundary, so it is architecturally covered without another runtime

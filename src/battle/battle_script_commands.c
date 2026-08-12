@@ -2853,7 +2853,7 @@ BOOL btl_scr_cmd_FD_trymegaorultraburstduringpursuit(void *bw, struct BattleStru
             newBS.PlayerMegaed = TRUE;
         }
 
-        sp->battlemon[sp->attack_client].form_no = GrabMegaTargetForm(sp->battlemon[sp->attack_client].species, sp->battlemon[sp->attack_client].item);
+        sp->battlemon[sp->attack_client].form_no = GrabMegaTargetForm(sp->battlemon[sp->attack_client].species, sp->battlemon[sp->attack_client].item, sp->battlemon[sp->attack_client].form_no);
         BattleFormChange(sp->attack_client, sp->battlemon[sp->attack_client].form_no, bw, sp, TRUE);
 
         newBS.needMega[sp->attack_client] = MEGA_NO_NEED;

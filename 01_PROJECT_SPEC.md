@@ -26,7 +26,7 @@ Deferred research track:
 
 The first engineering phase does not require the final gameplay roster. Design the architecture so the following can be added later without restructuring the project:
 
-- Pokemon through Legends: Arceus, National Dex #905
+- all 1,025 implemented base species, National Dex #1-1025 through Pecharunt
 - relevant regional forms
 - modern stats, types, moves, abilities, and evolution rules where desired
 - Mega Evolution as the main battle gimmick
@@ -140,7 +140,8 @@ Work that should be automated:
 ## Non-goals for Phase 1
 
 - full region
-- all Pokemon through #905
+- all 1,025 supported base species placed into main-story encounters (the
+  journey instead uses a later-designed curated pool of approximately 300-350)
 - final story
 - final custom art style
 - custom soundtrack pipeline
