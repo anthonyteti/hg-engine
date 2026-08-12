@@ -9,6 +9,7 @@
 | 6D | `0166b1310348674269c703d45aaf3725808d7ebf` | 2026-08-12 | `STAGE_6D_DECLARATIVE_UI_ENGINE_PASSED`; semantic source compiled to native UI and runtime navigation |
 | 6E | `7f8837286ca019ef12c17dc8d5df4e6cc2a7d6cd` | 2026-08-12 | `STAGE_6E_BATTLE_UI_PASSED`; declarative battle command/HUD presentation, native Mega and command branches |
 | 6F | `63022f3a47ea23960da139c96c0273c04dc5d9ef` | 2026-08-12 | `STAGE_6F_CORE_MENU_UI_PASSED`; start, party, summary, and Bag receive deterministic owner-aware presentation themes with native navigation preserved |
+| 6G | `2f086a41f51bfeb719d82ca8e6f3f57e94f5b364` | 2026-08-12 | `STAGE_6G_REMAINING_GAME_UI_PASSED`; 25 surfaces classified, nine resource owners, and title/Continue, Dex #1025, PC, shop/dialogue runtime gates |
 
 Checkpoint SHAs are recorded after Git creates them. The state file records the
 last previously verified commit, avoiding an impossible commit that embeds its
