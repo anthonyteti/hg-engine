@@ -2,7 +2,7 @@
   "stage": 6,
   "status": "in_progress",
   "current": {
-    "id": "6H",
+    "id": "6I",
     "status": "in_progress",
     "attempt": 1
   },
@@ -13,7 +13,8 @@
     "6D",
     "6E",
     "6F",
-    "6G"
+    "6G",
+    "6H"
   ],
   "deferred": [],
   "blocked": [],
@@ -63,7 +64,12 @@
       "stage": "6G",
       "commit": "2f086a41f51bfeb719d82ca8e6f3f57e94f5b364",
       "remote_verified": true
+    },
+    {
+      "stage": "6H",
+      "commit": "689b9df788a0d20beeb1ea382af2e6ee95fe95c9",
+      "remote_verified": true
     }
   ],
-  "last_verified_commit": "2f086a41f51bfeb719d82ca8e6f3f57e94f5b364"
+  "last_verified_commit": "689b9df788a0d20beeb1ea382af2e6ee95fe95c9"
 }
