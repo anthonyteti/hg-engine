@@ -930,3 +930,10 @@ the Stage 6B registry and compiles nine native resource owners. Visual assets,
 semantic bindings, and navigation contracts are project-owned. Native HG-
 Engine retains boot/save/storage/Dex/transaction/capture/evolution/naming
 state. Proof-ROM packing restores all source archives and is opt-in only.
+
+### UI QA registry
+
+`presentation/ui/qa/stage6_ui_smoke.json` declares high-use screens, executable
+plans, semantic assertions, static checks, and visual-review dimensions.
+`tools/pokeagent/ui_qa.py` resolves extended scenarios, validates navigation and
+native bounds, and emits a deterministic machine-readable QA manifest.

@@ -637,10 +637,10 @@ them would add risk without improving Stage 7 authorship. Proceed to Stage 6H.
 
 ### Stage 6H — UI Automated QA
 
-Validate opening/exiting, navigation reachability, touch targets, selection,
-semantic bindings, text overflow, bounds/overlap, sprite/icon identity,
-VRAM/OAM budgets, animation stability, and screenshot review. Pixel-perfect
-comparison is supporting evidence, not the primary signal.
+**Status: passed.** A semantic-first 13-screen registry resolves eight native
+runtime plans (268 steps), validates navigation/cancel reachability and static
+DS budgets, and formalizes screenshot review without universal pixel-golden
+coupling. Proceed to Stage 6I.
 
 ### Stage 6I — Environment Art Kit
 

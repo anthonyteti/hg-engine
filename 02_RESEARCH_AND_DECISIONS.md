@@ -707,3 +707,10 @@ capture, and evolution remain native rather than being reimplemented.
 Runtime proofs preserve battery Continue, National Dex #1025, PC form storage,
 dialogue, and shop navigation. This is the reusable production boundary; it is
 not described as full controller replacement.
+
+### Stage 6H decision: semantic-first UI QA
+
+UI automation uses stable semantic assertions, navigation/static validation,
+and screenshots for visual judgment. Exact pixel hashes remain supporting
+evidence, never the universal correctness signal. Eight existing native-runtime
+plans form one reusable 13-screen smoke registry.

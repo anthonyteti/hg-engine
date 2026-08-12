@@ -649,6 +649,11 @@ stage6g-title-proof: stage6g-remaining-ui-compile
 	$(MAKE) stage5b-runtime-proof
 	. .venv/bin/activate; python3 -m tools.pokeagent.remaining_ui --proof-rom
 
+.PHONY: stage6h-ui-qa
+stage6h-ui-qa:
+	. .venv/bin/activate; python3 -m tools.pokeagent.ui_qa
+	. .venv/bin/activate; python3 -m unittest -v tests.test_pokeagent_stage6h_ui_qa
+
 .PHONY: battle-test-save
 battle-test-save:
 	. .venv/bin/activate; python3 -m tools.pokeagent qa run \

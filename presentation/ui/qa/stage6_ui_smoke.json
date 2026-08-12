@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "stage6.ui.smoke",
+  "required_screens": ["title", "start_menu", "party", "summary_overview", "bag", "pokedex_entry", "pc_storage", "shop_buy", "dialogue", "battle_commands", "battle_mega", "save_prompt", "continue"],
+  "runtime_scenarios": [
+    "qa/scenarios/stage6g_title_continue.json",
+    "qa/scenarios/stage6f_core_menus.json",
+    "qa/scenarios/stage6f_bag.json",
+    "qa/scenarios/stage6g_pokedex_1025.json",
+    "qa/scenarios/stage6g_pc_storage.json",
+    "qa/scenarios/stage6g_shop_dialogue.json",
+    "qa/scenarios/stage6e_battle_ui.json",
+    "qa/scenarios/stage6e_battle_commands.json"
+  ],
+  "semantic_assertions": ["assert_screen", "assert_selected", "assert_binding", "assert_visible", "assert_enabled", "assert_resource_owner", "assert_navigation_target"],
+  "static_checks": ["component_bounds", "illegal_overlap", "text_region_capacity", "binding_resolution", "navigation_reachability", "cancel_reachability", "touch_bounds", "palette_budget", "tile_budget", "oam_budget", "resource_target_collision"],
+  "screenshot_review": ["hierarchy", "spacing", "alignment", "readability", "sprite_obstruction", "style_drift", "corruption"],
+  "policy": {"pixel_hash_primary": false, "semantic_primary": true, "native_resolution": [256, 192]}
+}
