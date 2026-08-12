@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "theme": "adriatic_field_journal",
+  "bundle_id": "ui.battle.adriatic_field_journal",
+  "target": {
+    "archive": "a/0/0/7",
+    "character_member": 28,
+    "palette_member": 246,
+    "touch_palette_member": 271,
+    "mega_palette_off_member": 351,
+    "mega_palette_on_member": 352,
+    "hud_archive": "a/0/0/8",
+    "hud_palette_member": 71,
+    "screen_members": {
+      "main": 36,
+      "fight": 37,
+      "two_option": 38,
+      "switch": 39,
+      "target": 41,
+      "message": 42,
+      "initial": 43,
+      "fight_mega": 353
+    }
+  },
+  "palette": [
+    "#071F29", "#0D3440", "#14505B", "#237079",
+    "#54A29A", "#A5C0A8", "#E7D9BA", "#F5EBD2",
+    "#B5533D", "#D9784F", "#F0B46D", "#493E35",
+    "#7697A0", "#B7CCD0", "#E9F1E8", "#FFFFFF"
+  ],
+  "hud_palette": [
+    "#071F29", "#0D3440", "#D9784F", "#7697A0",
+    "#F5EBD2", "#009400", "#18C520", "#B46A08",
+    "#FFB400", "#AC3139", "#FF5A29", "#3162DE",
+    "#4A94FF", "#DE5AD5", "#493E35", "#E7D9BA"
+  ],
+  "screens": {
+    "main": {
+      "panels": [
+        {"id": "fight", "bounds": [0, 3, 32, 15], "style": "copper"},
+        {"id": "bag", "bounds": [0, 18, 10, 6], "style": "paper"},
+        {"id": "run", "bounds": [10, 18, 12, 6], "style": "quiet"},
+        {"id": "party", "bounds": [22, 18, 10, 6], "style": "paper"}
+      ],
+      "touch": {
+        "fight": [0, 24, 256, 144],
+        "bag": [0, 144, 80, 192],
+        "run": [88, 152, 168, 192],
+        "party": [176, 144, 256, 192]
+      }
+    },
+    "fight": {
+      "panels": [
+        {"id": "move_1", "bounds": [0, 2, 16, 8], "style": "paper"},
+        {"id": "move_2", "bounds": [16, 2, 16, 8], "style": "paper"},
+        {"id": "move_3", "bounds": [0, 10, 16, 8], "style": "paper"},
+        {"id": "move_4", "bounds": [16, 10, 16, 8], "style": "paper"},
+        {"id": "cancel", "bounds": [1, 19, 30, 5], "style": "quiet"}
+      ]
+    },
+    "fight_mega": {
+      "panels": [
+        {"id": "move_1", "bounds": [0, 2, 16, 8], "style": "paper"},
+        {"id": "move_2", "bounds": [16, 2, 16, 8], "style": "paper"},
+        {"id": "move_3", "bounds": [0, 10, 16, 8], "style": "paper"},
+        {"id": "move_4", "bounds": [16, 10, 16, 8], "style": "paper"},
+        {"id": "cancel", "bounds": [1, 19, 21, 5], "style": "quiet"},
+        {"id": "mega", "bounds": [22, 19, 9, 5], "style": "copper"}
+      ],
+      "touch": {
+        "move_1": [0, 24, 128, 80],
+        "move_2": [128, 24, 256, 80],
+        "move_3": [0, 88, 128, 144],
+        "move_4": [128, 88, 256, 144],
+        "cancel": [8, 152, 176, 192],
+        "mega": [176, 152, 248, 192]
+      }
+    },
+    "target": {"panels": [{"id": "target_field", "bounds": [0, 2, 32, 16], "style": "primary"}, {"id": "cancel", "bounds": [1, 19, 30, 5], "style": "quiet"}]},
+    "two_option": {"panels": [{"id": "prompt", "bounds": [1, 5, 30, 8], "style": "primary"}, {"id": "choices", "bounds": [4, 15, 24, 7], "style": "paper"}]},
+    "switch": {"panels": [{"id": "switch", "bounds": [1, 4, 30, 14], "style": "primary"}, {"id": "cancel", "bounds": [1, 19, 30, 5], "style": "quiet"}]},
+    "message": {"panels": [{"id": "message", "bounds": [0, 14, 32, 10], "style": "paper"}]},
+    "initial": {"panels": [{"id": "field", "bounds": [0, 0, 32, 24], "style": "primary"}]}
+  },
+  "semantic_bindings": [
+    "battle.player.active.species", "battle.player.active.hp", "battle.player.active.max_hp",
+    "battle.player.active.status", "battle.enemy.active.species", "battle.enemy.active.hp",
+    "battle.selected_move", "battle.selected_move.pp", "battle.selected_move.type",
+    "battle.mega.eligible", "battle.mega.requested", "battle.target"
+  ],
+  "animation": {"menu_entry": "native_horizontal_slide", "selection": "native_palette_feedback", "mega": "native_mega_sequence"},
+  "budgets": {"bg_layers": 4, "tile_count": 32, "palette_colors": 256, "touch_regions": 6, "screen_bytes": 2048, "character_bytes": 4096, "palette_bytes": 552}
+}

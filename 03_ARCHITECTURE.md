@@ -898,3 +898,13 @@ presentation is `HUMAN_REVIEW_REQUIRED`. Earlier interruption is limited to a
 genuine external-access, legal/license, or destructive irreversible high-risk
 decision. Persistent state lives under `docs/stage6/` so recovery does not
 depend on chat history.
+
+### Battle presentation adapter
+
+Stage 6E adds a screen-owner adapter between declarative UI source and overlay
+12. It compiles project-owned 4bpp character, tilemap and palette resources for
+command/move surfaces plus generated touch geometry for the native controller.
+The adapter synchronizes authored palettes at audited screen lifecycle
+callbacks; battle semantics remain in HG-Engine. The shared OAM HUD retains
+its cell/animation architecture and consumes a project-authored neutral palette
+that preserves HP/status color indices.

@@ -62,6 +62,20 @@ static void Stage5E_SeedAltaria(void) {
     SetScriptVar(STAGE5E_PHASE_VAR, 1);
 }
 
+#ifdef STAGE6E_BATTLE_UI_PROOF
+static void Stage6E_AddSwitchTarget(void) {
+    struct Party *party = Stage5E_GetParty();
+    if (party->count != 1)
+        return;
+    struct PartyPokemon magikarp;
+    u16 move = MOVE_TACKLE;
+    PokeParaSet(&magikarp, SPECIES_MAGIKARP, 50, 31, TRUE, 0x060E0002u, TRUE, STAGE5E_OT_ID);
+    SetMonData(&magikarp, MON_DATA_MOVE1, &move);
+    RecalcPartyPokemonStats(&magikarp);
+    PokeParty_Add(party, &magikarp);
+}
+#endif
+
 static BOOL Stage5E_EnableFollower(void) {
     struct PartyPokemon *mon = Stage5E_GetAltaria();
     if (mon == NULL)
@@ -79,6 +93,12 @@ static void Stage5E_HandleCommand(void) {
         return;
     if (command == STAGE5E_COMMAND_ENABLE_FOLLOWER)
         result = Stage5E_EnableFollower();
+#ifdef STAGE6E_BATTLE_UI_PROOF
+    else if (command == 2) {
+        Stage6E_AddSwitchTarget();
+        result = Stage5E_GetParty()->count == 2;
+    }
+#endif
     gStage5ERuntimeState.commandResult = result ? command : (0x80000000u | command);
     gStage5ERuntimeState.command = STAGE5E_COMMAND_NONE;
 }

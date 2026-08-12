@@ -613,9 +613,11 @@ declarative navigation/touch behavior rather than arbitrary DS addresses.
 
 ### Stage 6E — Battle UI Proof
 
-Prove full redesign control for the battle HUD, HP/status, Fight/move UI,
-PP/type display, switch/bag/run, Mega control, and target selection while
-preserving battle behavior.
+**Status: passed.** Declarative source materially redesigns battle command/move
+surfaces and the neutral HUD palette while preserving native text, Bag, switch,
+Run, targeting and Mega controllers. Focused live QA proves Fight/Mega and
+Bag/switch/Run branches; target selection remains bound to the unchanged native
+controller and audited target-screen resource.
 
 ### Stage 6F — Core Menu UI
 

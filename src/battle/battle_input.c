@@ -12,6 +12,19 @@
 #ifdef STAGE5E_MEGA_PROOF
 #include "stage5e_runtime.h"
 #endif
+#ifdef STAGE6E_BATTLE_UI_PROOF
+#include "generated/stage6e_battle_ui.h"
+#else
+#define STAGE6E_TOUCH_CANCEL {0x13 * 8, 0x18 * 8, 1 * 8, 0x16 * 8}
+#define STAGE6E_TOUCH_MOVE_1 {3 * 8, 0xA * 8, 0 * 8, 0x10 * 8}
+#define STAGE6E_TOUCH_MOVE_2 {3 * 8, 0xA * 8, 0x10 * 8, 255}
+#define STAGE6E_TOUCH_MOVE_3 {0xB * 8, 0x12 * 8, 0 * 8, 0x10 * 8}
+#define STAGE6E_TOUCH_MOVE_4 {0xB * 8, 0x12 * 8, 0x10 * 8, 255}
+#define STAGE6E_TOUCH_MEGA {0x13 * 8, 0x18 * 8, 0x16 * 8, 0x1F * 8}
+#define STAGE6E_MEGA_BUTTON_X 213
+#define STAGE6E_MEGA_BUTTON_Y 253
+#define STAGE6E_CANCEL_TEXT_X 92
+#endif
 
 // function declarations for this file
 void Sub_PokeIconResourceLoad(struct BI_PARAM *bip);
@@ -55,12 +68,12 @@ struct newBattleStruct __attribute__((section(".data"))) newBS = { 0 };
 // swap out this touch data at the same time, no way that it loads touch data before rendering the screen.
 const ButtonTBL SkillMenuTouchData[] = {
     // UP DOWN LEFT RIGHT
-    [TOUCH_DATA_CANCEL] = { 0x13 * 8, 0x18 * 8, 1 * 8, 0x16 * 8 },
-    [TOUCH_DATA_MOVE_1] = { 3 * 8, 0xA * 8, 0 * 8, 0x10 * 8 },
-    [TOUCH_DATA_MOVE_2] = { 3 * 8, 0xA * 8, 0x10 * 8, 255 },
-    [TOUCH_DATA_MOVE_3] = { 0xB * 8, 0x12 * 8, 0 * 8, 0x10 * 8 },
-    [TOUCH_DATA_MOVE_4] = { 0xB * 8, 0x12 * 8, 0x10 * 8, 255 },
-    [TOUCH_DATA_MEGA] = { 0x13 * 8, 0x18 * 8, 0x16 * 8, 0x1F * 8 },
+    [TOUCH_DATA_CANCEL] = STAGE6E_TOUCH_CANCEL,
+    [TOUCH_DATA_MOVE_1] = STAGE6E_TOUCH_MOVE_1,
+    [TOUCH_DATA_MOVE_2] = STAGE6E_TOUCH_MOVE_2,
+    [TOUCH_DATA_MOVE_3] = STAGE6E_TOUCH_MOVE_3,
+    [TOUCH_DATA_MOVE_4] = STAGE6E_TOUCH_MOVE_4,
+    [TOUCH_DATA_MEGA] = STAGE6E_TOUCH_MEGA,
     [TOUCH_DATA_TOTAL] = { RECT_HIT_END, 0, 0, 0 },
 };
 
@@ -123,8 +136,8 @@ static const OAMSpriteTemplate MegaIconObjParam = {
 };
 
 static const OAMSpriteTemplate MegaButtonTemplate = {
-    213,
-    253,
+    STAGE6E_MEGA_BUTTON_X,
+    STAGE6E_MEGA_BUTTON_Y,
     0, // x, y, z
     0,
     100,
@@ -279,6 +292,12 @@ void Sub_PokeIconResourceFree(struct BI_PARAM *bip)
             newBS.weatherUpdateTask = NULL;
         }
     }
+#ifdef STAGE6E_BATTLE_UI_PROOF
+    /* ChangeMenu restores its cached retail palette immediately before this
+     * cleanup callback. Reapply the generated theme so command selection does
+     * not regress to stock purple after returning from Fight. */
+    PaletteData_LoadNarc(bip->bw->palette, 7, 246, 5, 1, 0, 0);
+#endif
 }
 
 /**
@@ -525,6 +544,13 @@ void BGCallback_Waza_Extend(struct BI_PARAM *bip, int select_bg, int force_put)
     void *arc_data;
     u32 scrn_data_id;
 
+#ifdef STAGE6E_BATTLE_UI_PROOF
+    /* The retail input object caches its palette before the generated archive
+     * is selected. Reassert the audited SUB_BG palette at the same native
+     * menu boundary; this changes presentation only, never battle state. */
+    PaletteData_LoadNarc(bip->bw->palette, 7, 246, 5, 1, 0, 0);
+#endif
+
     sys_FreeMemoryEz(bip->scrn_buf[3]);
 
     bip->scrn_buf[3] = sys_AllocMemory(5, 0x800);
@@ -571,7 +597,7 @@ void BGCallback_Waza_Extend(struct BI_PARAM *bip, int select_bg, int force_put)
 u32 GrabCancelXValue(void)
 {
     if (newBS.CanMega && !newBS.PlayerMegaed) {
-        return 92;
+        return STAGE6E_CANCEL_TEXT_X;
     } else {
         return 128;
     }
@@ -584,6 +610,9 @@ u32 GrabCancelXValue(void)
  */
 void SwapOutBottomScreen(struct BI_PARAM *bip)
 {
+#ifdef STAGE6E_BATTLE_UI_PROOF
+    PaletteData_LoadNarc(bip->bw->palette, 7, 246, 5, 1, 0, 0);
+#endif
     if (CheckCanDrawMegaButton(bip) && !newBS.PlayerMegaed) {
         *(u16 *)(0x0226E29E) = 353; // new button layout nscr
         // swap out touch data ptr

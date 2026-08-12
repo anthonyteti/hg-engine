@@ -163,6 +163,9 @@ endif
 ifeq ($(STAGE6D_DECLARATIVE_UI_PROOF),Y)
     CFLAGS += -DSTAGE6D_DECLARATIVE_UI_PROOF -Werror
 endif
+ifeq ($(STAGE6E_BATTLE_UI_PROOF),Y)
+    CFLAGS += -DSTAGE6E_BATTLE_UI_PROOF -Werror
+endif
 
 ifeq ($(BATTLE_SAVE_PROVISION),Y)
     CFLAGS += -DBATTLE_SAVE_PROVISION -Werror
@@ -596,6 +599,17 @@ stage6d-ui-compile:
 stage6d-ui-proof: stage6d-ui-compile
 	$(MAKE) clean
 	$(MAKE) STAGE2_MAP=Y STAGE3E2_HEADER=Y STAGE5B_RUNTIME_PROOF=Y STAGE5BC_RUNTIME_PROOF=Y STAGE6D_DECLARATIVE_UI_PROOF=Y
+
+.PHONY: stage6e-battle-ui-compile
+stage6e-battle-ui-compile:
+	. .venv/bin/activate; python3 -m tools.pokeagent.battle_ui
+	. .venv/bin/activate; python3 -m unittest -v tests.test_pokeagent_stage6e_battle_ui
+
+.PHONY: stage6e-battle-ui-proof
+stage6e-battle-ui-proof: stage6e-battle-ui-compile
+	$(MAKE) clean
+	$(MAKE) STAGE2_MAP=Y STAGE3E2_HEADER=Y STAGE5E_MEGA_PROOF=Y STAGE6E_BATTLE_UI_PROOF=Y
+	. .venv/bin/activate; python3 -m tools.pokeagent.battle_ui --proof-rom
 
 .PHONY: battle-test-save
 battle-test-save:

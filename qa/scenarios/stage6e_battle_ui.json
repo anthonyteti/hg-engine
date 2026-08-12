@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "id": "stage6e_battle_ui",
+  "extends": "stage5e_mega_runtime.json",
+  "build_target": "stage6e-battle-ui-proof",
+  "truncate_steps": 70,
+  "append_steps": [
+    {"assert": "rom_running", "value": true}
+  ]
+}

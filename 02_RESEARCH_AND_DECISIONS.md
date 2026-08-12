@@ -671,3 +671,13 @@ the earlier visual-direction gate: Stage 6A uses
 External access, legal/license, or destructive irreversible high-risk blockers
 may still stop safely. Stage 5F documented the planned program but did not
 implement a Stage 6 subsystem.
+
+### Stage 6E decision: preserve battle ownership while compiling presentation
+
+The accepted battle authoring boundary compiles declarative panel geometry,
+styles, palettes, touch rectangles and native screen roles into overlay 12's
+existing resources. Native HG-Engine input, text, Bag/party controllers,
+targeting and Mega state remain authoritative. Battle HUD sprite/cell geometry
+also remains native; its neutral shared palette is themed while established
+HP/status palette indices are preserved. This produces material high-level
+control without a second battle controller or a one-off binary patch.

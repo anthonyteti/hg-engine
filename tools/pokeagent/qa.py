@@ -274,6 +274,35 @@ def load_scenario(path: Path, root: Path = PROJECT_ROOT) -> dict[str, Any]:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as error:
         raise QAError("scenario_read_failed", f"cannot read QA scenario {path}: {error}") from error
+    if isinstance(data, dict) and "extends" in data:
+        allowed = {"schema_version", "id", "extends", "build_target", "truncate_steps", "append_steps"}
+        _reject_unknown(data, allowed, "derived scenario")
+        base_name = data.get("extends")
+        if not isinstance(base_name, str) or Path(base_name).name != base_name or not base_name.endswith(".json"):
+            raise QAError("invalid_scenario_base", "extends must name a sibling JSON scenario")
+        base_path = (path.parent / base_name).resolve()
+        scenario_root = (root / "qa/scenarios").resolve()
+        if base_path.parent != scenario_root or base_path == path.resolve():
+            raise QAError("invalid_scenario_base", "derived scenarios may extend one sibling canonical scenario")
+        try:
+            base = json.loads(base_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as error:
+            raise QAError("scenario_read_failed", f"cannot read QA base scenario {base_path}: {error}") from error
+        if not isinstance(base, dict) or "extends" in base:
+            raise QAError("invalid_scenario_base", "scenario inheritance is intentionally single-level")
+        merged = json.loads(json.dumps(base))
+        merged["schema_version"] = data.get("schema_version", merged.get("schema_version"))
+        merged["id"] = data.get("id")
+        if "build_target" in data:
+            merged["build_target"] = data["build_target"]
+        truncate = data.get("truncate_steps", len(merged.get("steps", [])))
+        _require_int(truncate, "truncate_steps", 1, len(merged.get("steps", [])))
+        merged["steps"] = merged["steps"][:truncate]
+        append = data.get("append_steps", [])
+        if not isinstance(append, list):
+            raise QAError("invalid_steps", "append_steps must be an array")
+        merged["steps"].extend(append)
+        data = merged
     return validate_scenario_data(data, root)
 
 
