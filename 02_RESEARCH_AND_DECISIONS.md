@@ -714,3 +714,12 @@ UI automation uses stable semantic assertions, navigation/static validation,
 and screenshots for visual judgment. Exact pixel hashes remain supporting
 evidence, never the universal correctness signal. Eight existing native-runtime
 plans form one reusable 13-screen smoke registry.
+### Stage 6I environment authoring boundary
+
+Stage 6I adopts a project-owned symbolic environment vocabulary compiled into
+the proven Stage 4 asset path. Ordinary world planning selects module identities,
+biome tags, and approved variants; it does not author Nitro shape indices,
+texture slots, NARC members, or display-list addresses. The first kit contains
+58 modules across six families and eight regional biomes. Existing Stage 4D
+texture and model limits remain unchanged; broader variety comes from bounded
+composition rather than weakened safety constraints.

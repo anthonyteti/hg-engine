@@ -1,0 +1,50 @@
+{
+  "biome_counts": {
+    "championship_island": 27,
+    "great_gulf": 39,
+    "high_country": 30,
+    "islands": 30,
+    "karst_interior": 28,
+    "lake_country": 29,
+    "metropolitan_corridor": 32,
+    "upper_valleys": 33
+  },
+  "direction": "Adriatic Field Journal",
+  "family_counts": {
+    "architecture": 9,
+    "architecture_part": 8,
+    "interior": 8,
+    "prop": 10,
+    "terrain": 14,
+    "vegetation": 9
+  },
+  "id": "adriatic_alpine_environment_kit",
+  "module_count": 58,
+  "schema_version": 1,
+  "showcases": {
+    "stage6i_coastal_kit": {
+      "bytes": 1001,
+      "material": "stage4d_stone",
+      "path": "assets/source/stage6i_coastal_kit.obj",
+      "positions": 16,
+      "quads": 12,
+      "sha256": "ee1682f1ecea7b46983e151df9743fba48734eb5a95360286e9f549bea287c23"
+    },
+    "stage6i_rural_kit": {
+      "bytes": 1741,
+      "material": "stage4d_wood",
+      "path": "assets/source/stage6i_rural_kit.obj",
+      "positions": 32,
+      "quads": 24,
+      "sha256": "6495aacdab964a3da2db4ca56a6ae627926d72dd9aab63969aee5f6c08386a0b"
+    }
+  },
+  "source": "presentation/environment/stage6i_environment_kit.json",
+  "source_sha256": "0561da14cf50240c904f92cccd27b7c5688134906d0f47058c8e64560492f107",
+  "symbolic_material_count": 3,
+  "symbolic_materials": [
+    "stage4d_ground",
+    "stage4d_stone",
+    "stage4d_wood"
+  ]
+}

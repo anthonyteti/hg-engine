@@ -229,6 +229,9 @@ endif
 ifeq ($(STAGE4D_TEXTURES),Y)
     WORLD_INSTALL_ARGS := --fixture fixtures/stage4d_scalable_textures_world.json --output build/stage4d/generated
 endif
+ifeq ($(STAGE6I_ENVIRONMENT_KIT),Y)
+    WORLD_INSTALL_ARGS := --fixture fixtures/stage6i_presentation_sandbox.json --output build/stage6i/generated
+endif
 ifeq ($(STAGE4E_TRIANGLES),Y)
     WORLD_INSTALL_ARGS := --fixture fixtures/stage4e_triangle_world.json --output build/stage4e/generated
 endif
@@ -653,6 +656,12 @@ stage6g-title-proof: stage6g-remaining-ui-compile
 stage6h-ui-qa:
 	. .venv/bin/activate; python3 -m tools.pokeagent.ui_qa
 	. .venv/bin/activate; python3 -m unittest -v tests.test_pokeagent_stage6h_ui_qa
+
+.PHONY: stage6i-environment-kit
+stage6i-environment-kit:
+	. .venv/bin/activate; python3 -m tools.pokeagent.environment_kit
+	$(MAKE) clean
+	$(MAKE) STAGE2_MAP=Y STAGE6I_ENVIRONMENT_KIT=Y
 
 .PHONY: battle-test-save
 battle-test-save:

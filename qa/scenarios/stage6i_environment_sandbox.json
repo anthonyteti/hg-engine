@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "stage6i_environment_sandbox",
+  "fixture": "fixtures/stage6i_presentation_sandbox.json",
+  "build_target": "stage6i-environment-kit",
+  "entry": {"mode": "new_game_controlled"},
+  "steps": [
+    {"assert": "rom_running", "value": true},
+    {"assert": "map_id", "value": 538},
+    {"assert": "map_member", "value": 633},
+    {"assert": "position", "x": 16, "z": 24},
+    {"action": "move", "direction": "north", "tiles": 6},
+    {"action": "move", "direction": "west", "tiles": 7},
+    {"assert": "position", "x": 9, "z": 18},
+    {"action": "capture", "name": "stage6i_rural_kit"},
+    {"assert": "screenshot_valid", "name": "stage6i_rural_kit"},
+    {"action": "move", "direction": "north", "tiles": 1},
+    {"assert": "position", "x": 9, "z": 17},
+    {"assert": "collision_blocked", "direction": "north"},
+    {"action": "move", "direction": "south", "tiles": 2},
+    {"action": "move", "direction": "east", "tiles": 14},
+    {"action": "move", "direction": "north", "tiles": 1},
+    {"assert": "position", "x": 23, "z": 18},
+    {"action": "capture", "name": "stage6i_coastal_kit"},
+    {"assert": "screenshot_valid", "name": "stage6i_coastal_kit"},
+    {"action": "move", "direction": "north", "tiles": 1},
+    {"assert": "position", "x": 23, "z": 17},
+    {"assert": "collision_blocked", "direction": "north"},
+    {"action": "wait", "frames": 600},
+    {"assert": "rom_running", "value": true}
+  ]
+}

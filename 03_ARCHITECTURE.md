@@ -937,3 +937,10 @@ state. Proof-ROM packing restores all source archives and is opt-in only.
 plans, semantic assertions, static checks, and visual-review dimensions.
 `tools/pokeagent/ui_qa.py` resolves extended scenarios, validates navigation and
 native bounds, and emits a deterministic machine-readable QA manifest.
+### Environment art factory
+
+The canonical environment vocabulary lives in structured project source under
+`presentation/environment/`. A deterministic compiler validates stable module
+IDs, biome coverage, dimensions, materials, and bounded compositions before
+emitting sources consumed by the unchanged Stage 4 model/texture/world pipeline.
+Future planners depend on catalog identities rather than Nitro internals.

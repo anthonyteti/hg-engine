@@ -644,6 +644,12 @@ coupling. Proceed to Stage 6I.
 
 ### Stage 6I — Environment Art Kit
 
+Status: **passed**. The Adriatic Field Journal environment vocabulary provides
+58 deterministic terrain, vegetation, architecture, architecture-part, prop,
+and interior modules across all eight biome families. Two bounded composites
+compile through Stage 4 and pass ROM collision/stability QA. Proceed to Stage
+6J for controlled variants and the canonical asset catalog.
+
 Build DS-safe terrain, slopes, paths, cliffs, water edges, stairs, bridges,
 vegetation, rocks, architecture, props, fences, lamps, signs, market pieces,
 and utility modules.

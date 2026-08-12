@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "id": "adriatic_alpine_environment_kit",
+  "license": "CC0-1.0",
+  "presentation_direction": "Adriatic Field Journal",
+  "texture_catalog": "assets/texture_catalog.json",
+  "biomes": [
+    "upper_valleys", "lake_country", "karst_interior", "great_gulf",
+    "islands", "high_country", "metropolitan_corridor", "championship_island"
+  ],
+  "modules": [
+    {"id":"terrain_grass","family":"terrain","kind":"plane","dimensions":[2,0.1,2],"material":"stage4d_ground","biomes":["all"],"tags":["ground","soft"]},
+    {"id":"terrain_soil","family":"terrain","kind":"plane","dimensions":[2,0.1,2],"material":"stage4d_ground","biomes":["upper_valleys","islands"],"tags":["ground","warm"]},
+    {"id":"terrain_dirt","family":"terrain","kind":"plane","dimensions":[2,0.1,2],"material":"stage4d_ground","biomes":["all"],"tags":["path"]},
+    {"id":"terrain_stone","family":"terrain","kind":"plane","dimensions":[2,0.1,2],"material":"stage4d_stone","biomes":["karst_interior","high_country","metropolitan_corridor"],"tags":["ground","hard"]},
+    {"id":"path_straight","family":"terrain","kind":"plane","dimensions":[2,0.1,1],"material":"stage4d_stone","biomes":["all"],"tags":["path","modular"]},
+    {"id":"path_corner","family":"terrain","kind":"corner","dimensions":[2,0.1,2],"material":"stage4d_stone","biomes":["all"],"tags":["path","modular"]},
+    {"id":"path_junction","family":"terrain","kind":"junction","dimensions":[3,0.1,3],"material":"stage4d_stone","biomes":["all"],"tags":["path","modular"]},
+    {"id":"terrain_slope","family":"terrain","kind":"wedge","dimensions":[2,1,2],"material":"stage4d_ground","biomes":["upper_valleys","high_country"],"tags":["elevation"]},
+    {"id":"cliff_straight","family":"terrain","kind":"box","dimensions":[3,2,1],"material":"stage4d_stone","biomes":["karst_interior","great_gulf","high_country"],"tags":["cliff","modular"]},
+    {"id":"cliff_corner","family":"terrain","kind":"corner","dimensions":[2,2,2],"material":"stage4d_stone","biomes":["karst_interior","great_gulf"],"tags":["cliff","modular"]},
+    {"id":"water_edge","family":"terrain","kind":"plane","dimensions":[3,0.1,1],"material":"stage4d_ground","biomes":["lake_country","great_gulf","islands"],"tags":["water","edge"]},
+    {"id":"coast_shore","family":"terrain","kind":"wedge","dimensions":[3,0.5,2],"material":"stage4d_stone","biomes":["great_gulf","islands"],"tags":["coast"]},
+    {"id":"stairs_stone","family":"terrain","kind":"steps","dimensions":[2,1,2],"material":"stage4d_stone","biomes":["all"],"tags":["elevation","walkable"]},
+    {"id":"bridge_stone","family":"terrain","kind":"bridge","dimensions":[2,0.5,4],"material":"stage4d_stone","biomes":["lake_country","karst_interior"],"tags":["crossing"]},
+    {"id":"tree_alpine","family":"vegetation","kind":"conifer","dimensions":[1.5,4,1.5],"material":"stage4d_wood","biomes":["upper_valleys","high_country"],"tags":["tree","vertical"]},
+    {"id":"tree_coastal","family":"vegetation","kind":"canopy","dimensions":[2,3,2],"material":"stage4d_wood","biomes":["great_gulf","islands"],"tags":["tree","wind-shaped"]},
+    {"id":"tree_lake","family":"vegetation","kind":"canopy","dimensions":[2.5,3.5,2.5],"material":"stage4d_wood","biomes":["lake_country"],"tags":["tree","broadleaf"]},
+    {"id":"bush_low","family":"vegetation","kind":"box","dimensions":[1.2,0.8,1.2],"material":"stage4d_wood","biomes":["all"],"tags":["bush"]},
+    {"id":"flowers_field","family":"vegetation","kind":"crossplane","dimensions":[1,0.7,1],"material":"stage4d_ground","biomes":["upper_valleys","lake_country"],"tags":["flowers"]},
+    {"id":"ground_fern","family":"vegetation","kind":"crossplane","dimensions":[1,0.6,1],"material":"stage4d_ground","biomes":["karst_interior","lake_country"],"tags":["ground-cover"]},
+    {"id":"rock_karst","family":"vegetation","kind":"rock","dimensions":[1.5,1.4,1.2],"material":"stage4d_stone","biomes":["karst_interior","great_gulf"],"tags":["rock","pale"]},
+    {"id":"rock_alpine","family":"vegetation","kind":"rock","dimensions":[1.2,1,1.4],"material":"stage4d_stone","biomes":["high_country","upper_valleys"],"tags":["rock","angular"]},
+    {"id":"accent_cypress","family":"vegetation","kind":"conifer","dimensions":[1,4.5,1],"material":"stage4d_wood","biomes":["great_gulf","islands","championship_island"],"tags":["regional-accent"]},
+    {"id":"house_small","family":"architecture","kind":"gable","dimensions":[4,3,3],"material":"stage4d_wood","biomes":["upper_valleys","lake_country"],"tags":["residence","rural"]},
+    {"id":"house_large","family":"architecture","kind":"gable","dimensions":[6,4,4],"material":"stage4d_wood","biomes":["lake_country","metropolitan_corridor"],"tags":["residence"]},
+    {"id":"shop_arcade","family":"architecture","kind":"facade","dimensions":[5,3.5,3],"material":"stage4d_stone","biomes":["great_gulf","metropolitan_corridor"],"tags":["commercial","awning"]},
+    {"id":"civic_loggia","family":"architecture","kind":"facade","dimensions":[7,5,4],"material":"stage4d_stone","biomes":["great_gulf","championship_island"],"tags":["civic","arches"]},
+    {"id":"station_gate","family":"architecture","kind":"gate","dimensions":[6,4,2],"material":"stage4d_stone","biomes":["metropolitan_corridor","upper_valleys"],"tags":["station","threshold"]},
+    {"id":"farm_barn","family":"architecture","kind":"gable","dimensions":[6,4,4],"material":"stage4d_wood","biomes":["upper_valleys"],"tags":["farm","rural"]},
+    {"id":"warehouse_coastal","family":"architecture","kind":"gable","dimensions":[7,4,4],"material":"stage4d_stone","biomes":["great_gulf","islands"],"tags":["warehouse","coastal"]},
+    {"id":"alpine_chalet","family":"architecture","kind":"gable","dimensions":[5,4,4],"material":"stage4d_wood","biomes":["high_country"],"tags":["alpine","balcony"]},
+    {"id":"urban_rowhouse","family":"architecture","kind":"facade","dimensions":[4,5,3],"material":"stage4d_stone","biomes":["metropolitan_corridor"],"tags":["urban","dense"]},
+    {"id":"roof_gable","family":"architecture_part","kind":"roof","dimensions":[4.5,1.5,3.5],"material":"stage4d_wood","biomes":["all"],"tags":["roof","modular"]},
+    {"id":"wall_plaster","family":"architecture_part","kind":"plane","dimensions":[2,2,0.2],"material":"stage4d_stone","biomes":["great_gulf","islands"],"tags":["wall","modular"]},
+    {"id":"window_shuttered","family":"architecture_part","kind":"plane","dimensions":[1,1.2,0.1],"material":"stage4d_wood","biomes":["all"],"tags":["window","modular"]},
+    {"id":"door_timber","family":"architecture_part","kind":"plane","dimensions":[1,2,0.1],"material":"stage4d_wood","biomes":["all"],"tags":["door","modular"]},
+    {"id":"trim_stone","family":"architecture_part","kind":"beam","dimensions":[2,0.25,0.25],"material":"stage4d_stone","biomes":["all"],"tags":["trim","modular"]},
+    {"id":"awning_market","family":"architecture_part","kind":"wedge","dimensions":[2.5,0.5,1.5],"material":"stage4d_wood","biomes":["great_gulf","metropolitan_corridor"],"tags":["awning","modular"]},
+    {"id":"chimney_stone","family":"architecture_part","kind":"box","dimensions":[0.6,1.8,0.6],"material":"stage4d_stone","biomes":["upper_valleys","high_country"],"tags":["chimney"]},
+    {"id":"balcony_wood","family":"architecture_part","kind":"platform","dimensions":[3,0.3,1],"material":"stage4d_wood","biomes":["great_gulf","high_country"],"tags":["balcony"]},
+    {"id":"prop_fence","family":"prop","kind":"fence","dimensions":[3,1,0.2],"material":"stage4d_wood","biomes":["all"],"tags":["boundary"]},
+    {"id":"prop_sign","family":"prop","kind":"sign","dimensions":[1,2,0.2],"material":"stage4d_wood","biomes":["all"],"tags":["wayfinding"]},
+    {"id":"prop_lamp","family":"prop","kind":"post","dimensions":[0.4,3,0.4],"material":"stage4d_stone","biomes":["metropolitan_corridor","championship_island"],"tags":["lighting"]},
+    {"id":"prop_bench","family":"prop","kind":"bench","dimensions":[2,1,0.7],"material":"stage4d_wood","biomes":["all"],"tags":["seating"]},
+    {"id":"prop_crate","family":"prop","kind":"box","dimensions":[1,1,1],"material":"stage4d_wood","biomes":["great_gulf","upper_valleys"],"tags":["container"]},
+    {"id":"prop_market_stall","family":"prop","kind":"stall","dimensions":[3,2.5,2],"material":"stage4d_wood","biomes":["great_gulf","metropolitan_corridor"],"tags":["market"]},
+    {"id":"prop_utility_pole","family":"prop","kind":"post","dimensions":[0.4,4,0.4],"material":"stage4d_wood","biomes":["upper_valleys","metropolitan_corridor"],"tags":["utility"]},
+    {"id":"prop_railing","family":"prop","kind":"fence","dimensions":[3,1,0.2],"material":"stage4d_stone","biomes":["great_gulf","championship_island"],"tags":["boundary"]},
+    {"id":"prop_planter","family":"prop","kind":"box","dimensions":[1.5,0.6,0.8],"material":"stage4d_stone","biomes":["metropolitan_corridor","championship_island"],"tags":["urban"]},
+    {"id":"prop_dock_bollard","family":"prop","kind":"post","dimensions":[0.6,1,0.6],"material":"stage4d_stone","biomes":["great_gulf","islands"],"tags":["dock"]},
+    {"id":"interior_floor","family":"interior","kind":"plane","dimensions":[4,0.1,4],"material":"stage4d_wood","biomes":["all"],"tags":["floor"]},
+    {"id":"interior_wall","family":"interior","kind":"plane","dimensions":[4,3,0.2],"material":"stage4d_stone","biomes":["all"],"tags":["wall"]},
+    {"id":"interior_counter","family":"interior","kind":"box","dimensions":[3,1.2,0.8],"material":"stage4d_wood","biomes":["all"],"tags":["counter"]},
+    {"id":"interior_shelf","family":"interior","kind":"box","dimensions":[2,2,0.5],"material":"stage4d_wood","biomes":["all"],"tags":["shelf"]},
+    {"id":"interior_table","family":"interior","kind":"table","dimensions":[2,1,1.2],"material":"stage4d_wood","biomes":["all"],"tags":["table"]},
+    {"id":"interior_chair","family":"interior","kind":"chair","dimensions":[0.8,1.2,0.8],"material":"stage4d_wood","biomes":["all"],"tags":["chair"]},
+    {"id":"interior_bed","family":"interior","kind":"box","dimensions":[2,0.7,3],"material":"stage4d_wood","biomes":["all"],"tags":["bed"]},
+    {"id":"interior_decoration","family":"interior","kind":"plane","dimensions":[1.2,1.2,0.1],"material":"stage4d_ground","biomes":["all"],"tags":["decoration"]}
+  ],
+  "showcases": [
+    {
+      "id": "stage6i_rural_kit",
+      "material": "stage4d_wood",
+      "placements": [
+        {"module":"house_small","position":[0,0,0],"scale":[1,1,1]},
+        {"module":"tree_alpine","position":[-3,0,1],"scale":[1,1,1]}
+      ]
+    },
+    {
+      "id": "stage6i_coastal_kit",
+      "material": "stage4d_stone",
+      "placements": [
+        {"module":"civic_loggia","position":[0,0,0],"scale":[0.65,0.65,0.65]}
+      ]
+    }
+  ]
+}
