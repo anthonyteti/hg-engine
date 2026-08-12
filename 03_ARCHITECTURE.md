@@ -892,6 +892,9 @@ visual/presentation bible
 A persistent Stage 6 orchestration state will track current/completed/blocked
 substages and human gates. Every Stage 6A-L unit must specify objective,
 evidence, pass/fail, commit, next-stage, and human-review rules. Technical
-passes may checkpoint and continue automatically; early visual direction and
-final presentation remain explicit human creative gates. No Stage 6 runtime or
-asset implementation belongs to Stage 5F.
+passes checkpoint, push, verify, and continue automatically. Stage 6A is
+`AUTONOMOUS_CODEX_SELECTION`; it is not a human gate. Stage 6L final integrated
+presentation is `HUMAN_REVIEW_REQUIRED`. Earlier interruption is limited to a
+genuine external-access, legal/license, or destructive irreversible high-risk
+decision. Persistent state lives under `docs/stage6/` so recovery does not
+depend on chat history.

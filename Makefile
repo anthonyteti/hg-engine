@@ -553,6 +553,11 @@ stage5f-roster-readiness:
 	. .venv/bin/activate; python3 -m tools.pokeagent.roster_readiness --output build/reports/stage5f-dex-archive-validation.json
 	. .venv/bin/activate; python3 -m unittest -v tests.test_pokeagent_stage5a_roster_inventory tests.test_pokeagent_stage5f_roster_readiness
 
+.PHONY: stage6a-presentation
+stage6a-presentation:
+	. .venv/bin/activate; python3 -m tools.pokeagent.stage6a_visuals
+	. .venv/bin/activate; python3 -m unittest -v tests.test_pokeagent_stage6a_presentation
+
 .PHONY: battle-test-save
 battle-test-save:
 	. .venv/bin/activate; python3 -m tools.pokeagent qa run \

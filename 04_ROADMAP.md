@@ -559,10 +559,12 @@ vertical slice.
 Stage 6 is intended to execute under one autonomous master prompt. It will
 maintain a persistent state file, automatically checkpoint successful
 technical substages, define recovery behavior, and interrupt the user mainly
-for the early visual-direction approval, final integrated presentation
-approval, or a genuine external/legal/creative blocker. Each substage must
-declare `OBJECTIVE`, `REQUIRED_EVIDENCE`, `PASS_CONDITIONS`, `FAIL_CONDITIONS`,
-`COMMIT_RULE`, `NEXT_STAGE_RULE`, and `HUMAN_REVIEW_RULE`.
+for the final integrated presentation approval or a genuine external-access,
+legal/license, or destructive irreversible high-risk blocker. Stage 6A visual
+direction uses `AUTONOMOUS_CODEX_SELECTION`; aesthetic uncertainty does not
+pause the program. Each substage must declare `OBJECTIVE`, `REQUIRED_EVIDENCE`,
+`PASS_CONDITIONS`, `FAIL_CONDITIONS`, `COMMIT_RULE`, `NEXT_STAGE_RULE`, and
+`HUMAN_REVIEW_RULE`.
 
 Conceptual orchestration state:
 
@@ -574,7 +576,6 @@ current:
 completed: [6A, 6B, 6C, 6D, 6E]
 blocked: []
 human_review:
-  visual_direction: approved
   final_presentation: pending
 ```
 
@@ -583,7 +584,9 @@ human_review:
 Define visual language, HGSS/DS readability rules, regional environment
 language, palette and typography principles, UI aesthetics, spacing,
 iconography, sprite/image hierarchy, texture density, asset budgets, and
-biome/environment principles. This is the early human creative gate.
+biome/environment principles. Codex develops at least three meaningful
+directions, scores and adversarially reviews them, then autonomously selects one
+direction or controlled hybrid. This is not a human gate.
 
 ### Stage 6B — Complete UI Reality Audit
 

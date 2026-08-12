@@ -664,7 +664,10 @@ real-generated-landmark kill gate, and an integrated presentation ROM.
 
 Run Stages 6A-L under one master orchestration prompt with persistent state,
 explicit evidence/pass/fail/commit/next/human-review rules, automatic technical
-checkpoints, and recovery policy. Human interruption is principally for the
-initial visual-direction decision and final integrated presentation review;
-external/legal/creative blockers may also stop safely. Stage 5F documents this
-contract but must not implement any Stage 6 subsystem.
+checkpoints, and recovery policy. The Stage 6 master authorization supersedes
+the earlier visual-direction gate: Stage 6A uses
+`AUTONOMOUS_CODEX_SELECTION`. The sole planned creative interruption is Stage
+6L `HUMAN_REVIEW_REQUIRED`, after integrated automation and AI visual review.
+External access, legal/license, or destructive irreversible high-risk blockers
+may still stop safely. Stage 5F documented the planned program but did not
+implement a Stage 6 subsystem.

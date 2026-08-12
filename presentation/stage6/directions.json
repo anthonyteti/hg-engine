@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "native_screen": [256, 192],
+  "criteria": [
+    {"id": "pokemon_authenticity", "label": "Pokemon authenticity", "weight": 3},
+    {"id": "stock_distinction", "label": "Distinction from stock HGSS", "weight": 2},
+    {"id": "regional_fit", "label": "Adriatic / Alpine fit", "weight": 2},
+    {"id": "narrative_fit", "label": "Narrative fit", "weight": 1},
+    {"id": "native_readability", "label": "256x192 readability", "weight": 3},
+    {"id": "technical_feasibility", "label": "DS technical feasibility", "weight": 3},
+    {"id": "ui_scalability", "label": "UI scalability", "weight": 3},
+    {"id": "environment_scalability", "label": "Environment-kit scalability", "weight": 3},
+    {"id": "production_efficiency", "label": "Production efficiency", "weight": 2},
+    {"id": "ui_world_consistency", "label": "UI / world consistency", "weight": 2},
+    {"id": "rural_adaptability", "label": "Rural adaptability", "weight": 1},
+    {"id": "metropolitan_adaptability", "label": "Metropolitan adaptability", "weight": 1},
+    {"id": "dramatic_adaptability", "label": "Dramatic-location adaptability", "weight": 1},
+    {"id": "simplification_tolerance", "label": "Tolerance of DS simplification", "weight": 2},
+    {"id": "long_term_suitability", "label": "40+ hour suitability", "weight": 3},
+    {"id": "pokemon_asset_compatibility", "label": "Existing Pokemon asset compatibility", "weight": 2},
+    {"id": "memorable_scenes", "label": "Memorable-scene potential", "weight": 1}
+  ],
+  "candidates": [
+    {
+      "id": "adriatic_field_journal",
+      "name": "Adriatic Field Journal",
+      "tagline": "Warm civic craft, sea clarity, and field-guide hierarchy",
+      "palette": {
+        "ink": "#263238",
+        "paper": "#F2E8D5",
+        "limestone": "#D8C8A8",
+        "terracotta": "#B95E46",
+        "sea": "#247B87",
+        "pine": "#355F4A",
+        "sun": "#E4B44A",
+        "shadow": "#6E5546"
+      },
+      "typography": "Humanist compact sans for data; squared small caps for section labels",
+      "ui_language": "Offset limestone cards, dark ink rails, terracotta focus tabs, sea-teal semantic meters, generous sprite clear zones",
+      "world_language": "Pale limestone walls, low terracotta roofs, blue-green water, dry-stone edges, cypress and alpine pine silhouettes",
+      "scores": [9, 8, 10, 9, 9, 9, 9, 10, 8, 9, 10, 8, 9, 9, 9, 9, 9]
+    },
+    {
+      "id": "alpine_signal",
+      "name": "Alpine Signal",
+      "tagline": "Railway precision, crisp altitude, and modular information",
+      "palette": {
+        "ink": "#172433",
+        "paper": "#EEF3F3",
+        "limestone": "#BAC8CB",
+        "terracotta": "#E56C3D",
+        "sea": "#2462A6",
+        "pine": "#33706A",
+        "sun": "#F2C84B",
+        "shadow": "#526578"
+      },
+      "typography": "Condensed geometric sans with route-number and platform-sign numerals",
+      "ui_language": "Strong grid, cobalt information rails, segmented meters, oversized selected state, compact tabular panels",
+      "world_language": "Steep charcoal roofs, pale render, rail and cable motifs, angular conifers, controlled urban signage",
+      "scores": [8, 9, 8, 7, 10, 9, 10, 8, 9, 7, 7, 10, 8, 10, 8, 9, 7]
+    },
+    {
+      "id": "karst_nocturne",
+      "name": "Karst Nocturne",
+      "tagline": "Dramatic stone, copper light, and deep cavern contrast",
+      "palette": {
+        "ink": "#191B24",
+        "paper": "#DDD8C9",
+        "limestone": "#888D8B",
+        "terracotta": "#B45D3C",
+        "sea": "#236A78",
+        "pine": "#344D43",
+        "sun": "#D99A38",
+        "shadow": "#483A52"
+      },
+      "typography": "Narrow serif labels paired with compact utilitarian body text",
+      "ui_language": "Dark inset slabs, copper-lit selection, cut-stone corners, cinematic negative space and high-drama reveals",
+      "world_language": "Grey karst terraces, narrow alleys, copper lamps, dark water, wind-shaped vegetation and monumental silhouettes",
+      "scores": [7, 10, 9, 9, 7, 7, 7, 8, 6, 9, 6, 8, 10, 7, 6, 7, 10]
+    }
+  ],
+  "selected": {
+    "id": "adriatic_field_journal",
+    "primary_parent": "adriatic_field_journal",
+    "borrowed_elements": [
+      {
+        "from": "alpine_signal",
+        "element": "high-contrast information rails and unmistakable focus outlines",
+        "reason": "Improves battle and touch readability without changing the warm field-journal character"
+      },
+      {
+        "from": "karst_nocturne",
+        "element": "restricted copper-on-slate dramatic variant",
+        "reason": "Provides a coherent accent mode for Karst interiors and Championship spectacle without darkening ordinary play"
+      }
+    ]
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "stage": 6,
+  "status": "in_progress",
+  "current": {
+    "id": "6A",
+    "status": "in_progress",
+    "attempt": 1
+  },
+  "completed": [],
+  "deferred": [],
+  "blocked": [],
+  "creative_direction": {
+    "selection_mode": "autonomous",
+    "status": "pending",
+    "selected_direction": null,
+    "decision_record": null
+  },
+  "human_review": {
+    "final_presentation": {
+      "status": "pending"
+    }
+  },
+  "checkpoints": [],
+  "last_verified_commit": "dedf0ee52b7ea2d8326834f3bd70249ecb94eb5c"
+}

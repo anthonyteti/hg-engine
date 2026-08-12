@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "program": "STAGE_6_PRESENTATION_FACTORY",
+  "substage_order": ["6A", "6B", "6C", "6D", "6E", "6F", "6G", "6H", "6I", "6J", "6K", "6L"],
+  "recovery": {
+    "attempts": [
+      "diagnose_and_repair_current_implementation",
+      "try_best_bounded_architecture_compatible_alternative",
+      "re_evaluate_local_architectural_assumption"
+    ],
+    "classifications": [
+      "LOCAL_FIXABLE_LATER",
+      "ISOLATED_DEFERABLE",
+      "DOWNSTREAM_BLOCKING",
+      "EXTERNAL_ACCESS_REQUIRED",
+      "LEGAL_OR_LICENSE_REQUIRED",
+      "DESTRUCTIVE_HIGH_RISK_DECISION"
+    ]
+  },
+  "substages": [
+    {
+      "id": "6A",
+      "name": "Visual Direction and Presentation Bible",
+      "objective": "Select one coherent DS-native visual direction autonomously and encode it as a reusable presentation contract.",
+      "dependencies": ["STAGE_5_COMPLETE"],
+      "required_evidence": ["three_distinct_visual_boards", "weighted_decision_matrix", "adversarial_review", "presentation_bible"],
+      "pass_conditions": ["exactly_one_direction_selected", "visuals_cover_ui_and_world", "native_resolution_rules_defined", "no_creative_contradiction_blocks_implementation"],
+      "fail_conditions": ["fewer_than_three_viable_directions", "selection_not_DS_feasible", "presentation_contract_incomplete"],
+      "commit_rule": "Commit and push all validated 6A sources, boards, tests, state, and documentation with explicit staging.",
+      "next_stage_rule": {"on_pass": "6B", "on_isolated_debt": "6B", "on_blocking_failure": "stop"},
+      "human_review_rule": "AUTONOMOUS_CODEX_SELECTION; no user interruption."
+    },
+    {
+      "id": "6B",
+      "name": "Complete UI Reality Audit",
+      "objective": "Map ownership, resources, code, input, bindings, budgets, and modification strategy for important player-facing HGSS/HG-Engine UI.",
+      "dependencies": ["6A"],
+      "required_evidence": ["machine_readable_ui_registry", "source_evidence", "runtime_reference_matrix", "bounded_unknowns"],
+      "pass_conditions": ["major_surfaces_inventoried", "resource_and_input_ownership_understood", "modification_strategy_recorded", "unknowns_bounded"],
+      "fail_conditions": ["core_UI_ownership_unknown", "no_general_authoring_boundary_can_be_planned"],
+      "commit_rule": "Commit and push validated audit data, evidence, tests, state, and documentation.",
+      "next_stage_rule": {"on_pass": "6C", "on_isolated_debt": "6C", "on_blocking_failure": "stop"},
+      "human_review_rule": "none"
+    },
+    {
+      "id": "6C",
+      "name": "UI Resource Factory",
+      "objective": "Compile project-owned high-level UI visuals deterministically into the actual DS resource classes needed by audited screens.",
+      "dependencies": ["6A", "6B"],
+      "required_evidence": ["symbolic_resource_manifest", "format_validators", "deterministic_outputs", "ROM_rendered_resource_proof"],
+      "pass_conditions": ["multiple_distinct_resources_compile", "budget_failures_actionable", "resources_render_in_ROM", "no_repetitive_GUI_conversion_required"],
+      "fail_conditions": ["binary_only_unrendered_proof", "resource_generation_nondeterministic", "retail_resources_overwritten_unsafely"],
+      "commit_rule": "Commit and push canonical sources, compiler, tests, proof integration, state, and documentation.",
+      "next_stage_rule": {"on_pass": "6D", "on_isolated_debt": "6D", "on_blocking_failure": "stop"},
+      "human_review_rule": "none"
+    },
+    {
+      "id": "6D",
+      "name": "Declarative UI Engine",
+      "objective": "Provide validated semantic components, bindings, navigation, touch, animation, and budgets for high-level UI authorship.",
+      "dependencies": ["6B", "6C"],
+      "required_evidence": ["declarative_schema", "compiler_or_runtime_adapter", "semantic_bindings", "navigation_and_touch", "authorship_change_proof"],
+      "pass_conditions": ["supported_screen_driven_primarily_by_high_level_source", "layout_and_navigation_revision_rebuilds", "raw_addresses_absent_from_author_source", "budget_validation_passes"],
+      "fail_conditions": ["one_off_coordinate_patch_only", "binding_requires_revision_addresses_in_source", "ordinary_revision_requires_manual_binary_edit"],
+      "commit_rule": "Commit and push engine, sources, proof, tests, state, and documentation.",
+      "next_stage_rule": {"on_pass": "6E", "on_isolated_debt": "6E", "on_blocking_failure": "stop"},
+      "human_review_rule": "none"
+    },
+    {
+      "id": "6E",
+      "name": "Battle UI Proof",
+      "objective": "Materially redesign battle presentation through the UI factory while preserving normal battle and native Mega behavior.",
+      "dependencies": ["6C", "6D"],
+      "required_evidence": ["native_resolution_screenshots", "normal_battle_QA", "Mega_UI_QA", "switch_bag_run_target_QA"],
+      "pass_conditions": ["battle_HUD_materially_redesigned", "move_selection_and_execution_work", "Mega_control_uses_native_path", "visual_review_passes"],
+      "fail_conditions": ["palette_swap_only", "battle_function_regression", "unreadable_or_sprite_obstructing_UI"],
+      "commit_rule": "Commit and push battle UI sources, integration, QA, state, and documentation.",
+      "next_stage_rule": {"on_pass": "6F", "on_isolated_debt": "6F", "on_blocking_failure": "stop"},
+      "human_review_rule": "none"
+    },
+    {
+      "id": "6F",
+      "name": "Core Menu UI",
+      "objective": "Apply the UI factory to party, summary, Bag, and start/player menus without losing functionality.",
+      "dependencies": ["6D", "6E"],
+      "required_evidence": ["party_QA", "summary_QA", "Bag_QA", "start_menu_QA", "visual_review"],
+      "pass_conditions": ["all_required_surfaces_materially_reauthored", "semantic_data_correct", "navigation_has_no_dead_ends", "back_cancel_paths_work"],
+      "fail_conditions": ["major_action_lost", "screen_softlock", "surface_not_authored_through_new_boundary"],
+      "commit_rule": "Commit and push core menu sources, integration, QA, state, and documentation.",
+      "next_stage_rule": {"on_pass": "6G", "on_isolated_debt": "6G", "on_blocking_failure": "stop"},
+      "human_review_rule": "none"
+    },
+    {
+      "id": "6G",
+      "name": "Remaining Game UI",
+      "objective": "Extend high-level authorship to essentially all significant remaining player-facing interfaces.",
+      "dependencies": ["6D", "6F"],
+      "required_evidence": ["coverage_matrix", "PC_and_Dex_QA", "title_continue_QA", "dialogue_and_naming_QA", "capture_evolution_QA"],
+      "pass_conditions": ["significant_surfaces_covered", "National_Dex_1025_preserved", "save_boot_and_script_flows_preserved", "engine_fixed_items_justified"],
+      "fail_conditions": ["major_high_use_surface_uncovered_without_reason", "save_or_dialogue_regression", "Pecharunt_boundary_regression"],
+      "commit_rule": "Commit and push remaining UI sources, coverage data, QA, state, and documentation.",
+      "next_stage_rule": {"on_pass": "6H", "on_isolated_debt": "6H", "on_blocking_failure": "stop"},
+      "human_review_rule": "none"
+    },
+    {
+      "id": "6H",
+      "name": "UI Automated QA",
+      "objective": "Make semantic, navigation, layout-budget, and visual QA reusable for future high-level UI revisions.",
+      "dependencies": ["6D", "6E", "6F", "6G"],
+      "required_evidence": ["semantic_assertions", "navigation_graph_checks", "static_layout_checks", "reusable_UI_smoke_suite"],
+      "pass_conditions": ["major_screens_open_navigate_exit", "bindings_and_resources_observable_semantically", "invalid_layouts_rejected", "screenshots_support_visual_review"],
+      "fail_conditions": ["manual_navigation_required_for_ordinary_regression", "pixel_hashes_used_as_primary_universal_signal", "core_UI_state_unobservable"],
+      "commit_rule": "Commit and push QA framework, scenarios, tests, state, and documentation.",
+      "next_stage_rule": {"on_pass": "6I", "on_isolated_debt": "6I", "on_blocking_failure": "stop"},
+      "human_review_rule": "none"
+    },
+    {
+      "id": "6I",
+      "name": "Environment Art Kit",
+      "objective": "Build a reusable DS-safe regional environment vocabulary and presentation sandbox through the proven world/asset pipeline.",
+      "dependencies": ["6A"],
+      "required_evidence": ["terrain_vegetation_architecture_props_interiors", "symbolic_materials", "sandbox_ROM", "collision_and_visual_QA"],
+      "pass_conditions": ["kit_supports_all_eight_environment_families", "future_worlds_use_catalogable_modules", "sandbox_is_coherent_and_readable", "Stage4_safety_preserved"],
+      "fail_conditions": ["external_image_to_3D_dependency", "ordinary_assets_require_manual_editor", "technically_valid_but_visually_unacceptable_sandbox"],
+      "commit_rule": "Commit and push canonical art sources, compilers/adapters, sandbox, QA, state, and documentation.",
+      "next_stage_rule": {"on_pass": "6J", "on_isolated_debt": "6J", "on_blocking_failure": "stop"},
+      "human_review_rule": "none"
+    },
+    {
+      "id": "6J",
+      "name": "Procedural Variants and Asset Catalog",
+      "objective": "Create bounded deterministic variants and stable symbolic metadata for approved production environment assets.",
+      "dependencies": ["6I"],
+      "required_evidence": ["variant_schema", "canonical_catalog", "determinism", "world_planner_symbolic_contract"],
+      "pass_conditions": ["same_source_seed_same_output", "variants_use_approved_composition_rules", "catalog_has_budget_collision_and_visual_metadata", "world_source_avoids_Nitro_internals"],
+      "fail_conditions": ["uncontrolled_random_canonical_build", "arbitrary_mutation", "catalog_identity_collision"],
+      "commit_rule": "Commit and push variant tooling, catalog, tests, state, and documentation.",
+      "next_stage_rule": {"on_pass": "6K", "on_isolated_debt": "6K", "on_blocking_failure": "stop"},
+      "human_review_rule": "none"
+    },
+    {
+      "id": "6K",
+      "name": "Unique Landmark Real Generated 3D Kill Gate",
+      "objective": "Put one real, authorized externally generated, game-relevant landmark through immutable intake, Stage 4 processing, ROM integration, and visual runtime QA.",
+      "dependencies": ["6A", "6I", "6J", "STAGE_4_PIPELINE"],
+      "required_evidence": ["official_or_authorized_generator", "immutable_raw_hash_and_provenance", "unchanged_safety_gates", "ROM_runtime_walkaround"],
+      "pass_conditions": ["real_generated_asset_reaches_ROM", "topology_and_budget_contracts_pass", "landmark_is_recognizable_and_coherent", "license_and_cost_recorded"],
+      "fail_conditions": ["hand_authored_substitute_only", "unofficial_or_bypassed_access", "threshold_cheating", "no_executable_authorized_route"],
+      "commit_rule": "On technical pass commit and push sources, permitted evidence, processing integration, QA, state, and documentation. Never commit prohibited assets.",
+      "next_stage_rule": {"on_pass": "6L", "on_isolated_debt": "6L_if_integrated_gate_remains_honest", "on_blocking_failure": "stop"},
+      "human_review_rule": "Interrupt only for EXTERNAL_ACCESS_BLOCKER or LEGAL_OR_LICENSE_BLOCKER when no authorized route exists."
+    },
+    {
+      "id": "6L",
+      "name": "Integrated Presentation QA",
+      "objective": "Integrate the new UI, environment kit, generated landmark, and automated gameplay route into a coherent showcase build.",
+      "dependencies": ["6E", "6F", "6G", "6H", "6I", "6J", "6K"],
+      "required_evidence": ["integrated_showcase_ROM", "semantic_playthrough", "AI_visual_review_and_repairs", "human_final_review"],
+      "pass_conditions": ["integrated_route_passes", "presentation_is_coherent", "normal_and_regression_builds_pass", "HUMAN_PRESENTATION_APPROVED"],
+      "fail_conditions": ["required_subsystem_not_integrated", "blocking_visual_or_functional_defect", "human_review_not_approved"],
+      "commit_rule": "Checkpoint the review candidate before the human gate; after approval commit/push any final fixes, verify Git equality, and mark Stage 6 complete.",
+      "next_stage_rule": {"on_pass": "stop_and_recommend_Stage_7", "on_human_feedback": "repair_and_repeat_6L", "on_blocking_failure": "stop"},
+      "human_review_rule": "HUMAN_REVIEW_REQUIRED after automated QA and AI visual review."
+    }
+  ]
+}

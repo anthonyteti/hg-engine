@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "source": "presentation/stage6/directions.json",
+  "source_sha256": "0c71777010d06be8114094d17ffb2fde3f2100d85dbc3caa6173b65cc5d2aba5",
+  "selected": "adriatic_field_journal",
+  "boards": [
+    {
+      "candidate": "adriatic_field_journal",
+      "weighted_score": 9.029,
+      "path": "docs/stage6/boards/adriatic_field_journal.png",
+      "sha256": "cc1e2cb0d6cc5ede20a91b6b0c6278f36efc0c664b71a9b24384e8e6ca6e5875"
+    },
+    {
+      "candidate": "alpine_signal",
+      "weighted_score": 8.629,
+      "path": "docs/stage6/boards/alpine_signal.png",
+      "sha256": "77cc3d3218b57c89b3fbf60f6e2411a73f2cd76976fa7cbdb41ec4d429d1dfa8"
+    },
+    {
+      "candidate": "karst_nocturne",
+      "weighted_score": 7.571,
+      "path": "docs/stage6/boards/karst_nocturne.png",
+      "sha256": "bfebe6a3143b1078e4d479c0693e09d2b34c074b80675592b3806e5f437f4dda"
+    }
+  ]
+}
