@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "screen": {
+    "id": "ui.proof.field_journal",
+    "title": "FIELD JOURNAL",
+    "native_screen": "top",
+    "background_layer": "MAIN_BG3",
+    "trigger": "select",
+    "resource_bundle": "ui.start_menu.adriatic_field_journal"
+  },
+  "bindings": [
+    {"id": "lead_species", "source": "party[0].species", "type": "species"},
+    {"id": "lead_level", "source": "party[0].level", "type": "number"},
+    {"id": "lead_hp", "source": "party[0].hp", "type": "number"},
+    {"id": "lead_max_hp", "source": "party[0].max_hp", "type": "number"}
+  ],
+  "components": [
+    {"id": "journal_title", "type": "Text", "text": "FIELD JOURNAL", "bounds": [2, 2, 28, 3], "palette": 13, "fill": 15},
+    {"id": "lead_card", "type": "Panel", "text": "LEAD POKEMON  LIVE PARTY DATA", "bounds": [2, 6, 28, 5], "palette": 13, "fill": 15, "bindings": ["lead_species", "lead_level", "lead_hp", "lead_max_hp"]},
+    {"id": "party_button", "type": "Button", "text": "PARTY", "bounds": [2, 15, 8, 3], "palette": 13, "fill": 15, "selected_fill": 4, "action": "inspect_party"},
+    {"id": "bag_button", "type": "Button", "text": "BAG", "bounds": [12, 15, 8, 3], "palette": 13, "fill": 15, "selected_fill": 4, "action": "inspect_bag"},
+    {"id": "close_button", "type": "Button", "text": "CLOSE", "bounds": [22, 15, 8, 3], "palette": 13, "fill": 15, "selected_fill": 4, "action": "close"}
+  ],
+  "navigation": {
+    "initial": "party_button",
+    "party_button": {"left": "close_button", "right": "bag_button", "confirm": "inspect_party", "cancel": "close"},
+    "bag_button": {"left": "party_button", "right": "close_button", "confirm": "inspect_bag", "cancel": "close"},
+    "close_button": {"left": "bag_button", "right": "party_button", "confirm": "close", "cancel": "close"}
+  },
+  "animation": {"selection": "palette_pulse", "duration_frames": 12},
+  "budgets": {"windows": 5, "touch_regions": 3, "background_layers": 1, "palette_slots": 1, "tiles": 308}
+}

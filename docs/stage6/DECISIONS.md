@@ -53,3 +53,20 @@ labels use `CONFIRMED_SOURCE`, `CONFIRMED_RUNTIME`, `INFERRED`, or `PLANNED`.
 - Palette index zero is opaque in the audited start-menu BG mode. Presentation
   source must design the surface intentionally rather than assume field-scene
   transparency.
+
+## 2026-08-12 — Declarative UI adapter boundary
+
+- Evidence: deterministic layout compilation and native field-window runtime
+  proof (`CONFIRMED_SOURCE`, `CONFIRMED_RUNTIME`).
+- One validated schema supplies semantic bindings, layout, selection,
+  navigation, touch metadata, animation metadata, and budgets. Screen owners
+  retain their native behavior/state machines through bounded adapters.
+- The first supported adapter uses field `MAIN_BG3`; canonical UI source never
+  names runtime addresses.
+- An attempted field `SUB_BG0` adapter corrupted the native touch shell because
+  the live layer already owns its tile resources. It was rejected. Visible
+  TouchButton proof must be integrated with a bottom-screen owner in 6E/6F;
+  invisible cross-screen touch targets are not accepted.
+- Stage 6D deliberately stops short of a general UI VM. Dynamic formatting,
+  sprites/icons, and additional screen adapters are added only as production
+  screens consume them.

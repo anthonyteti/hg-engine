@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "stage": "6D",
+  "verdict": "STAGE_6D_DECLARATIVE_UI_ENGINE_PASSED",
+  "source_sha256": "ed4a87c6dc2ff44ef04ae5ae92b67dd788de8984185515eb324c6d92aad5df6f",
+  "canonical_source_file_sha256": "f34c384c894c8d8af7786709c9ac31e8d7c9cb0b766c27cddff7151410b600cd",
+  "generated_header_sha256": "92ca9cfc86d4f0733f406dc04b58b2c6607fe6fc46caade19258e7b7f8ef5391",
+  "generated_report_file_sha256": "35d5cc1784921745c8ec2cd1a00eefe4c017ad71116b9939ca8d23dd106a0702",
+  "qa_plan_sha256": "86d246a069500b5bd58b91b20a4cb722be9aafd788252f6fffbad0bf21822d7f",
+  "proof_rom_sha256": "4ded182ba358eb673a2af29f483b74eec65141a7bdaa2131a246369493b6a814",
+  "normal_rom_sha256": "eab6f22023020ebd4e0a6844ead42169dd8539b18b4a42393aec7a083de75ace",
+  "assertions": {"passed": 16, "total": 16},
+  "screen": {
+    "component_count": 5,
+    "binding_count": 4,
+    "navigation_target_count": 3,
+    "touch_region_count": 0,
+    "tile_count": 296,
+    "tile_budget": 308
+  },
+  "screenshots": {
+    "initial": "3b3d9bb8190a42e74b9d786baa081c99dacf2a249ce4488f026090e16c3a99ab",
+    "navigation": "fd8e865f6f967d323e0e0e3905e88568e663b266373c203846da5480903e64c4"
+  },
+  "normal_build_isolation": "PASS_SYMBOLS_ABSENT",
+  "deepseek_cost_usd": 0
+}

@@ -3849,10 +3849,10 @@
       ],
       "local_evidence_metadata": [
         {
-          "bytes": 21799,
+          "bytes": 21952,
           "kind": "file",
           "path": "src/bag.c",
-          "sha256": "f7eb3843fddf19dd9dbf6196c5c6325967e2e425f553dabcb164ec8d81acb832"
+          "sha256": "19e297b0438b89c05996dc25cf681e8121ec5ed9e6bfe0d44954f602e54de7a6"
         },
         {
           "kind": "file",

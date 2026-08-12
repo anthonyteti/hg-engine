@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "stage6d_declarative_ui_runtime",
+  "fixture": "fixtures/stage5bc_victini_shared_world.json",
+  "build_target": "stage6d-ui-proof",
+  "entry": {"mode": "new_game_controlled"},
+  "steps": [
+    {"assert": "map_id", "value": 540},
+    {"assert": "memory_value", "symbol": "gStage6DRuntimeState", "offset": 0, "width": 4, "value": 910447945},
+    {"assert": "memory_value", "symbol": "gStage6DRuntimeState", "offset": 32, "width": 4, "value": 3981084614},
+    {"assert": "memory_value", "symbol": "gStage6DRuntimeState", "offset": 36, "width": 4, "value": 5},
+    {"assert": "memory_value", "symbol": "gStage6DRuntimeState", "offset": 40, "width": 4, "value": 4},
+    {"assert": "memory_value", "symbol": "gStage6DRuntimeState", "offset": 44, "width": 4, "value": 296},
+    {"assert": "memory_value", "symbol": "gStage6DRuntimeState", "offset": 48, "width": 4, "value": 544},
+    {"assert": "memory_value", "symbol": "gStage6DRuntimeState", "offset": 52, "width": 4, "value": 20},
+    {"action": "write_memory", "symbol": "gStage6DRuntimeState", "offset": 4, "width": 4, "value": 1},
+    {"action": "wait_memory", "symbol": "gStage6DRuntimeState", "offset": 8, "width": 4, "value": 1, "timeout_frames": 600},
+    {"action": "wait_memory", "symbol": "gStage6DRuntimeState", "offset": 12, "width": 4, "value": 1, "timeout_frames": 120},
+    {"assert": "memory_value", "symbol": "gStage6DRuntimeState", "offset": 20, "width": 4, "value": 0},
+    {"assert": "memory_value", "symbol": "gStage6DRuntimeState", "offset": 28, "width": 4, "value": 0},
+    {"assert": "memory_value", "symbol": "gStage6DRuntimeState", "offset": 16, "width": 4, "value": 0},
+    {"action": "capture", "name": "stage6d_field_journal_initial"},
+    {"action": "press", "button": "right", "after_frames": 120},
+    {"assert": "memory_value", "symbol": "gStage6DRuntimeState", "offset": 16, "width": 4, "value": 1},
+    {"action": "capture", "name": "stage6d_field_journal_navigation"},
+    {"action": "press", "button": "b", "after_frames": 120},
+    {"assert": "memory_value", "symbol": "gStage6DRuntimeState", "offset": 28, "width": 4, "value": 0},
+    {"assert": "memory_value", "symbol": "gStage6DRuntimeState", "offset": 24, "width": 4, "value": 3},
+    {"assert": "memory_value", "symbol": "gStage6DRuntimeState", "offset": 12, "width": 4, "value": 0},
+    {"assert": "rom_running", "value": true}
+  ]
+}
