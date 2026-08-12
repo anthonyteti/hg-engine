@@ -166,6 +166,9 @@ endif
 ifeq ($(STAGE6E_BATTLE_UI_PROOF),Y)
     CFLAGS += -DSTAGE6E_BATTLE_UI_PROOF -Werror
 endif
+ifeq ($(STAGE6L_PRESENTATION_SHOWCASE),Y)
+    CFLAGS += -DSTAGE6L_PRESENTATION_SHOWCASE -Werror
+endif
 
 ifeq ($(BATTLE_SAVE_PROVISION),Y)
     CFLAGS += -DBATTLE_SAVE_PROVISION -Werror
@@ -234,6 +237,9 @@ ifeq ($(STAGE6I_ENVIRONMENT_KIT),Y)
 endif
 ifeq ($(STAGE6K_GENERATED_LANDMARK),Y)
     WORLD_INSTALL_ARGS := --fixture fixtures/stage6k_generated_landmark_world.json --output build/stage6k/generated
+endif
+ifeq ($(STAGE6L_PRESENTATION_SHOWCASE),Y)
+    WORLD_INSTALL_ARGS := --fixture fixtures/stage6l_presentation_showcase.json --output build/stage6l/generated
 endif
 ifeq ($(STAGE4E_TRIANGLES),Y)
     WORLD_INSTALL_ARGS := --fixture fixtures/stage4e_triangle_world.json --output build/stage4e/generated
@@ -676,6 +682,17 @@ stage6k-generated-landmark:
 	. .venv/bin/activate; python3 -m tools.pokeagent.stage6k_landmark
 	$(MAKE) clean
 	$(MAKE) STAGE2_MAP=Y STAGE6K_GENERATED_LANDMARK=Y
+
+.PHONY: stage6l-presentation-showcase
+stage6l-presentation-showcase:
+	. .venv/bin/activate; python3 -m tools.pokeagent.environment_kit
+	. .venv/bin/activate; python3 -m tools.pokeagent.stage6k_landmark
+	. .venv/bin/activate; python3 -m tools.pokeagent.core_menu_ui
+	. .venv/bin/activate; python3 -m tools.pokeagent.remaining_ui
+	. .venv/bin/activate; python3 -m tools.pokeagent.battle_ui
+	$(MAKE) clean
+	$(MAKE) STAGE2_MAP=Y STAGE5E_MEGA_PROOF=Y STAGE6E_BATTLE_UI_PROOF=Y STAGE6L_PRESENTATION_SHOWCASE=Y
+	. .venv/bin/activate; python3 -m tools.pokeagent.stage6l_showcase --proof-rom
 
 .PHONY: battle-test-save
 battle-test-save:

@@ -323,16 +323,21 @@ def _validate_stage4b_fixture(fixture: dict[str, Any]) -> None:
     if fixture.get("model", {}).get("half_extent") != 16:
         raise WorldBuildError("Stage 4B template model must retain the centered 32x32 extent")
     terrain = fixture.get("terrain")
+    stage6l_terrain = {
+        "height": 0, "block_border": True, "permission_type": 0,
+        "permission_regions": [{"x0": 13, "z0": 24, "x1": 19, "z1": 28, "permission_type": 3}],
+        "walkable_collision": 0, "blocked_collision": 128,
+    }
     if terrain != {
         "height": 0, "block_border": True, "permission_type": 0,
         "walkable_collision": 0, "blocked_collision": 128,
-    }:
+    } and not (fixture.get("id") == "stage6l_presentation_showcase_32x32" and terrain == stage6l_terrain):
         raise WorldBuildError("Stage 4B requires the exact flat normal-overworld terrain profile")
     catalog = fixture.get("asset_catalog")
     if not isinstance(catalog, str):
         raise WorldBuildError("Stage 4B must declare its project-local asset catalog")
     compiled = compile_placements(PROJECT_ROOT / catalog, fixture.get("assets"), PROJECT_ROOT)
-    expected_placements = 2 if schema == 10 else 1
+    expected_placements = 2 if schema == 10 or fixture.get("id") == "stage6l_presentation_showcase_32x32" else 1
     if compiled["report"]["placement_count"] != expected_placements:
         raise WorldBuildError(f"asset proof requires exactly {expected_placements} external asset placement(s)")
     if schema == 9:
@@ -972,10 +977,10 @@ def build_per(fixture: dict[str, Any], map_name: str | None = None) -> bytes:
         warps = {(warp["x"], warp["z"]) for warp in fixture.get("warps", [])}
     permission_regions = terrain.get("permission_regions", [])
     for region in permission_regions:
-        required_region_keys = {"map", "x0", "z0", "x1", "z1", "permission_type"}
+        required_region_keys = {"map", "x0", "z0", "x1", "z1", "permission_type"} if fixture["schema_version"] in (3, 6, 7) else {"x0", "z0", "x1", "z1", "permission_type"}
         if not isinstance(region, dict) or set(region) != required_region_keys:
             raise WorldBuildError("terrain permission regions require map/x0/z0/x1/z1/permission_type")
-        if region["map"] not in fixture.get("maps", {}):
+        if "map" in region and region["map"] not in fixture.get("maps", {}):
             raise WorldBuildError("terrain permission region references an unknown map")
         if not all(isinstance(region[key], int) for key in ("x0", "z0", "x1", "z1", "permission_type")):
             raise WorldBuildError("terrain permission region coordinates and permission must be integers")
@@ -995,7 +1000,7 @@ def build_per(fixture: dict[str, Any], map_name: str | None = None) -> bytes:
             base_permission = terrain.get("permission_by_map", {}).get(map_name, terrain["permission_type"])
             for region in permission_regions:
                 if (
-                    region["map"] == map_name
+                    ("map" not in region or region["map"] == map_name)
                     and region["x0"] <= x <= region["x1"]
                     and region["z0"] <= z <= region["z1"]
                 ):
@@ -1261,7 +1266,7 @@ def build_map_header(
     if template_offset + MAP_HEADER_SIZE > len(arm9):
         raise WorldBuildError("US HG map-header table is outside arm9.bin")
     output = bytearray(arm9[template_offset:template_offset + MAP_HEADER_SIZE])
-    output[0] = 0xFF
+    output[0] = 142 if fixture.get("id") == "stage6l_presentation_showcase_32x32" else 0xFF
     output[1] = fixture["model"]["area_data"]
     if fixture["schema_version"] == 6:
         if map_name not in fixture["maps"]:

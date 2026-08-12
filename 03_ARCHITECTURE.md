@@ -960,3 +960,18 @@ official generated provenance and reuses the established 256-element source
 envelope and 4,096-byte relocated display-list ceiling. Raw generator output is
 never silently repaired or treated as a normal approved asset before the
 project pipeline accepts it.
+
+### Integrated presentation transaction
+
+`tools/pokeagent/stage6l_showcase.py` is the bounded composition layer for the
+Stage 6L candidate. It compiles the canonical Stage 6E/F/G sources, assigns one
+owner to each native archive member, temporarily packs 15 NARCs, emits the
+ignored ROM, and restores the source archives. The world fixture places the
+Stage 6I rural composite and Stage 6K generated landmark through stable asset
+identities; Nitro shape and storage details remain compiler-owned.
+
+`qa/scenarios/stage6l_integrated_showcase.json` is the semantic integration
+contract. Screenshots are visual-review evidence, not substitutes for its
+battle identity, Mega/reversion, map, collision, and stability assertions. The
+normal build cannot enable this transaction without the explicit Stage 6L
+proof flag.

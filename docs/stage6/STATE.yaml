@@ -3,7 +3,7 @@
   "status": "in_progress",
   "current": {
     "id": "6L",
-    "status": "in_progress",
+    "status": "awaiting_human_review",
     "attempt": 1
   },
   "completed": [
@@ -29,7 +29,7 @@
   },
   "human_review": {
     "final_presentation": {
-      "status": "pending"
+      "status": "ready"
     }
   },
   "checkpoints": [
@@ -89,5 +89,5 @@
       "remote_verified": true
     }
   ],
-  "last_verified_commit": "7adc4fdeac82af96ba88f84c98e7d492944bea1d"
+  "last_verified_commit": "dbb87ce5532781a2d5a73f684d7718b6515c04b4"
 }

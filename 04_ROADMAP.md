@@ -676,6 +676,13 @@ success. Proceed to Stage 6L integrated presentation QA.
 
 ### Stage 6L — Integrated Presentation QA
 
+Status: **candidate ready for human review**. One isolated ROM combines the
+Stage 6 UI themes, environment module, generated landmark, native wild battle,
+Mega activation/reversion, collision, and 600-frame stability. Automated QA
+passes 22/22 assertions. Stage 6L and Stage 6 remain open until the required
+human presentation review accepts the result or explicitly accepts remaining
+visual debt.
+
 Combine the new UI, environment kit, representative custom world, and generated
 landmark in one ROM. Run automated QA first and a final human presentation
 review second. Stage 6 passes only when Stage 7 no longer needs ordinary manual

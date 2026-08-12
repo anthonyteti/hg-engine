@@ -742,3 +742,18 @@ relocation, and rendered stably in ROM. This is the first positive real
 generator-to-DS evidence; Stage 4H/S/T/U remain historical negative/access
 findings. The canonical build begins at the immutable raw GLB hash and never
 depends on repeat external generation.
+
+### Stage 6L integrated composition decision
+
+The integrated presentation build composes screen-owner-specific transforms in
+one explicit transaction. A specific core-menu owner takes precedence over a
+colliding generic remaining-screen theme, while battle-resource collisions are
+rejected. The packer restores every ignored native archive after emitting the
+proof ROM. World composition remains symbolic: one Stage 6I module and the
+Stage 6K generated landmark occupy separate bounded display-list owners.
+
+Automated integration passed native field, menu, party, summary, Bag, wild
+battle, Mega, reversion, collision, and stability gates. This makes the build a
+technical candidate, not a final presentation approval. Per the governing
+policy, Stage 6L remains open at `HUMAN_REVIEW_REQUIRED` until the creative
+director accepts the native-resolution result or accepts recorded visual debt.

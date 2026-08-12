@@ -276,12 +276,21 @@ void Stage5E_RuntimeTick(void) {
         return;
     if (gStage5ERuntimeState.battleEndCount != 0 && gFieldSysPtr->map_events != NULL)
         gFieldSysPtr->map_events->wildEncounters.rateWalk = 0;
-    else if (gFieldSysPtr->location != NULL && gFieldSysPtr->location->mapId == 541 &&
+    else if (gFieldSysPtr->location != NULL &&
+             (gFieldSysPtr->location->mapId == 541
+#ifdef STAGE6L_PRESENTATION_SHOWCASE
+              || gFieldSysPtr->location->mapId == 538
+#endif
+             ) &&
              GetMetatileBehaviorAt(gFieldSysPtr, gFieldSysPtr->location->x,
                                    gFieldSysPtr->location->z) == 3)
         gFieldSysPtr->reverseTurnFrameSteps = 4;
     if (GetScriptVar(STAGE5E_PHASE_VAR) == 0 && gFieldSysPtr->location != NULL &&
-        gFieldSysPtr->location->mapId == 540)
+        (gFieldSysPtr->location->mapId == 540
+#ifdef STAGE6L_PRESENTATION_SHOWCASE
+         || gFieldSysPtr->location->mapId == 538
+#endif
+        ))
         Stage5E_SeedAltaria();
     Stage5E_HandleCommand();
     Stage5E_Refresh();

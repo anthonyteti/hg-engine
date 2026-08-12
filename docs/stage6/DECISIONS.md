@@ -66,7 +66,18 @@ labels use `CONFIRMED_SOURCE`, `CONFIRMED_RUNTIME`, `INFERRED`, or `PLANNED`.
 - An attempted field `SUB_BG0` adapter corrupted the native touch shell because
   the live layer already owns its tile resources. It was rejected. Visible
   TouchButton proof must be integrated with a bottom-screen owner in 6E/6F;
-  invisible cross-screen touch targets are not accepted.
+invisible cross-screen touch targets are not accepted.
 - Stage 6D deliberately stops short of a general UI VM. Dynamic formatting,
   sprites/icons, and additional screen adapters are added only as production
   screens consume them.
+
+## 2026-08-12 — Integrated presentation ownership
+
+- Evidence: deterministic integrated pack plus 22/22 native-runtime assertions
+  (`CONFIRMED_SOURCE`, `CONFIRMED_RUNTIME`).
+- Specific screen owners override generic theme ownership for the same archive
+  member; battle-resource collisions fail rather than silently overwrite.
+- One Stage 6I module and the Stage 6K generated landmark may share a proof map
+  only through separate validated shape/storage owners.
+- Automated success advances Stage 6L to `HUMAN_REVIEW_REQUIRED`; it does not
+  grant final aesthetic approval.

@@ -9,7 +9,7 @@
   "normalization": {"scale_policy": "units_to_tiles", "units_to_tiles": 5.0, "anchor": "footprint_center_base"},
   "material_policy": {
     "mode": "project_texture_catalog_binding",
-    "mappings": {"generated_surface": {"alias": "prop", "texture": "stage4d_stone"}}
+    "mappings": {"generated_surface": {"alias": "prop_secondary", "texture": "stage4d_stone"}}
   },
   "texture_catalog": "assets/texture_catalog.json",
   "collision": {"policy": "footprint_rect", "rectangle": {"min_x": -2.4, "max_x": 2.4, "min_z": -2.0, "max_z": 2.0}},
