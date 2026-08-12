@@ -2,24 +2,32 @@
   "stage": 6,
   "status": "in_progress",
   "current": {
-    "id": "6A",
+    "id": "6B",
     "status": "in_progress",
     "attempt": 1
   },
-  "completed": [],
+  "completed": [
+    "6A"
+  ],
   "deferred": [],
   "blocked": [],
   "creative_direction": {
     "selection_mode": "autonomous",
-    "status": "pending",
-    "selected_direction": null,
-    "decision_record": null
+    "status": "selected",
+    "selected_direction": "adriatic_field_journal",
+    "decision_record": "docs/stage6/PRESENTATION_BIBLE.md"
   },
   "human_review": {
     "final_presentation": {
       "status": "pending"
     }
   },
-  "checkpoints": [],
-  "last_verified_commit": "dedf0ee52b7ea2d8326834f3bd70249ecb94eb5c"
+  "checkpoints": [
+    {
+      "stage": "6A",
+      "commit": "e588ec7d30e53b27af58c85ea6c1939ba6fc163d",
+      "remote_verified": true
+    }
+  ],
+  "last_verified_commit": "e588ec7d30e53b27af58c85ea6c1939ba6fc163d"
 }
