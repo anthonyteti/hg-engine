@@ -87,7 +87,12 @@
       "stage": "6K",
       "commit": "7adc4fdeac82af96ba88f84c98e7d492944bea1d",
       "remote_verified": true
+    },
+    {
+      "stage": "6L-candidate",
+      "commit": "6f0b3cee6b190280964f3ed73d85ba1b48427b9d",
+      "remote_verified": true
     }
   ],
-  "last_verified_commit": "dbb87ce5532781a2d5a73f684d7718b6515c04b4"
+  "last_verified_commit": "6f0b3cee6b190280964f3ed73d85ba1b48427b9d"
 }
