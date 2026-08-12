@@ -12,6 +12,7 @@
 | 6G | `2f086a41f51bfeb719d82ca8e6f3f57e94f5b364` | 2026-08-12 | `STAGE_6G_REMAINING_GAME_UI_PASSED`; 25 surfaces classified, nine resource owners, and title/Continue, Dex #1025, PC, shop/dialogue runtime gates |
 | 6H | `689b9df788a0d20beeb1ea382af2e6ee95fe95c9` | 2026-08-12 | `STAGE_6H_UI_AUTOMATED_QA_PASSED`; semantic-first 13-screen registry, eight runtime plans, navigation/static checks |
 | 6I | `51923a5b6bb079cce4babb7eb843d058ab7c1e14` | 2026-08-12 | `STAGE_6I_ENVIRONMENT_ART_KIT_PASSED`; 58 symbolic modules, eight biomes, two bounded ROM composites, collision/stability QA |
+| 6J | `04cb33f9bb75316a7acc48d6ac1b47fb5381d5b6` | 2026-08-12 | `STAGE_6J_ASSET_CATALOG_PASSED`; 99 approved identities, 41 stable-seed controlled variants, planner-facing metadata |
 
 Checkpoint SHAs are recorded after Git creates them. The state file records the
 last previously verified commit, avoiding an impossible commit that embeds its
