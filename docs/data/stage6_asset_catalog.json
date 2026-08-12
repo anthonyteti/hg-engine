@@ -1,0 +1,4575 @@
+{
+  "asset_count": 99,
+  "assets": [
+    {
+      "biomes": [
+        "great_gulf",
+        "islands",
+        "championship_island"
+      ],
+      "bounds": {
+        "max": [
+          0.5,
+          4.5,
+          0.5
+        ],
+        "min": [
+          -0.5,
+          0.0,
+          -0.5
+        ]
+      },
+      "category": "vegetation",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        1.0,
+        1.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 4.5,
+      "id": "accent_cypress",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "regional-accent"
+      ]
+    },
+    {
+      "biomes": [
+        "high_country"
+      ],
+      "bounds": {
+        "max": [
+          2.5,
+          4.0,
+          2.0
+        ],
+        "min": [
+          -2.5,
+          0.0,
+          -2.0
+        ]
+      },
+      "category": "architecture",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        5.0,
+        4.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 4.0,
+      "id": "alpine_chalet",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "alpine",
+        "balcony"
+      ]
+    },
+    {
+      "biomes": [
+        "great_gulf",
+        "metropolitan_corridor"
+      ],
+      "bounds": {
+        "max": [
+          1.25,
+          0.5,
+          0.75
+        ],
+        "min": [
+          -1.25,
+          0.0,
+          -0.75
+        ]
+      },
+      "category": "architecture_part",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        2.5,
+        1.5
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 0.5,
+      "id": "awning_market",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "awning",
+        "modular"
+      ]
+    },
+    {
+      "biomes": [
+        "great_gulf",
+        "high_country"
+      ],
+      "bounds": {
+        "max": [
+          1.5,
+          0.3,
+          0.5
+        ],
+        "min": [
+          -1.5,
+          0.0,
+          -0.5
+        ]
+      },
+      "category": "architecture_part",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        3.0,
+        1.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 0.3,
+      "id": "balcony_wood",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "balcony"
+      ]
+    },
+    {
+      "biomes": [
+        "lake_country",
+        "karst_interior"
+      ],
+      "bounds": {
+        "max": [
+          1.0,
+          0.5,
+          2.0
+        ],
+        "min": [
+          -1.0,
+          0.0,
+          -2.0
+        ]
+      },
+      "category": "terrain",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        2.0,
+        4.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 0.5,
+      "id": "bridge_stone",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "crossing"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          0.6,
+          0.8,
+          0.6
+        ],
+        "min": [
+          -0.6,
+          0.0,
+          -0.6
+        ]
+      },
+      "category": "vegetation",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        1.2,
+        1.2
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 0.8,
+      "id": "bush_low",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "bush"
+      ]
+    },
+    {
+      "biomes": [
+        "upper_valleys",
+        "high_country"
+      ],
+      "bounds": {
+        "max": [
+          0.3,
+          1.8,
+          0.3
+        ],
+        "min": [
+          -0.3,
+          0.0,
+          -0.3
+        ]
+      },
+      "category": "architecture_part",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        0.6,
+        0.6
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.8,
+      "id": "chimney_stone",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "chimney"
+      ]
+    },
+    {
+      "biomes": [
+        "great_gulf",
+        "championship_island"
+      ],
+      "bounds": {
+        "max": [
+          3.5,
+          5.0,
+          2.0
+        ],
+        "min": [
+          -3.5,
+          0.0,
+          -2.0
+        ]
+      },
+      "category": "architecture",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        7.0,
+        4.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 5.0,
+      "id": "civic_loggia",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "civic",
+        "arches"
+      ]
+    },
+    {
+      "biomes": [
+        "karst_interior",
+        "great_gulf"
+      ],
+      "bounds": {
+        "max": [
+          1.0,
+          2.0,
+          1.0
+        ],
+        "min": [
+          -1.0,
+          0.0,
+          -1.0
+        ]
+      },
+      "category": "terrain",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        2.0,
+        2.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 2.0,
+      "id": "cliff_corner",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "cliff",
+        "modular"
+      ]
+    },
+    {
+      "biomes": [
+        "karst_interior",
+        "great_gulf",
+        "high_country"
+      ],
+      "bounds": {
+        "max": [
+          1.5,
+          2.0,
+          0.5
+        ],
+        "min": [
+          -1.5,
+          0.0,
+          -0.5
+        ]
+      },
+      "category": "terrain",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        3.0,
+        1.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 2.0,
+      "id": "cliff_straight",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "cliff",
+        "modular"
+      ]
+    },
+    {
+      "biomes": [
+        "great_gulf",
+        "islands"
+      ],
+      "bounds": {
+        "max": [
+          1.5,
+          0.5,
+          1.0
+        ],
+        "min": [
+          -1.5,
+          0.0,
+          -1.0
+        ]
+      },
+      "category": "terrain",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        3.0,
+        2.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 0.5,
+      "id": "coast_shore",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "coast"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          0.5,
+          2.0,
+          0.05
+        ],
+        "min": [
+          -0.5,
+          0.0,
+          -0.05
+        ]
+      },
+      "category": "architecture_part",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        1.0,
+        0.1
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 2.0,
+      "id": "door_timber",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "door",
+        "modular"
+      ]
+    },
+    {
+      "biomes": [
+        "upper_valleys"
+      ],
+      "bounds": {
+        "max": [
+          3.0,
+          4.0,
+          2.0
+        ],
+        "min": [
+          -3.0,
+          0.0,
+          -2.0
+        ]
+      },
+      "category": "architecture",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        6.0,
+        4.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 4.0,
+      "id": "farm_barn",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "farm",
+        "rural"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          1.5,
+          1.0,
+          0.1
+        ],
+        "min": [
+          -1.5,
+          0.0,
+          -0.1
+        ]
+      },
+      "category": "prop",
+      "collision": "footprint_rect",
+      "components": [
+        "prop_sign"
+      ],
+      "footprint": [
+        3.0,
+        0.2
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.0,
+      "id": "fences_01",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "prop_fence",
+      "visual_tags": [
+        "boundary",
+        "controlled-variant",
+        "fences"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          1.5,
+          1.0,
+          0.1
+        ],
+        "min": [
+          -1.5,
+          0.0,
+          -0.1
+        ]
+      },
+      "category": "prop",
+      "collision": "footprint_rect",
+      "components": [
+        "prop_sign"
+      ],
+      "footprint": [
+        3.0,
+        0.2
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.0,
+      "id": "fences_02",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "prop_fence",
+      "visual_tags": [
+        "boundary",
+        "controlled-variant",
+        "fences"
+      ]
+    },
+    {
+      "biomes": [
+        "great_gulf",
+        "championship_island"
+      ],
+      "bounds": {
+        "max": [
+          1.5,
+          1.0,
+          0.1
+        ],
+        "min": [
+          -1.5,
+          0.0,
+          -0.1
+        ]
+      },
+      "category": "prop",
+      "collision": "footprint_rect",
+      "components": [
+        "prop_planter"
+      ],
+      "footprint": [
+        3.0,
+        0.2
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.0,
+      "id": "fences_03",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": "prop_railing",
+      "visual_tags": [
+        "boundary",
+        "controlled-variant",
+        "fences"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          1.5,
+          1.0,
+          0.1
+        ],
+        "min": [
+          -1.5,
+          0.0,
+          -0.1
+        ]
+      },
+      "category": "prop",
+      "collision": "footprint_rect",
+      "components": [
+        "prop_planter"
+      ],
+      "footprint": [
+        3.0,
+        0.2
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.0,
+      "id": "fences_04",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "prop_fence",
+      "visual_tags": [
+        "boundary",
+        "controlled-variant",
+        "fences"
+      ]
+    },
+    {
+      "biomes": [
+        "upper_valleys",
+        "lake_country"
+      ],
+      "bounds": {
+        "max": [
+          0.5,
+          0.7,
+          0.5
+        ],
+        "min": [
+          -0.5,
+          0.0,
+          -0.5
+        ]
+      },
+      "category": "vegetation",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        1.0,
+        1.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 0.7,
+      "id": "flowers_field",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_ground"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "flowers"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          1.5,
+          1.2,
+          0.4
+        ],
+        "min": [
+          -1.5,
+          0.0,
+          -0.4
+        ]
+      },
+      "category": "interior",
+      "collision": "footprint_rect",
+      "components": [
+        "prop_crate"
+      ],
+      "footprint": [
+        3.0,
+        0.8
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.2,
+      "id": "furniture_01",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "interior_counter",
+      "visual_tags": [
+        "controlled-variant",
+        "counter",
+        "furniture"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          0.4,
+          1.2,
+          0.4
+        ],
+        "min": [
+          -0.4,
+          0.0,
+          -0.4
+        ]
+      },
+      "category": "interior",
+      "collision": "footprint_rect",
+      "components": [
+        "interior_decoration"
+      ],
+      "footprint": [
+        0.8,
+        0.8
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.2,
+      "id": "furniture_02",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "interior_chair",
+      "visual_tags": [
+        "chair",
+        "controlled-variant",
+        "furniture"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          0.4,
+          1.2,
+          0.4
+        ],
+        "min": [
+          -0.4,
+          0.0,
+          -0.4
+        ]
+      },
+      "category": "interior",
+      "collision": "footprint_rect",
+      "components": [
+        "interior_decoration"
+      ],
+      "footprint": [
+        0.8,
+        0.8
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.2,
+      "id": "furniture_03",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "interior_chair",
+      "visual_tags": [
+        "chair",
+        "controlled-variant",
+        "furniture"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          1.0,
+          2.0,
+          0.25
+        ],
+        "min": [
+          -1.0,
+          0.0,
+          -0.25
+        ]
+      },
+      "category": "interior",
+      "collision": "footprint_rect",
+      "components": [
+        "prop_crate"
+      ],
+      "footprint": [
+        2.0,
+        0.5
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 2.0,
+      "id": "furniture_04",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "interior_shelf",
+      "visual_tags": [
+        "controlled-variant",
+        "furniture",
+        "shelf"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          1.0,
+          1.0,
+          0.6
+        ],
+        "min": [
+          -1.0,
+          0.0,
+          -0.6
+        ]
+      },
+      "category": "interior",
+      "collision": "footprint_rect",
+      "components": [
+        "interior_decoration"
+      ],
+      "footprint": [
+        2.0,
+        1.2
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.0,
+      "id": "furniture_05",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "interior_table",
+      "visual_tags": [
+        "controlled-variant",
+        "furniture",
+        "table"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          1.0,
+          1.0,
+          0.6
+        ],
+        "min": [
+          -1.0,
+          0.0,
+          -0.6
+        ]
+      },
+      "category": "interior",
+      "collision": "footprint_rect",
+      "components": [
+        "interior_decoration"
+      ],
+      "footprint": [
+        2.0,
+        1.2
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.0,
+      "id": "furniture_06",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "interior_table",
+      "visual_tags": [
+        "controlled-variant",
+        "furniture",
+        "table"
+      ]
+    },
+    {
+      "biomes": [
+        "karst_interior",
+        "lake_country"
+      ],
+      "bounds": {
+        "max": [
+          0.5,
+          0.6,
+          0.5
+        ],
+        "min": [
+          -0.5,
+          0.0,
+          -0.5
+        ]
+      },
+      "category": "vegetation",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        1.0,
+        1.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 0.6,
+      "id": "ground_fern",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_ground"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "ground-cover"
+      ]
+    },
+    {
+      "biomes": [
+        "lake_country",
+        "metropolitan_corridor"
+      ],
+      "bounds": {
+        "max": [
+          3.0,
+          4.0,
+          2.0
+        ],
+        "min": [
+          -3.0,
+          0.0,
+          -2.0
+        ]
+      },
+      "category": "architecture",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        6.0,
+        4.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 4.0,
+      "id": "house_large",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "residence"
+      ]
+    },
+    {
+      "biomes": [
+        "upper_valleys",
+        "lake_country"
+      ],
+      "bounds": {
+        "max": [
+          2.0,
+          3.0,
+          1.5
+        ],
+        "min": [
+          -2.0,
+          0.0,
+          -1.5
+        ]
+      },
+      "category": "architecture",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        4.0,
+        3.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 3.0,
+      "id": "house_small",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "residence",
+        "rural"
+      ]
+    },
+    {
+      "biomes": [
+        "upper_valleys",
+        "lake_country"
+      ],
+      "bounds": {
+        "max": [
+          2.0,
+          3.0,
+          1.5
+        ],
+        "min": [
+          -2.0,
+          0.0,
+          -1.5
+        ]
+      },
+      "category": "architecture",
+      "collision": "footprint_rect",
+      "components": [
+        "awning_market",
+        "door_timber",
+        "roof_gable",
+        "balcony_wood"
+      ],
+      "footprint": [
+        4.0,
+        3.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 3.0,
+      "id": "houses_01",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "house_small",
+      "visual_tags": [
+        "controlled-variant",
+        "houses",
+        "residence",
+        "rural"
+      ]
+    },
+    {
+      "biomes": [
+        "upper_valleys",
+        "lake_country"
+      ],
+      "bounds": {
+        "max": [
+          2.0,
+          3.0,
+          1.5
+        ],
+        "min": [
+          -2.0,
+          0.0,
+          -1.5
+        ]
+      },
+      "category": "architecture",
+      "collision": "footprint_rect",
+      "components": [
+        "chimney_stone",
+        "door_timber",
+        "roof_gable",
+        "balcony_wood"
+      ],
+      "footprint": [
+        4.0,
+        3.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 3.0,
+      "id": "houses_02",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "house_small",
+      "visual_tags": [
+        "controlled-variant",
+        "houses",
+        "residence",
+        "rural"
+      ]
+    },
+    {
+      "biomes": [
+        "lake_country",
+        "metropolitan_corridor"
+      ],
+      "bounds": {
+        "max": [
+          3.0,
+          4.0,
+          2.0
+        ],
+        "min": [
+          -3.0,
+          0.0,
+          -2.0
+        ]
+      },
+      "category": "architecture",
+      "collision": "footprint_rect",
+      "components": [
+        "window_shuttered",
+        "door_timber",
+        "roof_gable",
+        "balcony_wood"
+      ],
+      "footprint": [
+        6.0,
+        4.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 4.0,
+      "id": "houses_03",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "house_large",
+      "visual_tags": [
+        "controlled-variant",
+        "houses",
+        "residence"
+      ]
+    },
+    {
+      "biomes": [
+        "upper_valleys"
+      ],
+      "bounds": {
+        "max": [
+          3.0,
+          4.0,
+          2.0
+        ],
+        "min": [
+          -3.0,
+          0.0,
+          -2.0
+        ]
+      },
+      "category": "architecture",
+      "collision": "footprint_rect",
+      "components": [
+        "chimney_stone",
+        "door_timber",
+        "roof_gable",
+        "trim_stone"
+      ],
+      "footprint": [
+        6.0,
+        4.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 4.0,
+      "id": "houses_04",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "farm_barn",
+      "visual_tags": [
+        "controlled-variant",
+        "farm",
+        "houses",
+        "rural"
+      ]
+    },
+    {
+      "biomes": [
+        "upper_valleys",
+        "lake_country"
+      ],
+      "bounds": {
+        "max": [
+          2.0,
+          3.0,
+          1.5
+        ],
+        "min": [
+          -2.0,
+          0.0,
+          -1.5
+        ]
+      },
+      "category": "architecture",
+      "collision": "footprint_rect",
+      "components": [
+        "awning_market",
+        "door_timber",
+        "roof_gable",
+        "trim_stone"
+      ],
+      "footprint": [
+        4.0,
+        3.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 3.0,
+      "id": "houses_05",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "house_small",
+      "visual_tags": [
+        "controlled-variant",
+        "houses",
+        "residence",
+        "rural"
+      ]
+    },
+    {
+      "biomes": [
+        "upper_valleys"
+      ],
+      "bounds": {
+        "max": [
+          3.0,
+          4.0,
+          2.0
+        ],
+        "min": [
+          -3.0,
+          0.0,
+          -2.0
+        ]
+      },
+      "category": "architecture",
+      "collision": "footprint_rect",
+      "components": [
+        "awning_market",
+        "door_timber",
+        "roof_gable",
+        "balcony_wood"
+      ],
+      "footprint": [
+        6.0,
+        4.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 4.0,
+      "id": "houses_06",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "farm_barn",
+      "visual_tags": [
+        "controlled-variant",
+        "farm",
+        "houses",
+        "rural"
+      ]
+    },
+    {
+      "biomes": [
+        "upper_valleys"
+      ],
+      "bounds": {
+        "max": [
+          3.0,
+          4.0,
+          2.0
+        ],
+        "min": [
+          -3.0,
+          0.0,
+          -2.0
+        ]
+      },
+      "category": "architecture",
+      "collision": "footprint_rect",
+      "components": [
+        "awning_market",
+        "door_timber",
+        "roof_gable",
+        "balcony_wood"
+      ],
+      "footprint": [
+        6.0,
+        4.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 4.0,
+      "id": "houses_07",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "farm_barn",
+      "visual_tags": [
+        "controlled-variant",
+        "farm",
+        "houses",
+        "rural"
+      ]
+    },
+    {
+      "biomes": [
+        "high_country"
+      ],
+      "bounds": {
+        "max": [
+          2.5,
+          4.0,
+          2.0
+        ],
+        "min": [
+          -2.5,
+          0.0,
+          -2.0
+        ]
+      },
+      "category": "architecture",
+      "collision": "footprint_rect",
+      "components": [
+        "chimney_stone",
+        "door_timber",
+        "roof_gable",
+        "trim_stone"
+      ],
+      "footprint": [
+        5.0,
+        4.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 4.0,
+      "id": "houses_08",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "alpine_chalet",
+      "visual_tags": [
+        "alpine",
+        "balcony",
+        "controlled-variant",
+        "houses"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          1.0,
+          0.7,
+          1.5
+        ],
+        "min": [
+          -1.0,
+          0.0,
+          -1.5
+        ]
+      },
+      "category": "interior",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        2.0,
+        3.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 0.7,
+      "id": "interior_bed",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "bed"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          0.4,
+          1.2,
+          0.4
+        ],
+        "min": [
+          -0.4,
+          0.0,
+          -0.4
+        ]
+      },
+      "category": "interior",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        0.8,
+        0.8
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.2,
+      "id": "interior_chair",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "chair"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          1.5,
+          1.2,
+          0.4
+        ],
+        "min": [
+          -1.5,
+          0.0,
+          -0.4
+        ]
+      },
+      "category": "interior",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        3.0,
+        0.8
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.2,
+      "id": "interior_counter",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "counter"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          0.6,
+          1.2,
+          0.05
+        ],
+        "min": [
+          -0.6,
+          0.0,
+          -0.05
+        ]
+      },
+      "category": "interior",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        1.2,
+        0.1
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.2,
+      "id": "interior_decoration",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_ground"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "decoration"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          2.0,
+          0.1,
+          2.0
+        ],
+        "min": [
+          -2.0,
+          0.0,
+          -2.0
+        ]
+      },
+      "category": "interior",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        4.0,
+        4.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 0.1,
+      "id": "interior_floor",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "floor"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          1.0,
+          2.0,
+          0.25
+        ],
+        "min": [
+          -1.0,
+          0.0,
+          -0.25
+        ]
+      },
+      "category": "interior",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        2.0,
+        0.5
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 2.0,
+      "id": "interior_shelf",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "shelf"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          1.0,
+          1.0,
+          0.6
+        ],
+        "min": [
+          -1.0,
+          0.0,
+          -0.6
+        ]
+      },
+      "category": "interior",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        2.0,
+        1.2
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.0,
+      "id": "interior_table",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "table"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          2.0,
+          3.0,
+          0.1
+        ],
+        "min": [
+          -2.0,
+          0.0,
+          -0.1
+        ]
+      },
+      "category": "interior",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        4.0,
+        0.2
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 3.0,
+      "id": "interior_wall",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "wall"
+      ]
+    },
+    {
+      "biomes": [
+        "metropolitan_corridor",
+        "championship_island"
+      ],
+      "bounds": {
+        "max": [
+          0.2,
+          3.0,
+          0.2
+        ],
+        "min": [
+          -0.2,
+          0.0,
+          -0.2
+        ]
+      },
+      "category": "prop",
+      "collision": "footprint_rect",
+      "components": [
+        "rock_karst"
+      ],
+      "footprint": [
+        0.4,
+        0.4
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 3.0,
+      "id": "lamps_01",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": "prop_lamp",
+      "visual_tags": [
+        "controlled-variant",
+        "lamps",
+        "lighting"
+      ]
+    },
+    {
+      "biomes": [
+        "upper_valleys",
+        "metropolitan_corridor"
+      ],
+      "bounds": {
+        "max": [
+          0.2,
+          4.0,
+          0.2
+        ],
+        "min": [
+          -0.2,
+          0.0,
+          -0.2
+        ]
+      },
+      "category": "prop",
+      "collision": "footprint_rect",
+      "components": [
+        "prop_planter"
+      ],
+      "footprint": [
+        0.4,
+        0.4
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 4.0,
+      "id": "lamps_02",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "prop_utility_pole",
+      "visual_tags": [
+        "controlled-variant",
+        "lamps",
+        "utility"
+      ]
+    },
+    {
+      "biomes": [
+        "metropolitan_corridor",
+        "championship_island"
+      ],
+      "bounds": {
+        "max": [
+          0.2,
+          3.0,
+          0.2
+        ],
+        "min": [
+          -0.2,
+          0.0,
+          -0.2
+        ]
+      },
+      "category": "prop",
+      "collision": "footprint_rect",
+      "components": [
+        "rock_karst"
+      ],
+      "footprint": [
+        0.4,
+        0.4
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 3.0,
+      "id": "lamps_03",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": "prop_lamp",
+      "visual_tags": [
+        "controlled-variant",
+        "lamps",
+        "lighting"
+      ]
+    },
+    {
+      "biomes": [
+        "upper_valleys",
+        "metropolitan_corridor"
+      ],
+      "bounds": {
+        "max": [
+          0.2,
+          4.0,
+          0.2
+        ],
+        "min": [
+          -0.2,
+          0.0,
+          -0.2
+        ]
+      },
+      "category": "prop",
+      "collision": "footprint_rect",
+      "components": [
+        "prop_planter"
+      ],
+      "footprint": [
+        0.4,
+        0.4
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 4.0,
+      "id": "lamps_04",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "prop_utility_pole",
+      "visual_tags": [
+        "controlled-variant",
+        "lamps",
+        "utility"
+      ]
+    },
+    {
+      "biomes": [
+        "great_gulf",
+        "metropolitan_corridor"
+      ],
+      "bounds": {
+        "max": [
+          1.5,
+          2.5,
+          1.0
+        ],
+        "min": [
+          -1.5,
+          0.0,
+          -1.0
+        ]
+      },
+      "category": "prop",
+      "collision": "footprint_rect",
+      "components": [
+        "awning_market",
+        "prop_crate"
+      ],
+      "footprint": [
+        3.0,
+        2.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 2.5,
+      "id": "market_stalls_01",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "prop_market_stall",
+      "visual_tags": [
+        "controlled-variant",
+        "market",
+        "market_stalls"
+      ]
+    },
+    {
+      "biomes": [
+        "great_gulf",
+        "metropolitan_corridor"
+      ],
+      "bounds": {
+        "max": [
+          1.5,
+          2.5,
+          1.0
+        ],
+        "min": [
+          -1.5,
+          0.0,
+          -1.0
+        ]
+      },
+      "category": "prop",
+      "collision": "footprint_rect",
+      "components": [
+        "awning_market",
+        "prop_bench"
+      ],
+      "footprint": [
+        3.0,
+        2.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 2.5,
+      "id": "market_stalls_02",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "prop_market_stall",
+      "visual_tags": [
+        "controlled-variant",
+        "market",
+        "market_stalls"
+      ]
+    },
+    {
+      "biomes": [
+        "great_gulf",
+        "metropolitan_corridor"
+      ],
+      "bounds": {
+        "max": [
+          1.5,
+          2.5,
+          1.0
+        ],
+        "min": [
+          -1.5,
+          0.0,
+          -1.0
+        ]
+      },
+      "category": "prop",
+      "collision": "footprint_rect",
+      "components": [
+        "awning_market",
+        "prop_crate"
+      ],
+      "footprint": [
+        3.0,
+        2.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 2.5,
+      "id": "market_stalls_03",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "prop_market_stall",
+      "visual_tags": [
+        "controlled-variant",
+        "market",
+        "market_stalls"
+      ]
+    },
+    {
+      "biomes": [
+        "great_gulf",
+        "metropolitan_corridor"
+      ],
+      "bounds": {
+        "max": [
+          1.5,
+          2.5,
+          1.0
+        ],
+        "min": [
+          -1.5,
+          0.0,
+          -1.0
+        ]
+      },
+      "category": "prop",
+      "collision": "footprint_rect",
+      "components": [
+        "awning_market",
+        "prop_planter"
+      ],
+      "footprint": [
+        3.0,
+        2.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 2.5,
+      "id": "market_stalls_04",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "prop_market_stall",
+      "visual_tags": [
+        "controlled-variant",
+        "market",
+        "market_stalls"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          1.0,
+          0.1,
+          1.0
+        ],
+        "min": [
+          -1.0,
+          0.0,
+          -1.0
+        ]
+      },
+      "category": "terrain",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        2.0,
+        2.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 0.1,
+      "id": "path_corner",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "path",
+        "modular"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          1.5,
+          0.1,
+          1.5
+        ],
+        "min": [
+          -1.5,
+          0.0,
+          -1.5
+        ]
+      },
+      "category": "terrain",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        3.0,
+        3.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 0.1,
+      "id": "path_junction",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "path",
+        "modular"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          1.0,
+          0.1,
+          0.5
+        ],
+        "min": [
+          -1.0,
+          0.0,
+          -0.5
+        ]
+      },
+      "category": "terrain",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        2.0,
+        1.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 0.1,
+      "id": "path_straight",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "path",
+        "modular"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          1.0,
+          1.0,
+          0.35
+        ],
+        "min": [
+          -1.0,
+          0.0,
+          -0.35
+        ]
+      },
+      "category": "prop",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        2.0,
+        0.7
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.0,
+      "id": "prop_bench",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "seating"
+      ]
+    },
+    {
+      "biomes": [
+        "great_gulf",
+        "upper_valleys"
+      ],
+      "bounds": {
+        "max": [
+          0.5,
+          1.0,
+          0.5
+        ],
+        "min": [
+          -0.5,
+          0.0,
+          -0.5
+        ]
+      },
+      "category": "prop",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        1.0,
+        1.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.0,
+      "id": "prop_crate",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "container"
+      ]
+    },
+    {
+      "biomes": [
+        "great_gulf",
+        "islands"
+      ],
+      "bounds": {
+        "max": [
+          0.3,
+          1.0,
+          0.3
+        ],
+        "min": [
+          -0.3,
+          0.0,
+          -0.3
+        ]
+      },
+      "category": "prop",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        0.6,
+        0.6
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.0,
+      "id": "prop_dock_bollard",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "dock"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          1.5,
+          1.0,
+          0.1
+        ],
+        "min": [
+          -1.5,
+          0.0,
+          -0.1
+        ]
+      },
+      "category": "prop",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        3.0,
+        0.2
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.0,
+      "id": "prop_fence",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "boundary"
+      ]
+    },
+    {
+      "biomes": [
+        "metropolitan_corridor",
+        "championship_island"
+      ],
+      "bounds": {
+        "max": [
+          0.2,
+          3.0,
+          0.2
+        ],
+        "min": [
+          -0.2,
+          0.0,
+          -0.2
+        ]
+      },
+      "category": "prop",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        0.4,
+        0.4
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 3.0,
+      "id": "prop_lamp",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "lighting"
+      ]
+    },
+    {
+      "biomes": [
+        "great_gulf",
+        "metropolitan_corridor"
+      ],
+      "bounds": {
+        "max": [
+          1.5,
+          2.5,
+          1.0
+        ],
+        "min": [
+          -1.5,
+          0.0,
+          -1.0
+        ]
+      },
+      "category": "prop",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        3.0,
+        2.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 2.5,
+      "id": "prop_market_stall",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "market"
+      ]
+    },
+    {
+      "biomes": [
+        "metropolitan_corridor",
+        "championship_island"
+      ],
+      "bounds": {
+        "max": [
+          0.75,
+          0.6,
+          0.4
+        ],
+        "min": [
+          -0.75,
+          0.0,
+          -0.4
+        ]
+      },
+      "category": "prop",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        1.5,
+        0.8
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 0.6,
+      "id": "prop_planter",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "urban"
+      ]
+    },
+    {
+      "biomes": [
+        "great_gulf",
+        "championship_island"
+      ],
+      "bounds": {
+        "max": [
+          1.5,
+          1.0,
+          0.1
+        ],
+        "min": [
+          -1.5,
+          0.0,
+          -0.1
+        ]
+      },
+      "category": "prop",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        3.0,
+        0.2
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.0,
+      "id": "prop_railing",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "boundary"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          0.5,
+          2.0,
+          0.1
+        ],
+        "min": [
+          -0.5,
+          0.0,
+          -0.1
+        ]
+      },
+      "category": "prop",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        1.0,
+        0.2
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 2.0,
+      "id": "prop_sign",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "wayfinding"
+      ]
+    },
+    {
+      "biomes": [
+        "upper_valleys",
+        "metropolitan_corridor"
+      ],
+      "bounds": {
+        "max": [
+          0.2,
+          4.0,
+          0.2
+        ],
+        "min": [
+          -0.2,
+          0.0,
+          -0.2
+        ]
+      },
+      "category": "prop",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        0.4,
+        0.4
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 4.0,
+      "id": "prop_utility_pole",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "utility"
+      ]
+    },
+    {
+      "biomes": [
+        "high_country",
+        "upper_valleys"
+      ],
+      "bounds": {
+        "max": [
+          0.6,
+          1.0,
+          0.7
+        ],
+        "min": [
+          -0.6,
+          0.0,
+          -0.7
+        ]
+      },
+      "category": "vegetation",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        1.2,
+        1.4
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.0,
+      "id": "rock_alpine",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "rock",
+        "angular"
+      ]
+    },
+    {
+      "biomes": [
+        "karst_interior",
+        "great_gulf"
+      ],
+      "bounds": {
+        "max": [
+          0.75,
+          1.4,
+          0.6
+        ],
+        "min": [
+          -0.75,
+          0.0,
+          -0.6
+        ]
+      },
+      "category": "vegetation",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        1.5,
+        1.2
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.4,
+      "id": "rock_karst",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "rock",
+        "pale"
+      ]
+    },
+    {
+      "biomes": [
+        "high_country",
+        "upper_valleys"
+      ],
+      "bounds": {
+        "max": [
+          0.6,
+          1.0,
+          0.7
+        ],
+        "min": [
+          -0.6,
+          0.0,
+          -0.7
+        ]
+      },
+      "category": "vegetation",
+      "collision": "footprint_rect",
+      "components": [
+        "terrain_grass"
+      ],
+      "footprint": [
+        1.2,
+        1.4
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.0,
+      "id": "rocks_01",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": "rock_alpine",
+      "visual_tags": [
+        "angular",
+        "controlled-variant",
+        "rock",
+        "rocks"
+      ]
+    },
+    {
+      "biomes": [
+        "karst_interior",
+        "great_gulf"
+      ],
+      "bounds": {
+        "max": [
+          0.75,
+          1.4,
+          0.6
+        ],
+        "min": [
+          -0.75,
+          0.0,
+          -0.6
+        ]
+      },
+      "category": "vegetation",
+      "collision": "footprint_rect",
+      "components": [
+        "ground_fern"
+      ],
+      "footprint": [
+        1.5,
+        1.2
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.4,
+      "id": "rocks_02",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": "rock_karst",
+      "visual_tags": [
+        "controlled-variant",
+        "pale",
+        "rock",
+        "rocks"
+      ]
+    },
+    {
+      "biomes": [
+        "karst_interior",
+        "great_gulf"
+      ],
+      "bounds": {
+        "max": [
+          0.75,
+          1.4,
+          0.6
+        ],
+        "min": [
+          -0.75,
+          0.0,
+          -0.6
+        ]
+      },
+      "category": "vegetation",
+      "collision": "footprint_rect",
+      "components": [
+        "terrain_stone"
+      ],
+      "footprint": [
+        1.5,
+        1.2
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.4,
+      "id": "rocks_03",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": "rock_karst",
+      "visual_tags": [
+        "controlled-variant",
+        "pale",
+        "rock",
+        "rocks"
+      ]
+    },
+    {
+      "biomes": [
+        "high_country",
+        "upper_valleys"
+      ],
+      "bounds": {
+        "max": [
+          0.6,
+          1.0,
+          0.7
+        ],
+        "min": [
+          -0.6,
+          0.0,
+          -0.7
+        ]
+      },
+      "category": "vegetation",
+      "collision": "footprint_rect",
+      "components": [
+        "ground_fern"
+      ],
+      "footprint": [
+        1.2,
+        1.4
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.0,
+      "id": "rocks_04",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": "rock_alpine",
+      "visual_tags": [
+        "angular",
+        "controlled-variant",
+        "rock",
+        "rocks"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          2.25,
+          1.5,
+          1.75
+        ],
+        "min": [
+          -2.25,
+          0.0,
+          -1.75
+        ]
+      },
+      "category": "architecture_part",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        4.5,
+        3.5
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.5,
+      "id": "roof_gable",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "roof",
+        "modular"
+      ]
+    },
+    {
+      "biomes": [
+        "great_gulf",
+        "metropolitan_corridor"
+      ],
+      "bounds": {
+        "max": [
+          2.5,
+          3.5,
+          1.5
+        ],
+        "min": [
+          -2.5,
+          0.0,
+          -1.5
+        ]
+      },
+      "category": "architecture",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        5.0,
+        3.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 3.5,
+      "id": "shop_arcade",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "commercial",
+        "awning"
+      ]
+    },
+    {
+      "biomes": [
+        "great_gulf",
+        "upper_valleys"
+      ],
+      "bounds": {
+        "max": [
+          0.5,
+          1.0,
+          0.5
+        ],
+        "min": [
+          -0.5,
+          0.0,
+          -0.5
+        ]
+      },
+      "category": "prop",
+      "collision": "footprint_rect",
+      "components": [
+        "ground_fern"
+      ],
+      "footprint": [
+        1.0,
+        1.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.0,
+      "id": "small_props_01",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "prop_crate",
+      "visual_tags": [
+        "container",
+        "controlled-variant",
+        "small_props"
+      ]
+    },
+    {
+      "biomes": [
+        "great_gulf",
+        "upper_valleys"
+      ],
+      "bounds": {
+        "max": [
+          0.5,
+          1.0,
+          0.5
+        ],
+        "min": [
+          -0.5,
+          0.0,
+          -0.5
+        ]
+      },
+      "category": "prop",
+      "collision": "footprint_rect",
+      "components": [
+        "flowers_field"
+      ],
+      "footprint": [
+        1.0,
+        1.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.0,
+      "id": "small_props_02",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "prop_crate",
+      "visual_tags": [
+        "container",
+        "controlled-variant",
+        "small_props"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          0.5,
+          2.0,
+          0.1
+        ],
+        "min": [
+          -0.5,
+          0.0,
+          -0.1
+        ]
+      },
+      "category": "prop",
+      "collision": "footprint_rect",
+      "components": [
+        "rock_karst"
+      ],
+      "footprint": [
+        1.0,
+        0.2
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 2.0,
+      "id": "small_props_03",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "prop_sign",
+      "visual_tags": [
+        "controlled-variant",
+        "small_props",
+        "wayfinding"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          1.0,
+          1.0,
+          0.35
+        ],
+        "min": [
+          -1.0,
+          0.0,
+          -0.35
+        ]
+      },
+      "category": "prop",
+      "collision": "footprint_rect",
+      "components": [
+        "ground_fern"
+      ],
+      "footprint": [
+        2.0,
+        0.7
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.0,
+      "id": "small_props_04",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "prop_bench",
+      "visual_tags": [
+        "controlled-variant",
+        "seating",
+        "small_props"
+      ]
+    },
+    {
+      "biomes": [
+        "metropolitan_corridor",
+        "championship_island"
+      ],
+      "bounds": {
+        "max": [
+          0.75,
+          0.6,
+          0.4
+        ],
+        "min": [
+          -0.75,
+          0.0,
+          -0.4
+        ]
+      },
+      "category": "prop",
+      "collision": "footprint_rect",
+      "components": [
+        "rock_karst"
+      ],
+      "footprint": [
+        1.5,
+        0.8
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 0.6,
+      "id": "small_props_05",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": "prop_planter",
+      "visual_tags": [
+        "controlled-variant",
+        "small_props",
+        "urban"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          1.0,
+          1.0,
+          0.35
+        ],
+        "min": [
+          -1.0,
+          0.0,
+          -0.35
+        ]
+      },
+      "category": "prop",
+      "collision": "footprint_rect",
+      "components": [
+        "rock_karst"
+      ],
+      "footprint": [
+        2.0,
+        0.7
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.0,
+      "id": "small_props_06",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "prop_bench",
+      "visual_tags": [
+        "controlled-variant",
+        "seating",
+        "small_props"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "min": [
+          -1.0,
+          0.0,
+          -1.0
+        ]
+      },
+      "category": "terrain",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        2.0,
+        2.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.0,
+      "id": "stairs_stone",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "elevation",
+        "walkable"
+      ]
+    },
+    {
+      "biomes": [
+        "metropolitan_corridor",
+        "upper_valleys"
+      ],
+      "bounds": {
+        "max": [
+          3.0,
+          4.0,
+          1.0
+        ],
+        "min": [
+          -3.0,
+          0.0,
+          -1.0
+        ]
+      },
+      "category": "architecture",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        6.0,
+        2.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 4.0,
+      "id": "station_gate",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "station",
+        "threshold"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          1.0,
+          0.1,
+          1.0
+        ],
+        "min": [
+          -1.0,
+          0.0,
+          -1.0
+        ]
+      },
+      "category": "terrain",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        2.0,
+        2.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 0.1,
+      "id": "terrain_dirt",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_ground"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "path"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          1.0,
+          0.1,
+          1.0
+        ],
+        "min": [
+          -1.0,
+          0.0,
+          -1.0
+        ]
+      },
+      "category": "terrain",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        2.0,
+        2.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 0.1,
+      "id": "terrain_grass",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_ground"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "ground",
+        "soft"
+      ]
+    },
+    {
+      "biomes": [
+        "upper_valleys",
+        "high_country"
+      ],
+      "bounds": {
+        "max": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "min": [
+          -1.0,
+          0.0,
+          -1.0
+        ]
+      },
+      "category": "terrain",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        2.0,
+        2.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.0,
+      "id": "terrain_slope",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_ground"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "elevation"
+      ]
+    },
+    {
+      "biomes": [
+        "upper_valleys",
+        "islands"
+      ],
+      "bounds": {
+        "max": [
+          1.0,
+          0.1,
+          1.0
+        ],
+        "min": [
+          -1.0,
+          0.0,
+          -1.0
+        ]
+      },
+      "category": "terrain",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        2.0,
+        2.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 0.1,
+      "id": "terrain_soil",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_ground"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "ground",
+        "warm"
+      ]
+    },
+    {
+      "biomes": [
+        "karst_interior",
+        "high_country",
+        "metropolitan_corridor"
+      ],
+      "bounds": {
+        "max": [
+          1.0,
+          0.1,
+          1.0
+        ],
+        "min": [
+          -1.0,
+          0.0,
+          -1.0
+        ]
+      },
+      "category": "terrain",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        2.0,
+        2.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 0.1,
+      "id": "terrain_stone",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "ground",
+        "hard"
+      ]
+    },
+    {
+      "biomes": [
+        "upper_valleys",
+        "high_country"
+      ],
+      "bounds": {
+        "max": [
+          0.75,
+          4.0,
+          0.75
+        ],
+        "min": [
+          -0.75,
+          0.0,
+          -0.75
+        ]
+      },
+      "category": "vegetation",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        1.5,
+        1.5
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 4.0,
+      "id": "tree_alpine",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "tree",
+        "vertical"
+      ]
+    },
+    {
+      "biomes": [
+        "great_gulf",
+        "islands"
+      ],
+      "bounds": {
+        "max": [
+          1.0,
+          3.0,
+          1.0
+        ],
+        "min": [
+          -1.0,
+          0.0,
+          -1.0
+        ]
+      },
+      "category": "vegetation",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        2.0,
+        2.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 3.0,
+      "id": "tree_coastal",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "tree",
+        "wind-shaped"
+      ]
+    },
+    {
+      "biomes": [
+        "lake_country"
+      ],
+      "bounds": {
+        "max": [
+          1.25,
+          3.5,
+          1.25
+        ],
+        "min": [
+          -1.25,
+          0.0,
+          -1.25
+        ]
+      },
+      "category": "vegetation",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        2.5,
+        2.5
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 3.5,
+      "id": "tree_lake",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "tree",
+        "broadleaf"
+      ]
+    },
+    {
+      "biomes": [
+        "lake_country"
+      ],
+      "bounds": {
+        "max": [
+          1.25,
+          3.5,
+          1.25
+        ],
+        "min": [
+          -1.25,
+          0.0,
+          -1.25
+        ]
+      },
+      "category": "vegetation",
+      "collision": "footprint_rect",
+      "components": [
+        "bush_low"
+      ],
+      "footprint": [
+        2.5,
+        2.5
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 3.5,
+      "id": "trees_01",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "tree_lake",
+      "visual_tags": [
+        "broadleaf",
+        "controlled-variant",
+        "tree",
+        "trees"
+      ]
+    },
+    {
+      "biomes": [
+        "lake_country"
+      ],
+      "bounds": {
+        "max": [
+          1.25,
+          3.5,
+          1.25
+        ],
+        "min": [
+          -1.25,
+          0.0,
+          -1.25
+        ]
+      },
+      "category": "vegetation",
+      "collision": "footprint_rect",
+      "components": [
+        "flowers_field"
+      ],
+      "footprint": [
+        2.5,
+        2.5
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 3.5,
+      "id": "trees_02",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "tree_lake",
+      "visual_tags": [
+        "broadleaf",
+        "controlled-variant",
+        "tree",
+        "trees"
+      ]
+    },
+    {
+      "biomes": [
+        "lake_country"
+      ],
+      "bounds": {
+        "max": [
+          1.25,
+          3.5,
+          1.25
+        ],
+        "min": [
+          -1.25,
+          0.0,
+          -1.25
+        ]
+      },
+      "category": "vegetation",
+      "collision": "footprint_rect",
+      "components": [
+        "flowers_field"
+      ],
+      "footprint": [
+        2.5,
+        2.5
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 3.5,
+      "id": "trees_03",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "tree_lake",
+      "visual_tags": [
+        "broadleaf",
+        "controlled-variant",
+        "tree",
+        "trees"
+      ]
+    },
+    {
+      "biomes": [
+        "upper_valleys",
+        "high_country"
+      ],
+      "bounds": {
+        "max": [
+          0.75,
+          4.0,
+          0.75
+        ],
+        "min": [
+          -0.75,
+          0.0,
+          -0.75
+        ]
+      },
+      "category": "vegetation",
+      "collision": "footprint_rect",
+      "components": [
+        "ground_fern"
+      ],
+      "footprint": [
+        1.5,
+        1.5
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 4.0,
+      "id": "trees_04",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "tree_alpine",
+      "visual_tags": [
+        "controlled-variant",
+        "tree",
+        "trees",
+        "vertical"
+      ]
+    },
+    {
+      "biomes": [
+        "great_gulf",
+        "islands",
+        "championship_island"
+      ],
+      "bounds": {
+        "max": [
+          0.5,
+          4.5,
+          0.5
+        ],
+        "min": [
+          -0.5,
+          0.0,
+          -0.5
+        ]
+      },
+      "category": "vegetation",
+      "collision": "footprint_rect",
+      "components": [
+        "ground_fern"
+      ],
+      "footprint": [
+        1.0,
+        1.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 4.5,
+      "id": "trees_05",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6j_variants.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": "accent_cypress",
+      "visual_tags": [
+        "controlled-variant",
+        "regional-accent",
+        "trees"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          1.0,
+          0.25,
+          0.125
+        ],
+        "min": [
+          -1.0,
+          0.0,
+          -0.125
+        ]
+      },
+      "category": "architecture_part",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        2.0,
+        0.25
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 0.25,
+      "id": "trim_stone",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "trim",
+        "modular"
+      ]
+    },
+    {
+      "biomes": [
+        "metropolitan_corridor"
+      ],
+      "bounds": {
+        "max": [
+          2.0,
+          5.0,
+          1.5
+        ],
+        "min": [
+          -2.0,
+          0.0,
+          -1.5
+        ]
+      },
+      "category": "architecture",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        4.0,
+        3.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 5.0,
+      "id": "urban_rowhouse",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "urban",
+        "dense"
+      ]
+    },
+    {
+      "biomes": [
+        "great_gulf",
+        "islands"
+      ],
+      "bounds": {
+        "max": [
+          1.0,
+          2.0,
+          0.1
+        ],
+        "min": [
+          -1.0,
+          0.0,
+          -0.1
+        ]
+      },
+      "category": "architecture_part",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        2.0,
+        0.2
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 2.0,
+      "id": "wall_plaster",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "wall",
+        "modular"
+      ]
+    },
+    {
+      "biomes": [
+        "great_gulf",
+        "islands"
+      ],
+      "bounds": {
+        "max": [
+          3.5,
+          4.0,
+          2.0
+        ],
+        "min": [
+          -3.5,
+          0.0,
+          -2.0
+        ]
+      },
+      "category": "architecture",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        7.0,
+        4.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 4.0,
+      "id": "warehouse_coastal",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_stone"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "warehouse",
+        "coastal"
+      ]
+    },
+    {
+      "biomes": [
+        "lake_country",
+        "great_gulf",
+        "islands"
+      ],
+      "bounds": {
+        "max": [
+          1.5,
+          0.1,
+          0.5
+        ],
+        "min": [
+          -1.5,
+          0.0,
+          -0.5
+        ]
+      },
+      "category": "terrain",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        3.0,
+        1.0
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 0.1,
+      "id": "water_edge",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_ground"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "water",
+        "edge"
+      ]
+    },
+    {
+      "biomes": [
+        "all"
+      ],
+      "bounds": {
+        "max": [
+          0.5,
+          1.2,
+          0.05
+        ],
+        "min": [
+          -0.5,
+          0.0,
+          -0.05
+        ]
+      },
+      "category": "architecture_part",
+      "collision": "footprint_rect",
+      "components": [],
+      "footprint": [
+        1.0,
+        0.1
+      ],
+      "geometry_budget": "stage4_bounded_module",
+      "height": 1.2,
+      "id": "window_shuttered",
+      "rotations": [
+        0,
+        90,
+        180,
+        270
+      ],
+      "source": "presentation/environment/stage6i_environment_kit.json",
+      "status": "approved",
+      "texture_budget": "nitro_32x32_4bpp_symbolic",
+      "textures": [
+        "stage4d_wood"
+      ],
+      "variant_of": null,
+      "visual_tags": [
+        "window",
+        "modular"
+      ]
+    }
+  ],
+  "base_module_count": 58,
+  "id": "stage6_production_asset_catalog",
+  "schema_version": 1,
+  "seed": "stage6j-v1-adriatic-field-journal",
+  "source_kit_sha256": "0561da14cf50240c904f92cccd27b7c5688134906d0f47058c8e64560492f107",
+  "variant_count": 41,
+  "variant_family_counts": {
+    "fences": 4,
+    "furniture": 6,
+    "houses": 8,
+    "lamps": 4,
+    "market_stalls": 4,
+    "rocks": 4,
+    "small_props": 6,
+    "trees": 5
+  },
+  "variant_source_sha256": "706bfba8d40e555210fea3329cc951a4687d38be088824a082126642f10aef4b",
+  "world_planner_contract": "request asset_id; compiler owns Nitro shape, texture slot, NARC member, and material index"
+}

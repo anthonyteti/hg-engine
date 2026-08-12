@@ -944,3 +944,8 @@ The canonical environment vocabulary lives in structured project source under
 IDs, biome coverage, dimensions, materials, and bounded compositions before
 emitting sources consumed by the unchanged Stage 4 model/texture/world pipeline.
 Future planners depend on catalog identities rather than Nitro internals.
+
+The generated production catalog is the interface between world planning and
+asset compilation. It records biome, footprint, bounds, rotations, collision,
+symbolic textures, budgets, source lineage, approval state, and visual tags for
+base modules and controlled variants.

@@ -663,6 +663,11 @@ stage6i-environment-kit:
 	$(MAKE) clean
 	$(MAKE) STAGE2_MAP=Y STAGE6I_ENVIRONMENT_KIT=Y
 
+.PHONY: stage6j-asset-catalog
+stage6j-asset-catalog:
+	. .venv/bin/activate; python3 -m tools.pokeagent.asset_catalog
+	. .venv/bin/activate; python3 -m unittest -v tests.test_pokeagent_stage6j_asset_catalog
+
 .PHONY: battle-test-save
 battle-test-save:
 	. .venv/bin/activate; python3 -m tools.pokeagent qa run \

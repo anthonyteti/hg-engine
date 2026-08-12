@@ -723,3 +723,11 @@ texture slots, NARC members, or display-list addresses. The first kit contains
 58 modules across six families and eight regional biomes. Existing Stage 4D
 texture and model limits remain unchanged; broader variety comes from bounded
 composition rather than weakened safety constraints.
+
+### Stage 6J controlled variation boundary
+
+Canonical environment variants use named, bounded component slots and a stable
+seed. World sources request approved catalog identities. Arbitrary transforms,
+materials, Nitro shapes, texture slots, and NARC members remain outside the
+planner contract. This yields visual variety without nondeterministic canonical
+builds or an unbounded procedural-art system.

@@ -656,6 +656,11 @@ and utility modules.
 
 ### Stage 6J — Procedural Variants & Asset Catalog
 
+Status: **passed**. A stable-seed controlled-variant compiler produces 41
+approved compositions over 58 base modules. The resulting 99-identity catalog
+provides planner-facing spatial, biome, collision, texture, budget, lineage,
+and visual metadata. Proceed to the Stage 6K real-generated-landmark kill gate.
+
 Provide controlled variants and catalog every approved asset by identity,
 source, category, biome tags, footprint, bounds, rotations, collision,
 textures, DS budget, status, and visual metadata. World planning requests

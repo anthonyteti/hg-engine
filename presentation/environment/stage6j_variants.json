@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "id": "adriatic_alpine_controlled_variants",
+  "seed": "stage6j-v1-adriatic-field-journal",
+  "source_kit": "presentation/environment/stage6i_environment_kit.json",
+  "families": [
+    {
+      "id": "houses",
+      "count": 8,
+      "bases": ["house_small", "house_large", "farm_barn", "alpine_chalet", "urban_rowhouse"],
+      "components": {
+        "roof": ["roof_gable"],
+        "door": ["door_timber"],
+        "trim": ["trim_stone", "balcony_wood"],
+        "accent": ["window_shuttered", "chimney_stone", "awning_market"]
+      }
+    },
+    {
+      "id": "trees",
+      "count": 5,
+      "bases": ["tree_alpine", "tree_coastal", "tree_lake", "accent_cypress"],
+      "components": {"ground": ["bush_low", "flowers_field", "ground_fern"]}
+    },
+    {
+      "id": "rocks",
+      "count": 4,
+      "bases": ["rock_karst", "rock_alpine"],
+      "components": {"ground": ["terrain_grass", "terrain_stone", "ground_fern"]}
+    },
+    {
+      "id": "fences",
+      "count": 4,
+      "bases": ["prop_fence", "prop_railing"],
+      "components": {"marker": ["prop_sign", "prop_lamp", "prop_planter"]}
+    },
+    {
+      "id": "market_stalls",
+      "count": 4,
+      "bases": ["prop_market_stall"],
+      "components": {"front": ["prop_crate", "prop_planter", "prop_bench"], "cover": ["awning_market"]}
+    },
+    {
+      "id": "lamps",
+      "count": 4,
+      "bases": ["prop_lamp", "prop_utility_pole"],
+      "components": {"base": ["prop_planter", "rock_karst", "prop_dock_bollard"]}
+    },
+    {
+      "id": "furniture",
+      "count": 6,
+      "bases": ["interior_table", "interior_chair", "interior_counter", "interior_shelf", "interior_bed"],
+      "components": {"accent": ["interior_decoration", "prop_crate"]}
+    },
+    {
+      "id": "small_props",
+      "count": 6,
+      "bases": ["prop_sign", "prop_bench", "prop_crate", "prop_planter", "prop_dock_bollard"],
+      "components": {"accent": ["flowers_field", "ground_fern", "rock_karst"]}
+    }
+  ]
+}
