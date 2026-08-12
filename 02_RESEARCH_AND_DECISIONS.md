@@ -681,3 +681,17 @@ targeting and Mega state remain authoritative. Battle HUD sprite/cell geometry
 also remains native; its neutral shared palette is themed while established
 HP/status palette indices are preserved. This produces material high-level
 control without a second battle controller or a one-off binary patch.
+
+### Stage 6F decision: theme native menu owners instead of replacing their controllers
+
+Party, summary, Bag, and the field start menu keep their native data, menu
+actions, touch/key input, and child-overlay transitions. Stage 6F compiles one
+semantic `adriatic_field_journal` theme across their five audited resource
+archives. High-level source names bindings, navigation contracts, visual roles,
+and palette intent; the compiler resolves native members and validates budgets.
+
+Runtime inspection corrected one Stage 6B detail: the start-menu BG uses
+common-UI palettes 7 and 14 in addition to 15, while member 61 serves OAM.
+Nintendo DS BG palette index zero may be opaque, so only sprite-heavy
+party/summary owners retain per-bank transparency preservation. This
+owner-aware rule replaced the rejected neon-green first pass.

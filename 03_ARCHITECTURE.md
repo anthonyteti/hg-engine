@@ -908,3 +908,17 @@ The adapter synchronizes authored palettes at audited screen lifecycle
 callbacks; battle semantics remain in HG-Engine. The shared OAM HUD retains
 its cell/animation architecture and consumes a project-authored neutral palette
 that preserves HP/status color indices.
+
+### Core-menu presentation adapter
+
+Stage 6F compiles `presentation/ui/screens/stage6f_core_menus.json` into a
+deterministic theme contract. It maps symbolic owners (`start_menu`, `party`,
+`summary`, `bag`) to five audited NARCs and applies owner-aware BGR555
+transformations to 48 palette members. Party HP/status and summary type colors
+retain semantic saturation; start/Bag chrome maps to teal/copper/paper. Native
+overlays continue to own Pokémon data, item use, tabs, launch, and cancellation.
+
+The proof packer temporarily replaces local extracted members, packs the
+ignored ROM, and restores every input byte in a `finally` boundary. Normal
+builds never run it. Canonical source/reports are tracked; ROMs, extracts,
+screenshots, and generated proof manifests remain local and ignored.

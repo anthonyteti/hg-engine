@@ -621,7 +621,11 @@ controller and audited target-screen resource.
 
 ### Stage 6F — Core Menu UI
 
-Prove party, Pokémon summary, Bag, and player/start-menu surfaces.
+**Status: passed.** Party, Pokémon summary, Bag, and the player/start menu share
+a deterministic Field Journal theme contract over their native resource
+owners. Live QA proves open, selection/context, summary page navigation, Bag
+pocket navigation, cancellation, and return to the controlled field without
+replacing established overlay state machines.
 
 ### Stage 6G — Remaining Game UI
 

@@ -611,6 +611,19 @@ stage6e-battle-ui-proof: stage6e-battle-ui-compile
 	$(MAKE) STAGE2_MAP=Y STAGE3E2_HEADER=Y STAGE5E_MEGA_PROOF=Y STAGE6E_BATTLE_UI_PROOF=Y
 	. .venv/bin/activate; python3 -m tools.pokeagent.battle_ui --proof-rom
 
+.PHONY: stage6f-core-menu-compile
+stage6f-core-menu-compile:
+	. .venv/bin/activate; python3 -m tools.pokeagent.core_menu_ui
+	. .venv/bin/activate; python3 -m unittest -v tests.test_pokeagent_stage6f_core_menus
+
+.PHONY: stage6f-core-menu-proof
+stage6f-core-menu-proof: stage6f-core-menu-compile
+	$(MAKE) -C tools/source/trainerdatagen clean
+	$(MAKE) clean
+	$(MAKE) STAGE2_MAP=Y STAGE3E2_HEADER=Y STAGE5B_RUNTIME_PROOF=Y STAGE5BC_RUNTIME_PROOF=Y
+	$(MAKE) -C tools/source/trainerdatagen clean
+	. .venv/bin/activate; python3 -m tools.pokeagent.core_menu_ui --proof-rom
+
 .PHONY: battle-test-save
 battle-test-save:
 	. .venv/bin/activate; python3 -m tools.pokeagent qa run \
