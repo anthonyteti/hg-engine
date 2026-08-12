@@ -11,6 +11,9 @@
 #include "constants/item.h"
 #include "constants/moves.h"
 #include "constants/species.h"
+#ifdef STAGE5E_MEGA_PROOF
+#include "stage5e_runtime.h"
+#endif
 
 #ifdef DEBUG_BATTLE_SCENARIOS
 #include "test_battle.h"
@@ -1109,6 +1112,10 @@ void BattleEndRevertFormChange(struct BattleSystem *bw)
     u16 form;
     u16 newItems[6] = {0, 0, 0, 0, 0, 0};
 
+#ifdef STAGE5E_MEGA_PROOF
+    Stage5E_RecordBattleEndBefore(bw);
+#endif
+
     newBS.SideMega[0] = 0;
     newBS.SideMega[1] = 0;
     newBS.SideMega[2] = 0;
@@ -1136,6 +1143,11 @@ void BattleEndRevertFormChange(struct BattleSystem *bw)
 
         RevertFormChange(pp, monsno, form);
     }
+
+#ifdef STAGE5E_MEGA_PROOF
+    Stage5E_RecordBattleEndAfter(bw,
+        !newBS.PlayerMegaed && !newBS.playerWantMega && !newBS.SideMega[0]);
+#endif
 
 #ifdef RESTORE_ITEMS_AT_BATTLE_END
     // grab newItems array for use later

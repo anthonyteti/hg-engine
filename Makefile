@@ -150,6 +150,10 @@ ifeq ($(STAGE5D_REGIONAL_FORM_PROOF),Y)
     CFLAGS += -DSTAGE5D_REGIONAL_FORM_PROOF -Werror
 endif
 
+ifeq ($(STAGE5E_MEGA_PROOF),Y)
+    CFLAGS += -DSTAGE5E_MEGA_PROOF -Werror
+endif
+
 ifeq ($(BATTLE_SAVE_PROVISION),Y)
     CFLAGS += -DBATTLE_SAVE_PROVISION -Werror
 endif
@@ -190,6 +194,10 @@ endif
 ifeq ($(STAGE5D_REGIONAL_FORM_PROOF),Y)
     WORLD_INSTALL_ARGS := --fixture fixtures/stage5d_hisuian_world.json --output build/stage5d/generated
     PROJECT_HEADER_FIXTURE := fixtures/stage5d_hisuian_world.json
+endif
+ifeq ($(STAGE5E_MEGA_PROOF),Y)
+    WORLD_INSTALL_ARGS := --fixture fixtures/stage5e_mega_world.json --output build/stage5e/generated
+    PROJECT_HEADER_FIXTURE := fixtures/stage5e_mega_world.json
 endif
 ifeq ($(STAGE4B_ASSET),Y)
     WORLD_INSTALL_ARGS := --fixture fixtures/stage4b_asset_world.json --output build/stage4b/generated
@@ -512,6 +520,11 @@ stage5c-evolution-proof:
 stage5d-regional-form-proof:
 	$(MAKE) clean
 	$(MAKE) STAGE2_MAP=Y STAGE3E2_HEADER=Y STAGE5D_REGIONAL_FORM_PROOF=Y
+
+.PHONY: stage5e-mega-proof
+stage5e-mega-proof:
+	$(MAKE) clean
+	$(MAKE) STAGE2_MAP=Y STAGE3E2_HEADER=Y STAGE5E_MEGA_PROOF=Y
 
 .PHONY: battle-test-save
 battle-test-save:

@@ -29,6 +29,9 @@
 #ifdef STAGE5D_REGIONAL_FORM_PROOF
 #include "stage5d_runtime.h"
 #endif
+#ifdef STAGE5E_MEGA_PROOF
+#include "stage5e_runtime.h"
+#endif
 
 extern u32 word_to_store_form_at;
 // [preevo] = {species, form}, [postevo] = {species, form},
@@ -68,6 +71,9 @@ BOOL LONG_CALL GetOtherFormPic(MON_PIC *picdata, u16 mons_no, u8 dir, u8 col, u8
 #ifdef STAGE5D_REGIONAL_FORM_PROOF
     if (ret)
         Stage5D_RecordPic(mons_no, form_no, dir, picdata->arc_no, picdata->index_chr, picdata->index_pal);
+#elif defined(STAGE5E_MEGA_PROOF)
+    if (ret)
+        Stage5E_RecordPic(mons_no, form_no, dir, picdata->arc_no, picdata->index_chr, picdata->index_pal);
 #endif
     return ret;
 }

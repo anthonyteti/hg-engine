@@ -501,6 +501,21 @@ representative line, not proof of all regional identities or form-Dex content.
 The next distinct representative mechanic is one existing Mega Evolution
 end-to-end (Stage 5E).
 
+### Stage 5E complete: representative Mega runtime
+
+The existing Altaria + Altarianite path activates through the native battle
+UI, resolves Mega Altaria identity 1108 with its types, ability, calculated
+stats, and back sprite, executes a move, and retains the one-use state for the
+battle. Ordinary battle completion restores species 334/form 0 before field
+and battery-save persistence; PID/item remain stable, and eligibility returns
+in a later battle.
+
+Do not add another representative mechanic proof automatically. Stage 5F is
+roster/content gap closure planning and implementation driven by the Stage 5A
+inventory and Stage 5B-E evidence. It must separate missing functionality,
+missing data/content, incomplete identities/forms, cosmetic/authenticity gaps,
+and unexecuted cases already covered by shared architecture.
+
 
 ## Stage 6: Art factory
 

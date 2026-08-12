@@ -14,6 +14,9 @@
 #include "constants/species.h"
 #include "constants/system_control.h"
 #include "overlay.h"
+#ifdef STAGE5E_MEGA_PROOF
+#include "stage5e_runtime.h"
+#endif
 
 static BOOL MegaEvolutionOrUltraBurst(struct BattleSystem *bsys, struct BattleStruct *ctx);
 
@@ -158,6 +161,9 @@ void __attribute__((section (".init"))) ServerBeforeActInternal(struct BattleSys
 
                     if (flag) {
                         newBS.needMega[client_no] = MEGA_NEED;
+#ifdef STAGE5E_MEGA_PROOF
+                        Stage5E_RecordMegaQueue(sp, client_no, newBS.SideMega[client_no]);
+#endif
                         // 應該沒需要在這裡處理
                         // sp->battlemon[client_no].form_no = GrabMegaTargetForm(sp->battlemon[client_no].species, sp->battlemon[client_no].item);
                         // BattleFormChange(client_no, sp->battlemon[client_no].form_no, bw, sp, FALSE);
@@ -433,6 +439,9 @@ static BOOL MegaEvolutionOrUltraBurst(struct BattleSystem *bsys, struct BattleSt
             ctx->battlemon[client_no].condition2 &= ~STATUS2_DESTINY_BOND;
 
             BattleFormChange(client_no, ctx->battlemon[client_no].form_no, bsys, ctx, TRUE);
+#ifdef STAGE5E_MEGA_PROOF
+            Stage5E_RecordMegaActive(ctx, client_no, newBS.PlayerMegaed, newBS.SideMega[client_no]);
+#endif
 
             newBS.needMega[client_no] = MEGA_CHECK_APPER;
             ctx->battlerIdTemp = client_no;

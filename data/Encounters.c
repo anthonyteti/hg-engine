@@ -14264,5 +14264,30 @@ const EncounterData __data[] =
             },
         },
     },
+#elif defined(STAGE5E_MEGA_PROOF)
+    /* Opt-in Stage 5E opponent. The ordinary encounter engine creates a
+     * low-level Magikarp so native player-side Mega interaction is safe and
+     * deterministic without constructing a battle from the proof hook. */
+    [ENCDATA_UNUSED_142] = {
+        .rateWalk = 100,
+        .landSlots = {
+            .levels = { 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5 },
+            .speciesMorning = {
+                SPECIES_MAGIKARP, SPECIES_MAGIKARP, SPECIES_MAGIKARP, SPECIES_MAGIKARP,
+                SPECIES_MAGIKARP, SPECIES_MAGIKARP, SPECIES_MAGIKARP, SPECIES_MAGIKARP,
+                SPECIES_MAGIKARP, SPECIES_MAGIKARP, SPECIES_MAGIKARP, SPECIES_MAGIKARP,
+            },
+            .speciesDay = {
+                SPECIES_MAGIKARP, SPECIES_MAGIKARP, SPECIES_MAGIKARP, SPECIES_MAGIKARP,
+                SPECIES_MAGIKARP, SPECIES_MAGIKARP, SPECIES_MAGIKARP, SPECIES_MAGIKARP,
+                SPECIES_MAGIKARP, SPECIES_MAGIKARP, SPECIES_MAGIKARP, SPECIES_MAGIKARP,
+            },
+            .speciesNight = {
+                SPECIES_MAGIKARP, SPECIES_MAGIKARP, SPECIES_MAGIKARP, SPECIES_MAGIKARP,
+                SPECIES_MAGIKARP, SPECIES_MAGIKARP, SPECIES_MAGIKARP, SPECIES_MAGIKARP,
+                SPECIES_MAGIKARP, SPECIES_MAGIKARP, SPECIES_MAGIKARP, SPECIES_MAGIKARP,
+            },
+        },
+    },
 #endif
 };

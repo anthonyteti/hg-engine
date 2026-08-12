@@ -85,6 +85,16 @@ class Stage5ARosterInventoryTests(unittest.TestCase):
             self.assertEqual(record["representative_regional_form_status"], "COMPLETE_EXECUTED")
             self.assertEqual(record["status"], "PARTIAL")
 
+    def test_representative_mega_annotation_is_battle_temporary(self) -> None:
+        proof = self.inventory["expanded_mega_runtime"]
+        self.assertEqual(proof["status"], "REPRESENTATIVE_PROVEN")
+        self.assertEqual(proof["representative_base"], "SPECIES_ALTARIA")
+        self.assertEqual(proof["representative_mega"], "SPECIES_MEGA_ALTARIA")
+        record = _record(self.inventory, proof["representative_mega"])
+        self.assertEqual(record["representative_mega_status"], "COMPLETE_EXECUTED")
+        self.assertEqual(record["kind"], "form")
+        self.assertFalse(record["capabilities"]["follower_mapping"])
+
     def test_storage_widths_cover_base_species_and_bound_forms(self) -> None:
         limits = self.inventory["limits"]
         self.assertLess(limits["highest_base_species_id"], 2 ** limits["wild_runtime_species_bits"])

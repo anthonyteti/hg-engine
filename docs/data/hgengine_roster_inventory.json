@@ -12,6 +12,14 @@
     ],
     "status": "REPRESENTATIVE_PROVEN"
   },
+  "expanded_mega_runtime": {
+    "representative_base": "SPECIES_ALTARIA",
+    "representative_mega": "SPECIES_MEGA_ALTARIA",
+    "required_item": "ITEM_ALTARIANITE:755",
+    "runtime_representation": "persistent base species 334 plus temporary battle form 1 resolving to adjusted identity 1108",
+    "scope": "native player activation, temporary Mega personal data/presentation, one-use battle state, battle-end reversion, and post-battle battery persistence for one executed Mega",
+    "status": "REPRESENTATIVE_PROVEN"
+  },
   "expanded_regional_form_runtime": {
     "evolved_target": "SPECIES_ZOROARK_HISUIAN",
     "representative": "SPECIES_ZORUA_HISUIAN",
@@ -81001,6 +81009,7 @@
       "generation": 3,
       "id": 1108,
       "kind": "form",
+      "representative_mega_status": "COMPLETE_EXECUTED",
       "species": "SPECIES_MEGA_ALTARIA",
       "status": "PARTIAL"
     },
@@ -107826,7 +107835,7 @@
     },
     "species": "SPECIES_VICTINI"
   },
-  "source_revision": "WORKTREE",
+  "source_revision": "0c366d4d8da77e25f93ba3cbdb4131343aa9f594",
   "summary": {
     "battle_back_count": 1475,
     "battle_front_count": 1475,

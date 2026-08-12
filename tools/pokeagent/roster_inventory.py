@@ -292,11 +292,14 @@ def build_inventory(root: Path = ROOT, revision: str | None = None) -> dict[str,
 
     evolution_proof_species = {"SPECIES_POPPLIO", "SPECIES_BRIONNE", "SPECIES_PRIMARINA"}
     regional_form_proof_species = {"SPECIES_ZORUA_HISUIAN", "SPECIES_ZOROARK_HISUIAN"}
+    mega_proof_species = {"SPECIES_MEGA_ALTARIA"}
     for record in records:
         if record["species"] in evolution_proof_species:
             record["representative_evolution_status"] = "COMPLETE_EXECUTED"
         if record["species"] in regional_form_proof_species:
             record["representative_regional_form_status"] = "COMPLETE_EXECUTED"
+        if record["species"] in mega_proof_species:
+            record["representative_mega_status"] = "COMPLETE_EXECUTED"
 
     status_counts = Counter(record["status"] for record in records)
     generation_rows = []
@@ -400,6 +403,14 @@ def build_inventory(root: Path = ROOT, revision: str | None = None) -> dict[str,
             "source_method": "EVO_LEVEL:30",
             "status": "REPRESENTATIVE_PROVEN",
             "scope": "regional personal data, icon/follower/battle presentation, wild form-bit decoding, lineage-preserving evolution, and party/box battery persistence for one executed Hisuian line",
+        },
+        "expanded_mega_runtime": {
+            "representative_base": "SPECIES_ALTARIA",
+            "representative_mega": "SPECIES_MEGA_ALTARIA",
+            "runtime_representation": "persistent base species 334 plus temporary battle form 1 resolving to adjusted identity 1108",
+            "required_item": "ITEM_ALTARIANITE:755",
+            "status": "REPRESENTATIVE_PROVEN",
+            "scope": "native player activation, temporary Mega personal data/presentation, one-use battle state, battle-end reversion, and post-battle battery persistence for one executed Mega",
         },
         "records": records,
     }

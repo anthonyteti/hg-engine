@@ -9,6 +9,9 @@
 #include "pokemon.h"
 #include "sprite.h"
 #include "types.h"
+#ifdef STAGE5E_MEGA_PROOF
+#include "stage5e_runtime.h"
+#endif
 
 // function declarations for this file
 void Sub_PokeIconResourceLoad(struct BI_PARAM *bip);
@@ -257,6 +260,9 @@ void Sub_PokeIconResourceFree(struct BI_PARAM *bip)
         } else {
             newBS.playerWantMega = FALSE;
         }
+#ifdef STAGE5E_MEGA_PROOF
+        Stage5E_RecordMegaTouch(bip, newBS.MegaIconLight, newBS.playerWantMega);
+#endif
         newBS.MegaIconLight = 0;
     }
 

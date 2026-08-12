@@ -13,6 +13,9 @@
 #include "overlay.h"
 #include "pokemon.h"
 #include "q412.h"
+#ifdef STAGE5E_MEGA_PROOF
+#include "stage5e_runtime.h"
+#endif
 #include "types.h"
 
 #include "../../include/trainer_data.h"
@@ -2948,6 +2951,10 @@ void LONG_CALL BattleController_MoveEnd(struct BattleSystem *bsys, struct Battle
     internalFunc = (void (*)(struct BattleSystem *bsys, struct BattleStruct *ctx))(offset);
     internalFunc(bsys, ctx);
     UnloadOverlayByID(ovyId);
+#ifdef STAGE5E_MEGA_PROOF
+    if (ctx->server_seq_no == CONTROLLER_COMMAND_8)
+        Stage5E_RecordMove(ctx);
+#endif
 }
 
 /**

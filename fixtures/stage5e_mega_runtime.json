@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "proof": "stage5e_mega_altaria",
+  "base": {
+    "species": "SPECIES_ALTARIA",
+    "id": 334,
+    "form": 0,
+    "types": [16, 2],
+    "ability": 30,
+    "base_stats": [75, 70, 90, 70, 105, 80]
+  },
+  "mega": {
+    "identity": "SPECIES_MEGA_ALTARIA",
+    "id": 1108,
+    "battle_form": 1,
+    "types": [16, 9],
+    "ability": 182,
+    "base_stats": [75, 110, 110, 110, 105, 80]
+  },
+  "eligibility": {
+    "held_item": "ITEM_ALTARIANITE",
+    "held_item_id": 755,
+    "feature_flag": 2518,
+    "native_activation": "fight-menu Mega touchscreen button"
+  },
+  "persistent_pokemon": {
+    "pid": 84803600,
+    "ot_id": 84806161,
+    "level": 50,
+    "iv": 31,
+    "moves": [541, 36, 588, 195]
+  },
+  "expected_stats": {
+    "base": {"hp": 150, "attack": 90, "defense": 110, "speed": 100, "sp_attack": 90, "sp_defense": 125},
+    "mega": {"hp": 150, "attack": 130, "defense": 130, "speed": 100, "sp_attack": 130, "sp_defense": 125}
+  },
+  "opponent": {"species": "SPECIES_MAGIKARP", "id": 129, "level": 5},
+  "invariants": [
+    "persistent species remains 334",
+    "battle form 1 resolves to adjusted identity 1108",
+    "battle-end reversion restores form 0",
+    "PID and Altarianite survive battle and battery save"
+  ]
+}

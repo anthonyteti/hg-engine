@@ -591,3 +591,20 @@ Treat this as representative regional architecture evidence only. Do not
 promote every regional record, infer form-specific Dex content, or enumerate
 unneeded generic evolution methods. The next distinct risk is one existing
 Mega Evolution end-to-end.
+
+## Stage 5E decision: Mega identity is temporary battle state
+
+Live Mega Altaria evidence confirms that the persistent Pokémon remains
+species 334/form 0. The native fight-menu request sets the existing per-battle
+Mega flags; battle form 1 resolves adjusted identity 1108 and its personal
+data/assets; `BattleEndRevertFormChange` clears the usage state and restores
+form 0 before field and save persistence. PID and Altarianite survive the
+transition and ordinary battery-save Continue.
+
+Treat this as representative proof of the existing player-side item-triggered
+Mega architecture, not per-Mega completion or normal persistent-form support.
+Do not schedule another representative mechanic proof automatically. Stage 5F
+should use the deterministic inventory plus Stage 5B-E runtime evidence to
+plan and implement actual roster/content gaps, distinguishing missing
+functionality from missing content, authenticity gaps, and merely unexecuted
+architecturally covered cases.

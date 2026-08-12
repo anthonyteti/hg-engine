@@ -8,6 +8,9 @@
 #include "constants/file.h"
 #include "constants/moves.h"
 #include "constants/species.h"
+#ifdef STAGE5E_MEGA_PROOF
+#include "stage5e_runtime.h"
+#endif
 
 struct MegaStruct
 {
@@ -686,10 +689,17 @@ BOOL CheckCanDrawMegaButton(struct BI_PARAM *bip)
         moves[i] = GetMonData(pp, MON_DATA_MOVE1+i, NULL);
 
     form_no = GetMonData(pp, MON_DATA_FORM, 0);
+#ifdef STAGE5E_MEGA_PROOF
+    Stage5E_RecordMegaCommandReturn(bip);
+#endif
     if (form_no || (bip->bw->sp->battlemon[bip->client_no].condition2 & STATUS2_TRANSFORM)) // can not draw mega button if form is nonzero.  only base form can mega evolve
         return FALSE;
 
-    return (CheckMegaData(mon, item) || CheckMegaMoveData(mon, moves));
+    BOOL result = CheckMegaData(mon, item) || CheckMegaMoveData(mon, moves);
+#ifdef STAGE5E_MEGA_PROOF
+    Stage5E_RecordEligibility(bip, result, newBS.CanMega, newBS.PlayerMegaed);
+#endif
+    return result;
 }
 
 BOOL CheckCanSpeciesMegaEvolveByMove(struct BattleStruct *sp, u32 client)

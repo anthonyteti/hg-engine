@@ -814,3 +814,22 @@ base species plus form 1; wild data packs the same pair; adjusted identities
 1335/1336 select form-specific data and assets; and evolution carries both
 target base species and target form. Temporary battle forms such as Mega
 Evolution remain outside this persistent regional-form contract.
+
+Stage 5E adds an opt-in observer around the existing temporary Mega path:
+
+```text
+ordinary persistent Altaria + Altarianite
+  -> native fight-menu request
+  -> existing SideMega / needMega state
+  -> battle form 1 / adjusted Mega identity
+  -> existing move and battle execution
+  -> BattleEndRevertFormChange
+  -> ordinary persistent Altaria
+```
+
+The observer records eligibility, queueing, transformed battle data, sprite
+resolution, completed move state, and pre/post reversion identity. It does not
+add a mapping or transformation rule. `STAGE5E_MEGA_PROOF` also owns the
+isolated world/opponent and is absent from normal builds. Mega forms remain
+battle-temporary identities and must not be treated as ordinary follower or
+save-level roster records.
