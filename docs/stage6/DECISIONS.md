@@ -38,3 +38,18 @@ labels use `CONFIRMED_SOURCE`, `CONFIRMED_RUNTIME`, `INFERRED`, or `PLANNED`.
 - Exact resource-member/coordinate recovery for the 11 MEDIUM-confidence
   surfaces is deferred to the adapter that consumes it; zero major surfaces
   remain unbounded `UNKNOWN`.
+
+## 2026-08-12 — First UI resource-factory boundary
+
+- Evidence: deterministic NCGR/NSCR/NCLR compilation and native start-menu ROM
+  render (`CONFIRMED_SOURCE`, `CONFIRMED_RUNTIME`).
+- Stage 6C uses symbolic bundle/component identities and keeps raw NARC member,
+  palette-slot, and BG ownership in the compiler adapter.
+- The first supported resource family is a native 4bpp BG character/screen/
+  palette triple. OAM and font compilation are added only when an authored
+  screen requires them.
+- Proof installation is temporary and restores the ignored retail-derived
+  archive byte-for-byte; normal builds never install the proof bundle.
+- Palette index zero is opaque in the audited start-menu BG mode. Presentation
+  source must design the surface intentionally rather than assume field-scene
+  transparency.

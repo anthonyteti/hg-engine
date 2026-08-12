@@ -574,6 +574,16 @@ stage6b-ui-audit:
 	. .venv/bin/activate; python3 -m tools.pokeagent.ui_audit
 	. .venv/bin/activate; python3 -m unittest -v tests.test_pokeagent_stage6b_ui_audit
 
+.PHONY: stage6c-ui-resources
+stage6c-ui-resources:
+	. .venv/bin/activate; python3 -m tools.pokeagent.ui_resources --catalog docs/data/stage6_ui_resources.json
+	. .venv/bin/activate; python3 -m unittest -v tests.test_pokeagent_stage6c_ui_resources
+
+.PHONY: stage6c-ui-resource-proof
+stage6c-ui-resource-proof:
+	$(MAKE) stage5bc-shared-runtime-proof
+	. .venv/bin/activate; python3 -m tools.pokeagent.ui_resources --proof-rom
+
 .PHONY: battle-test-save
 battle-test-save:
 	. .venv/bin/activate; python3 -m tools.pokeagent qa run \

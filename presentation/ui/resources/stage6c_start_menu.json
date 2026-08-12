@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "bundle_id": "ui.start_menu.adriatic_field_journal",
+  "target": {
+    "archive": "a/0/1/4",
+    "character_member": 12,
+    "screen_member": 13,
+    "palette_member": 15,
+    "palette_slot": 14,
+    "engine": "MAIN_BG3"
+  },
+  "sheet": {
+    "width": 256,
+    "height": 32,
+    "bit_depth": 4,
+    "transparency_index": 0,
+    "tile_count": 32
+  },
+  "palette": [
+    "#082630",
+    "#0D3641",
+    "#124854",
+    "#1B5C65",
+    "#277078",
+    "#3A8385",
+    "#6A9C91",
+    "#B5BA9D",
+    "#E8D9B9",
+    "#F3EAD2",
+    "#B9543E",
+    "#D97A50",
+    "#F0B36B",
+    "#7CC6BF",
+    "#DCE7DB",
+    "#FFFFFF"
+  ],
+  "components": [
+    {
+      "id": "ui.surface.field_window",
+      "tiles": [0],
+      "role": "transparent field-preservation window",
+      "pattern": "field_window"
+    },
+    {
+      "id": "ui.rail.lake_gradient",
+      "tiles": [1, 2, 3],
+      "role": "lower information transition",
+      "pattern": "tide_gradient"
+    },
+    {
+      "id": "ui.rail.paper_guide",
+      "tiles": [4, 5],
+      "role": "warm journal-paper guide band",
+      "pattern": "paper_guide"
+    },
+    {
+      "id": "ui.rail.copper_shore",
+      "tiles": [6, 7],
+      "role": "warm footer accent",
+      "pattern": "shore_accent"
+    }
+  ],
+  "layout": {
+    "width_tiles": 32,
+    "height_tiles": 24,
+    "row_tiles": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7]
+  },
+  "budgets": {
+    "max_palette_colors": 16,
+    "max_tiles": 32,
+    "max_character_bytes": 4096,
+    "max_screen_bytes": 2048,
+    "max_palette_bytes": 552
+  },
+  "status": "approved_stage6c_proof"
+}

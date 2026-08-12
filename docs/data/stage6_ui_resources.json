@@ -1,0 +1,55 @@
+{
+  "bundle_id": "ui.start_menu.adriatic_field_journal",
+  "components": [
+    "ui.surface.field_window",
+    "ui.rail.lake_gradient",
+    "ui.rail.paper_guide",
+    "ui.rail.copper_shore"
+  ],
+  "outputs": {
+    "character": {
+      "bytes": 580,
+      "path": "build/stage6c/ui_resources/start_menu_chrome.NCGR.lz",
+      "sha256": "b9d919a46fe3b98997ddd1089e7cfd3b3658a1d4ff88e8f274b8d593202494d0"
+    },
+    "palette": {
+      "bytes": 552,
+      "path": "build/stage6c/ui_resources/start_menu_chrome.NCLR",
+      "sha256": "916053771127a14a0fd30173acae742576fa77286bfef574912657776d4f556c"
+    },
+    "preview": {
+      "bytes": 934,
+      "path": "build/stage6c/ui_resources/start_menu_chrome.png",
+      "sha256": "1e86182f1e987b859e84b73b71db277e36ff41d10ff5d859da557b175a88f09f"
+    },
+    "screen": {
+      "bytes": 240,
+      "path": "build/stage6c/ui_resources/start_menu_chrome.NSCR.lz",
+      "sha256": "f20772154d3ccd93d664062e09b884fc6914b75c50546e30b616786cd0b074fc"
+    },
+    "tilemap_source": {
+      "bytes": 10159,
+      "path": "build/stage6c/ui_resources/start_menu_chrome.tilemap.json",
+      "sha256": "5be39c059409d1285db842ca2dea26b3dbfa5aa2c30162fe19252b1bed849449"
+    }
+  },
+  "schema_version": 1,
+  "source": "presentation/ui/resources/stage6c_start_menu.json",
+  "source_sha256": "459f577a305573e9007b6f806d9d49a119011e0b0d0e75cb80c3f7c6a74fabcc",
+  "target": {
+    "archive": "a/0/1/4",
+    "character_member": 12,
+    "engine": "MAIN_BG3",
+    "palette_member": 15,
+    "palette_slot": 14,
+    "screen_member": 13
+  },
+  "validation": {
+    "archive_members_unique": "PASS",
+    "deterministic": "REQUIRES_TWO_ROOT_COMPARISON",
+    "native_dimensions": "PASS",
+    "palette_budget": "PASS",
+    "palette_depth": "PASS",
+    "tile_budget": "PASS"
+  }
+}

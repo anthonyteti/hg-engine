@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "stage": "6C",
+  "scenario": "stage6c_ui_resource_runtime",
+  "result": "PASS",
+  "qa_plan_sha256": "5726f96befe77d8267a3cdfb9d703a2bafb1f6b160e735e6e80d3e7bae7332c8",
+  "proof_rom_sha256": "d1f4312024c185836f47d23e790e381a05dc3c477de262d3e0ed762d304ef535",
+  "normal_rom_sha256": "2522ab4fffef423e63efad9b5b1e7600767e71ad929540101d166dbba9409ad7",
+  "screenshot": {
+    "name": "stage6c_project_ui_chrome",
+    "sha256": "402c5d5368aefae2f8557230e3ef6a3b5e95ae0f515be327f001d2347655d74c",
+    "tracked": false
+  },
+  "resource_outputs": {
+    "preview_sha256": "1e86182f1e987b859e84b73b71db277e36ff41d10ff5d859da557b175a88f09f",
+    "character_sha256": "b9d919a46fe3b98997ddd1089e7cfd3b3658a1d4ff88e8f274b8d593202494d0",
+    "screen_sha256": "f20772154d3ccd93d664062e09b884fc6914b75c50546e30b616786cd0b074fc",
+    "palette_sha256": "916053771127a14a0fd30173acae742576fa77286bfef574912657776d4f556c"
+  },
+  "deterministic_two_root": true,
+  "retail_archive_restored": true,
+  "normal_build_isolated": true,
+  "deepseek_cost_usd": 0
+}
