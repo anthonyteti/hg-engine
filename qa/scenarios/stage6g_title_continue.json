@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "id": "stage6g_title_continue",
+  "fixture": "fixtures/stage5bc_victini_shared_world.json",
+  "build_target": "stage6g-title-proof",
+  "entry": {"mode": "new_game_controlled"},
+  "steps": [
+    {"assert": "map_id", "value": 540},
+    {"action": "move", "direction": "east", "tiles": 1},
+    {"action": "press", "button": "right", "after_frames": 60},
+    {"action": "interact"},
+    {"assert": "marker", "symbol": "gStage3E1ProofDialogueMarker", "value": 45},
+    {"action": "press", "button": "a", "after_frames": 600},
+    {"action": "wait", "frames": 2400},
+    {"assert": "map_id", "value": 540},
+    {"action": "reset"},
+    {"action": "wait", "frames": 1800},
+    {"action": "capture", "name": "stage6g_intro"},
+    {"action": "press", "button": "a", "after_frames": 600},
+    {"action": "capture", "name": "stage6g_title"},
+    {"action": "press", "button": "a", "after_frames": 600},
+    {"action": "capture", "name": "stage6g_continue"},
+    {"assert": "screenshot_valid", "name": "stage6g_title"},
+    {"assert": "screenshot_valid", "name": "stage6g_continue"},
+    {"assert": "rom_running", "value": true}
+  ]
+}

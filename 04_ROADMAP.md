@@ -629,9 +629,11 @@ replacing established overlay state machines.
 
 ### Stage 6G — Remaining Game UI
 
-Expand to PC, Pokédex, shops, save/options, Town Map, title/Continue,
-dialogue, naming, capture/evolution, and remaining important screens. The end
-state is full high-level LLM authorship, not a global reskin.
+**Status: passed.** All 25 remaining audited surfaces have an explicit control
+classification. Nine resource owners compile deterministically; native runtime
+proofs cover title/battery Continue, National Dex #1025, PC storage/icon,
+shop, and dialogue. Native state machines remain authoritative where replacing
+them would add risk without improving Stage 7 authorship. Proceed to Stage 6H.
 
 ### Stage 6H — UI Automated QA
 

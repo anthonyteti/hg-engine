@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "theme": "adriatic_field_journal",
+  "bundle_id": "ui.remaining_game.adriatic_field_journal",
+  "palette_transform": {
+    "neutral_ink": "#071F29",
+    "neutral_paper": "#F5EBD2",
+    "accent_copper": "#C46D3A",
+    "blue_target_hue_degrees": 184,
+    "preserve_bank_transparency": true,
+    "preserve_semantic_saturation_above": 0.58
+  },
+  "resource_owners": [
+    {"id": "global_windows", "archive": "a/0/1/4", "palette_members": [7, 14, 15, 61], "transform_mode": "chrome"},
+    {"id": "title", "archive": "a/0/4/6", "palette_members": [2, 4, 9, 10, 13, 14, 16], "transform_mode": "chrome"},
+    {"id": "main_menu", "archive": "a/1/1/3", "palette_members": [0, 3, 7, 11, 15, 16, 20, 23, 27, 33, 36, 40, 44, 49], "transform_mode": "chrome"},
+    {"id": "pokedex", "archive": "a/0/6/8", "palette_members": [2, 15, 18, 32, 35, 56, 75, 108, 110, 118, 122], "transform_mode": "semantic"},
+    {"id": "pc", "archive": "a/1/6/5", "palette_members": [0], "transform_mode": "semantic"},
+    {"id": "naming", "archive": "a/0/3/1", "palette_members": [0, 1], "transform_mode": "chrome"},
+    {"id": "options", "archive": "a/0/7/2", "palette_members": [0, 1, 2, 3], "transform_mode": "chrome"},
+    {"id": "pokegear_shell", "archive": "a/1/4/3", "palette_members": [0, 1, 2, 3, 4, 5, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35], "transform_mode": "chrome"},
+    {"id": "town_map", "archive": "a/1/4/4", "palette_members": [0, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 62, 63], "transform_mode": "semantic"}
+  ],
+  "coverage": [
+    {"id": "capture", "control": "RESOURCE_THEME_ONLY", "owner": "battle", "evidence": ["STAGE_6E_BATTLE_UI", "native_capture_flow"]},
+    {"id": "continue", "control": "PARTIAL_HIGH_LEVEL_CONTROL", "owner": "main_menu", "evidence": ["main_menu_palette_bundle", "native_save_router"]},
+    {"id": "dialogue", "control": "PARTIAL_HIGH_LEVEL_CONTROL", "owner": "global_windows", "evidence": ["STAGE_6D_WINDOW_TEXT_MODAL", "native_control_codes"]},
+    {"id": "evolution", "control": "RESOURCE_THEME_ONLY", "owner": "evolution", "evidence": ["STAGE_6F_SUMMARY_THEME", "STAGE_5C_NATIVE_EVOLUTION"]},
+    {"id": "generic_list", "control": "PARTIAL_HIGH_LEVEL_CONTROL", "owner": "global_windows", "evidence": ["STAGE_6D_LIST_NAVIGATION"]},
+    {"id": "item_use", "control": "RESOURCE_THEME_ONLY", "owner": "party", "evidence": ["STAGE_6F_PARTY_THEME", "native_item_mode"]},
+    {"id": "map_name", "control": "PARTIAL_HIGH_LEVEL_CONTROL", "owner": "field_shell", "evidence": ["STAGE_6D_TEXT_WINDOW"]},
+    {"id": "move_learning", "control": "RESOURCE_THEME_ONLY", "owner": "summary", "evidence": ["STAGE_6F_SUMMARY_THEME", "STAGE_5C_MOVE_LEARNING"]},
+    {"id": "naming", "control": "PARTIAL_HIGH_LEVEL_CONTROL", "owner": "naming", "evidence": ["naming_palette_bundle", "native_keymap"]},
+    {"id": "new_game", "control": "PARTIAL_HIGH_LEVEL_CONTROL", "owner": "main_menu", "evidence": ["main_menu_palette_bundle", "native_boot_router"]},
+    {"id": "options", "control": "PARTIAL_HIGH_LEVEL_CONTROL", "owner": "options", "evidence": ["options_palette_bundle", "native_option_state"]},
+    {"id": "pc_boot", "control": "PARTIAL_HIGH_LEVEL_CONTROL", "owner": "global_windows", "evidence": ["STAGE_6D_MODAL", "native_pc_launch"]},
+    {"id": "pc_storage", "control": "PARTIAL_HIGH_LEVEL_CONTROL", "owner": "pc", "evidence": ["pc_palette_bundle", "STAGE_5B_STORAGE_RUNTIME"]},
+    {"id": "pokedex_entry", "control": "PARTIAL_HIGH_LEVEL_CONTROL", "owner": "pokedex", "evidence": ["pokedex_palette_bundle", "STAGE_5F_EXPANDED_DEX"]},
+    {"id": "pokedex_list", "control": "PARTIAL_HIGH_LEVEL_CONTROL", "owner": "pokedex", "evidence": ["pokedex_palette_bundle", "STAGE_5F_DEX_INDEX"]},
+    {"id": "pokegear_shell", "control": "PARTIAL_HIGH_LEVEL_CONTROL", "owner": "pokegear_shell", "evidence": ["pokegear_palette_bundle", "native_app_router"]},
+    {"id": "save_data_warning", "control": "PARTIAL_HIGH_LEVEL_CONTROL", "owner": "main_menu", "evidence": ["main_menu_palette_bundle", "STAGE_6D_MODAL"]},
+    {"id": "save_progress", "control": "PARTIAL_HIGH_LEVEL_CONTROL", "owner": "global_windows", "evidence": ["STAGE_6D_MODAL", "STAGE_4A_BATTERY_SAVE"]},
+    {"id": "save_prompt", "control": "PARTIAL_HIGH_LEVEL_CONTROL", "owner": "global_windows", "evidence": ["STAGE_6D_MODAL", "STAGE_4A_BATTERY_SAVE"]},
+    {"id": "shop_buy", "control": "PARTIAL_HIGH_LEVEL_CONTROL", "owner": "global_windows", "evidence": ["STAGE_6D_LIST_NAVIGATION", "native_mart_transaction"]},
+    {"id": "shop_sell", "control": "PARTIAL_HIGH_LEVEL_CONTROL", "owner": "global_windows", "evidence": ["STAGE_6D_LIST_NAVIGATION", "native_mart_transaction"]},
+    {"id": "title", "control": "PARTIAL_HIGH_LEVEL_CONTROL", "owner": "title", "evidence": ["title_palette_bundle", "native_title_state_machine"]},
+    {"id": "town_map", "control": "PARTIAL_HIGH_LEVEL_CONTROL", "owner": "town_map", "evidence": ["town_map_palette_bundle", "native_map_state"]},
+    {"id": "trainer_card", "control": "PARTIAL_HIGH_LEVEL_CONTROL", "owner": "trainer_card", "evidence": ["STAGE_6D_WINDOW_TEXT", "native_signature_engine"]},
+    {"id": "yes_no_prompt", "control": "PARTIAL_HIGH_LEVEL_CONTROL", "owner": "global_windows", "evidence": ["STAGE_6D_MODAL_NAVIGATION"]}
+  ],
+  "budgets": {"surface_count": 25, "resource_owner_count": 9, "archive_count": 9, "palette_member_count": 76, "max_palette_bytes": 600}
+}

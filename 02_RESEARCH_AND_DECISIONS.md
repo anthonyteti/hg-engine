@@ -695,3 +695,15 @@ common-UI palettes 7 and 14 in addition to 15, while member 61 serves OAM.
 Nintendo DS BG palette index zero may be opaque, so only sprite-heavy
 party/summary owners retain per-bank transparency preservation. This
 owner-aware rule replaced the rejected neon-green first pass.
+
+### Stage 6G decision: classify control honestly and preserve native state machines
+
+All 25 remaining audited surfaces have an explicit production-control class:
+21 use partial high-level control and four native animation/mode surfaces use
+resource-theme-only control. Nine native archives compile from one semantic
+source. Boot, battery save, PC, Dex indexing, shop transactions, naming,
+capture, and evolution remain native rather than being reimplemented.
+
+Runtime proofs preserve battery Continue, National Dex #1025, PC form storage,
+dialogue, and shop navigation. This is the reusable production boundary; it is
+not described as full controller replacement.

@@ -624,6 +624,31 @@ stage6f-core-menu-proof: stage6f-core-menu-compile
 	$(MAKE) -C tools/source/trainerdatagen clean
 	. .venv/bin/activate; python3 -m tools.pokeagent.core_menu_ui --proof-rom
 
+.PHONY: stage6g-remaining-ui-compile
+stage6g-remaining-ui-compile:
+	. .venv/bin/activate; python3 -m tools.pokeagent.remaining_ui
+	. .venv/bin/activate; python3 -m unittest -v tests.test_pokeagent_stage6g_remaining_ui
+
+.PHONY: stage6g-dex-proof
+stage6g-dex-proof: stage6g-remaining-ui-compile
+	$(MAKE) stage5fs-dex-boundary-proof
+	. .venv/bin/activate; python3 -m tools.pokeagent.remaining_ui --proof-rom
+
+.PHONY: stage6g-pc-proof
+stage6g-pc-proof: stage6g-remaining-ui-compile
+	$(MAKE) stage5bc-shared-runtime-proof
+	. .venv/bin/activate; python3 -m tools.pokeagent.remaining_ui --proof-rom
+
+.PHONY: stage6g-shop-proof
+stage6g-shop-proof: stage6g-remaining-ui-compile
+	$(MAKE) stage6b-ui-reference
+	. .venv/bin/activate; python3 -m tools.pokeagent.remaining_ui --proof-rom
+
+.PHONY: stage6g-title-proof
+stage6g-title-proof: stage6g-remaining-ui-compile
+	$(MAKE) stage5b-runtime-proof
+	. .venv/bin/activate; python3 -m tools.pokeagent.remaining_ui --proof-rom
+
 .PHONY: battle-test-save
 battle-test-save:
 	. .venv/bin/activate; python3 -m tools.pokeagent qa run \

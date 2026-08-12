@@ -922,3 +922,11 @@ The proof packer temporarily replaces local extracted members, packs the
 ignored ROM, and restores every input byte in a `finally` boundary. Normal
 builds never run it. Canonical source/reports are tracked; ROMs, extracts,
 screenshots, and generated proof manifests remain local and ignored.
+
+### Remaining-game UI adapter
+
+Stage 6G validates `presentation/ui/screens/stage6g_remaining_ui.json` against
+the Stage 6B registry and compiles nine native resource owners. Visual assets,
+semantic bindings, and navigation contracts are project-owned. Native HG-
+Engine retains boot/save/storage/Dex/transaction/capture/evolution/naming
+state. Proof-ROM packing restores all source archives and is opt-in only.
